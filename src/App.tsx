@@ -4,6 +4,7 @@ import { NutDen } from './components/Nut'
 import { Home } from './screens/Home'
 import { HuongDan } from './screens/HuongDan'
 import { TaoBai } from './screens/TaoBai'
+import { DapAnScr } from './screens/DapAn'
 
 const docHash = () => (typeof location === 'undefined' ? '#/' : location.hash || '#/')
 
@@ -48,7 +49,11 @@ export function App() {
   if (ten === 'huong-dan') return <HuongDan />
   if (ten === 'tao') return <TaoBai />
   if (ten === 'sua') return <TaoBai id={id ?? undefined} />
-  if (ten === 'bai') return <SapCo ten="Bài chấm" />
+  if (ten === 'bai' && id) {
+    const p2 = h.split('?')[0].split('/').filter(Boolean)[2]
+    if (p2 === 'dap-an') return <DapAnScr id={id} />
+    return <SapCo ten="Bài chấm" />
+  }
   if (ten === 'cham') return <SapCo ten="Chấm phiếu" />
   if (ten === 'ket-qua') return <SapCo ten="Kết quả" />
   if (ten === 'tron-de') return <SapCo ten="Trộn đề Word" />
