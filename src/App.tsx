@@ -1,22 +1,57 @@
 import { useEffect, useState } from 'react'
+import { ManHinh } from './components/ManHinh'
+import { NutDen } from './components/Nut'
+import { Home } from './screens/Home'
+import { HuongDan } from './screens/HuongDan'
 
-// Router hash tối thiểu — các màn thật gắn dần ở các task sau
+const docHash = () => (typeof location === 'undefined' ? '#/' : location.hash || '#/')
+
 export function useHash(): string {
-  const [h, setH] = useState(() => location.hash || '#/')
+  const [h, setH] = useState(docHash)
   useEffect(() => {
-    const f = () => setH(location.hash || '#/')
+    const f = () => setH(docHash())
     addEventListener('hashchange', f)
     return () => removeEventListener('hashchange', f)
   }, [])
   return h
 }
 
+/** Phân tích route: { ten, id } — ví dụ #/bai/abc → { ten:'bai', id:'abc' } */
+export function tachRoute(h: string): { ten: string; id: string | null } {
+  const p = (h.replace(/^#\/?/, '') || '').split('?')[0].split('/').filter(Boolean)
+  return { ten: p[0] ?? '', id: p[1] ?? null }
+}
+
+function SapCo({ ten }: { ten: string }) {
+  return (
+    <ManHinh dau={
+      <header className="mh-dau">
+        <img src="/logo365.svg" alt="" width="34" height="34" />
+        <h1>{ten}</h1>
+      </header>
+    }>
+      <div className="giua khoi">
+        <div style={{ fontSize: 44 }}>🚧</div>
+        <p className="mo">Màn hình này đang được xây dựng.</p>
+        <NutDen to="#/" kieu="nhat">Về trang chủ</NutDen>
+      </div>
+    </ManHinh>
+  )
+}
+
 export function App() {
   const h = useHash()
-  return (
-    <div className="app">
-      <h1>Chamthi365</h1>
-      <p>Route: {h}</p>
-    </div>
-  )
+  const { ten, id } = tachRoute(h)
+
+  if (ten === '' || ten === 'home') return <Home />
+  if (ten === 'huong-dan') return <HuongDan />
+  if (ten === 'tao') return <SapCo ten="Tạo bài chấm" />
+  if (ten === 'bai') return <SapCo ten="Bài chấm" />
+  if (ten === 'cham') return <SapCo ten="Chấm phiếu" />
+  if (ten === 'ket-qua') return <SapCo ten="Kết quả" />
+  if (ten === 'tron-de') return <SapCo ten="Trộn đề Word" />
+  if (ten === 'in-phieu') return <SapCo ten="Thư viện mẫu phiếu" />
+  if (ten === 'danh-sach') return <SapCo ten="Danh sách học sinh" />
+  if (ten === 'tai-khoan') return <SapCo ten="Tài khoản" />
+  return <SapCo ten="Không thấy trang" />
 }
