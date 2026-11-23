@@ -78,7 +78,7 @@ export type OCham = {
   i?: number
   x: number; y: number; r?: number
   to: boolean
-  trangThai: 'dung' | 'sai' | 'mo' | 'xam' | 'tay' | 'trung'
+  trangThai: 'dung' | 'sai' | 'mo' | 'xam' | 'tay' | 'trung' | 'trong'
 }
 
 export type KqCham = {
