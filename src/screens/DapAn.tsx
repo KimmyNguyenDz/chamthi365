@@ -1,10 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Dau, ManHinh } from '../components/ManHinh'
 import { Nut, NutDen } from '../components/Nut'
 import { The, Muc } from '../components/The'
 import { NhapDapAn } from '../components/NhapDapAn'
+import { MaQR } from '../components/MaQR'
+import { QuetQR } from '../components/QuetQR'
 import { layBai, luuBai } from '../lib/db'
 import { docDapAnChuoi, docDapAnExcel, vietDapAnExcelBytes } from '../lib/excel'
+import { docPayloadDapAn, ghepDapAn, payloadDapAn } from '../lib/qr'
 import type { Bai, DapAn } from '../types'
 
 function taiTep(bytes: Uint8Array, ten: string) {
@@ -20,6 +23,36 @@ export function DapAnScr({ id }: { id: string }) {
   const [dan, setDan] = useState('')
   const [loi, setLoi] = useState('')
   const [khong, setKhong] = useState(false)
+  const [hienQR, setHienQR] = useState(false)
+  const [quetQR, setQuetQR] = useState(false)
+  const [iQR, setIQR] = useState(0)
+  const cacPhan = useRef(new Map<number, NonNullable<ReturnType<typeof docPayloadDapAn>>['goi']>())
+
+  // Slideshow QR đáp án: nhảy phần mỗi 1.4s để máy khác quét được hết
+  const parts = useMemo(() => (hienQR && bai ? payloadDapAn(bai) : []), [hienQR, bai])
+  useEffect(() => {
+    if (!hienQR || parts.length < 2) return
+    const t = setInterval(() => setIQR(i => (i + 1) % parts.length), 1400)
+    return () => clearInterval(t)
+  }, [hienQR, parts.length])
+
+  const khiQuetQR = (t: string) => {
+    const d = docPayloadDapAn(t)
+    if (!d) { setLoi('QR này không phải QR đáp án Chamthi365'); setQuetQR(false); return }
+    cacPhan.current.set(d.i, d.goi)
+    if (cacPhan.current.size >= d.n) {
+      const g = ghepDapAn(cacPhan.current)
+      if (g && bai) {
+        const map = new Map(bai.dapAn.map(x => [x.ma, x]))
+        for (const x of g.dapAn) map.set(x.ma, x)
+        const ds = [...map.values()]
+        setBai({ ...bai, dapAn: ds }); setChon(ds[0]?.ma ?? null); setLoi('')
+      }
+      setQuetQR(false); cacPhan.current.clear()
+    } else {
+      setLoi(`Đã quét phần ${cacPhan.current.size}/${d.n} — quét tiếp QR khác`)
+    }
+  }
 
   useEffect(() => {
     layBai(id).then(b => {
@@ -97,6 +130,8 @@ export function DapAnScr({ id }: { id: string }) {
             <input type="file" accept=".xlsx,.xls" hidden onChange={e => { const f = e.target.files?.[0]; if (f) napExcel(f); e.target.value = '' }} />
           </label>
           <Nut kieu="nhat" nho onClick={() => taiTep(vietDapAnExcelBytes(bai, true), `${bai.ten || 'bai'} - dap-an.xlsx`)}>Tải Excel mẫu</Nut>
+          <Nut kieu="nhat" nho onClick={() => { setIQR(0); setHienQR(true) }} disabled={!bai.dapAn.length}>Mã QR</Nut>
+          <Nut kieu="nhat" nho onClick={() => { cacPhan.current.clear(); setQuetQR(true) }}>Quét QR nạp</Nut>
         </div>
         {loi && <p style={{ color: 'var(--red-d)', marginBottom: 0 }}>{loi}</p>}
         {trung.map(([a, c]) => <p key={a + c} style={{ color: 'var(--orange-d)', marginBottom: 0 }}>⚠ Mã {a} và {c} giống hệt Phần I — kiểm tra lại có nhập nhầm không.</p>)}
@@ -124,6 +159,29 @@ export function DapAnScr({ id }: { id: string }) {
         <NutDen to={`#/bai/${bai.id}`} kieu="nhat">Hủy</NutDen>
         <Nut kieu="xanh" style={{ flex: 1 }} onClick={luu}>Lưu đáp án</Nut>
       </div>
+
+      {hienQR && parts.length > 0 && (
+        <div className="nen-phu" onClick={() => setHienQR(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ maxWidth: 460, width: '100%' }}>
+            <The className="khoi">
+              <h2>Đáp án QR — phần {iQR + 1}/{parts.length}</h2>
+              <div className="giua"><MaQR text={parts[iQR]} size={280} /></div>
+              <p className="mo">Mở Chamthi365 trên máy khác → “Quét QR nạp” → quét hết {parts.length} mã.</p>
+              <Nut kieu="nhat" onClick={() => setHienQR(false)}>Đóng</Nut>
+            </The>
+          </div>
+        </div>
+      )}
+      {quetQR && (
+        <div className="nen-phu" onClick={() => setQuetQR(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ maxWidth: 460, width: '100%' }}>
+            <The className="khoi">
+              <h2>Quét QR đáp án</h2>
+              <QuetQR onKq={khiQuetQR} onDong={() => setQuetQR(false)} />
+            </The>
+          </div>
+        </div>
+      )}
     </ManHinh>
   )
 }

@@ -1,17 +1,20 @@
 import type { MauPhieu, Khuon } from '../types'
+import { dsMauQR, khuonQR } from './phieu-qr/render'
 
 const VU = '/thu-vien/'
 let _ml: Promise<MauPhieu[]> | null = null
 const _khuon = new Map<string, Promise<Khuon>>()
 
-/** Mục lục toàn bộ mẫu phiếu (cache sau lần tải đầu) */
+/** Mục lục toàn bộ mẫu phiếu + mẫu QR Chamthi365 (cache sau lần tải đầu) */
 export function mucLuc(): Promise<MauPhieu[]> {
   return (_ml ??= fetch(VU + 'muc-luc.json')
     .then(r => r.json())
-    .then(j => j.phieu as MauPhieu[]))
+    .then(j => [...(j.phieu as MauPhieu[]), ...dsMauQR()]))
 }
 
 export function khuon(id: string): Promise<Khuon> {
+  const kq = khuonQR(id)
+  if (kq) return Promise.resolve(kq)
   let k = _khuon.get(id)
   if (!k) {
     k = fetch(`${VU}khuon/${id}.json`).then(r => {

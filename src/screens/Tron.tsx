@@ -7,6 +7,7 @@ import { parseDe, type De } from '../lib/tron/parse'
 import { tronDe } from '../lib/tron/tron'
 import { dongGoiZip, vietDapAnDocx, vietDocx } from '../lib/tron/write'
 import { vietDapAnExcelBytes } from '../lib/excel'
+import { payloadDapAn, sinhQR } from '../lib/qr'
 import { luuBai } from '../lib/db'
 import { mucLuc } from '../lib/thuvien'
 import { diemMau } from '../lib/diem'
@@ -57,6 +58,12 @@ export function Tron() {
       // excel đáp án nạp thẳng vào bài chấm
       const baiGia = { ten, diem: { soCau: soCauDe(de) }, dapAn } as unknown as Bai
       teps.push({ ten: 'dap-an-nap-app.xlsx', duLieu: vietDapAnExcelBytes(baiGia) })
+      // QR đáp án (nhiều phần nếu dài) — quét nạp thẳng vào app
+      const parts = payloadDapAn(baiGia)
+      for (const [i, p] of parts.entries()) {
+        const b64 = (await sinhQR(p)).split(',')[1]
+        teps.push({ ten: `qr-dap-an-${String(i + 1).padStart(2, '0')}.png`, duLieu: Uint8Array.from(atob(b64), c => c.charCodeAt(0)) })
+      }
       await taiBlob(await dongGoiZip(teps), `${ten || 'de'}-tron.zip`)
       setKetQua({ ma: maList })
     } catch (e) { setLoi(String((e as Error)?.message ?? e)) } finally { setDangChay(false) }

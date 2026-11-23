@@ -1,5 +1,6 @@
 import { chamAnh, nanAnh, LoiCham } from '../lib/omr'
 import { omrKqToKq } from '../lib/docKq'
+import { docPayloadPhieu, docQRVung } from '../lib/qr'
 import type { Khuon, DocCham, CanXem, OCham } from '../types'
 
 export type TinVao = {
@@ -42,9 +43,17 @@ export async function xuLyTin(data: TinVao): Promise<TinRa> {
     const kq = chamAnh({ w, h, d }, khuon)
     const { chieu, chatLuong } = kq
     const doc = omrKqToKq(kq)
+    const nan = (khuon.qr || (luu && typeof OffscreenCanvas !== 'undefined')) ? nanAnh(d, w, h, khuon, chieu) : null
+    if (khuon.qr && nan) {
+      const txt = docQRVung({ w: nan.w, h: nan.h, d: nan.d }, khuon.qr, 2)
+      const p = txt ? docPayloadPhieu(txt) : null
+      if (p?.ma) { doc.doc.ma = p.ma; doc.doc.maNguon = 'qr' }
+      if (p?.sbd) { doc.doc.sbd = p.sbd; doc.doc.sbdNguon = 'qr' }
+      if (!doc.doc.ma || doc.doc.ma.includes('?')) doc.can.push({ loai: 'ma', phan: 'ma' })
+      if (!doc.doc.sbd || doc.doc.sbd.includes('?')) doc.can.push({ loai: 'sbd', phan: 'sbd' })
+    }
     let anh: Blob | null = null
-    if (luu && typeof OffscreenCanvas !== 'undefined') {
-      const nan = nanAnh(d, w, h, khuon, chieu)
+    if (luu && nan && typeof OffscreenCanvas !== 'undefined') {
       const cv = new OffscreenCanvas(nan.w, nan.h)
       cv.getContext('2d')!.putImageData(new ImageData(new Uint8ClampedArray(nan.d), nan.w, nan.h), 0, 0)
       const bl = await cv.convertToBlob({ type: 'image/webp', quality: .72 })

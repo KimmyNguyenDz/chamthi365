@@ -52,6 +52,8 @@ img { max-width: 100%; }
 }
 .the-pang { padding: 12px 14px; }
 .khoi { margin: 14px 0; }
+.nen-phu { position: fixed; inset: 0; z-index: 80; background: #000a; display: flex; align-items: center; justify-content: center; padding: 14px; }
+.nen-phu > * { max-width: 460px; width: 100%; }
 .muc h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); margin: 18px 4px 8px; }
 
 /* ---------- màn hình + tab ---------- */
