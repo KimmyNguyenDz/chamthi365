@@ -14,6 +14,8 @@ import { HocSinhScr } from './screens/HocSinh'
 import { Tron } from './screens/Tron'
 import { InPhieu } from './screens/InPhieu'
 import { TaiKhoan } from './screens/TaiKhoan'
+import { BaiMau } from './screens/BaiMau'
+import { DanhSach } from './screens/DanhSach'
 import { khoiDongSync } from './lib/sync'
 import { coSupabase } from './lib/supabase'
 
@@ -74,6 +76,8 @@ export function App() {
   if (ten === 'in-phieu') return <InPhieu />
   if (ten === 'danh-sach') return <SapCo ten="Danh sách học sinh" />
   if (ten === 'tai-khoan') return <TaiKhoan />
+  if (ten === 'bai-mau') return <BaiMau />
+  if (ten === 'danh-sach') return <DanhSach />
   return <SapCo ten="Không thấy trang" />
 }
 

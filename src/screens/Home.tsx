@@ -6,6 +6,7 @@ import { dsBai, dsPhieu, luuBai, dangKyThayDoi } from '../lib/db'
 import { chamPhieu, dinhDangDiem, diemMau } from '../lib/diem'
 import type { Bai, Phieu } from '../types'
 import { useDaXemHd } from './HuongDan'
+import { CaiApp } from '../components/CaiApp'
 
 const THU = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy']
 
@@ -157,8 +158,10 @@ export function Home() {
         <NutDen to="#/tron-de" kieu="tim" style={{ flex: 1, minWidth: 140 }}><span style={IcNho}>⧉</span> Trộn đề Word</NutDen>
         <NutDen to="#/in-phieu" kieu="nhat" style={{ flex: 1, minWidth: 140 }}><span style={IcNho}>🖨</span> In phiếu · 819 mẫu</NutDen>
         <NutDen to="#/danh-sach" kieu="nhat" style={{ flex: 1, minWidth: 140 }}><span style={IcNho}>👥</span> Danh sách · nạp Excel lớp</NutDen>
+        <NutDen to="#/bai-mau" kieu="nhat" style={{ flex: 1, minWidth: 140 }}><span style={IcNho}>✨</span> Bài mẫu · phiếu quét thật</NutDen>
       </div>
       <p className="mo nho giua">Trộn đề: giữ hình, công thức MathType · tải các mã đề + đáp án, chuyển thẳng sang chấm</p>
+      <CaiApp />
     </ManHinh>
   )
 }

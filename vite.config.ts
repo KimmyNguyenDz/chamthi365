@@ -11,7 +11,7 @@ export default defineConfig({
       manifest: false, // manifest.webmanifest tĩnh trong public/
       workbox: {
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
-        globPatterns: ['**/*.{js,css,html,svg,webp,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,webp,woff2,png}'],
         globIgnores: ['thu-vien/phieu/**', 'thu-vien/anh/**'],
         runtimeCaching: [
           {
