@@ -13,6 +13,9 @@ import { KetQua, KetQuaTab } from './screens/KetQua'
 import { HocSinhScr } from './screens/HocSinh'
 import { Tron } from './screens/Tron'
 import { InPhieu } from './screens/InPhieu'
+import { TaiKhoan } from './screens/TaiKhoan'
+import { khoiDongSync } from './lib/sync'
+import { coSupabase } from './lib/supabase'
 
 const docHash = () => (typeof location === 'undefined' ? '#/' : location.hash || '#/')
 
@@ -70,6 +73,9 @@ export function App() {
   if (ten === 'tron-de') return <Tron />
   if (ten === 'in-phieu') return <InPhieu />
   if (ten === 'danh-sach') return <SapCo ten="Danh sách học sinh" />
-  if (ten === 'tai-khoan') return <SapCo ten="Tài khoản" />
+  if (ten === 'tai-khoan') return <TaiKhoan />
   return <SapCo ten="Không thấy trang" />
 }
+
+// Tự đồng bộ khi dữ liệu đổi (chỉ khi đã cấu hình Supabase + có mạng)
+if (typeof window !== 'undefined' && coSupabase) khoiDongSync()

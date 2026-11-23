@@ -48,11 +48,13 @@ export async function dsBai(): Promise<Bai[]> {
   return ds.sort((a, b) => b.sua - a.sua)
 }
 export const layBai = (id: string) => (moDb().then(d => d.get('bai', id)) as Promise<Bai | undefined>)
-export async function luuBai(b: Bai) {
-  await (await moDb()).put('bai', b)
+export async function luuBai(b: Bai, o: { dongBo?: boolean } = {}) {
+  const d = await moDb()
+  await d.put('bai', b)
+  if (o.dongBo !== false) await ghiHang({ khoa: `bai:${b.id}`, loai: 'bai', id: b.id, luc: Date.now() })
   baoThayDoi()
 }
-export async function xoaBai(id: string) {
+export async function xoaBai(id: string, o: { dongBo?: boolean } = {}) {
   const d = await moDb()
   const ds = await d.getAllFromIndex('phieu', 'baiId', id)
   const t = d.transaction(['bai', 'phieu', 'anh', 'hang'], 'readwrite')
@@ -61,8 +63,11 @@ export async function xoaBai(id: string) {
     t.objectStore('phieu').delete(p.id)
     t.objectStore('anh').delete(p.id)
     t.objectStore('hang').delete(`anh:${p.id}`)
+    t.objectStore('hang').delete(`phieu:${p.id}`)
+    if (o.dongBo !== false) t.objectStore('hang').put({ khoa: `xoaPhieu:${p.id}`, loai: 'xoaPhieu', id: p.id, baiId: id, luc: Date.now() })
   }
   t.objectStore('hang').delete(`bai:${id}`)
+  if (o.dongBo !== false) t.objectStore('hang').put({ khoa: `xoaBai:${id}`, loai: 'xoaBai', id, luc: Date.now() })
   await t.done
   baoThayDoi()
 }
@@ -72,22 +77,28 @@ export async function dsPhieu(baiId: string): Promise<Phieu[]> {
   return ds.sort((a, b) => a.stt - b.stt)
 }
 export const layPhieu = (id: string) => (moDb().then(d => d.get('phieu', id)) as Promise<Phieu | undefined>)
-export async function luuPhieu(p: Phieu) {
+export async function luuPhieu(p: Phieu, o: { dongBo?: boolean } = {}) {
   await (await moDb()).put('phieu', p)
+  if (o.dongBo !== false) await ghiHang({ khoa: `phieu:${p.id}`, loai: 'phieu', id: p.id, baiId: p.baiId, luc: Date.now() })
   baoThayDoi()
 }
-export async function xoaPhieu(id: string) {
+export async function xoaPhieu(id: string, o: { dongBo?: boolean } = {}) {
   const d = await moDb()
   const t = d.transaction(['phieu', 'anh', 'hang'], 'readwrite')
   t.objectStore('phieu').delete(id)
   t.objectStore('anh').delete(id)
   t.objectStore('hang').delete(`anh:${id}`)
+  t.objectStore('hang').delete(`phieu:${id}`)
+  if (o.dongBo !== false) t.objectStore('hang').put({ khoa: `xoaPhieu:${id}`, loai: 'xoaPhieu', id, luc: Date.now() })
   await t.done
   baoThayDoi()
 }
 
 export const layAnh = (khoa: string) => (moDb().then(d => d.get('anh', khoa)) as Promise<Blob | undefined>)
-export const luuAnh = (khoa: string, blob: Blob) => moDb().then(d => d.put('anh', blob, khoa).then(() => {}))
+export async function luuAnh(khoa: string, blob: Blob, o: { dongBo?: boolean } = {}) {
+  await (await moDb()).put('anh', blob, khoa)
+  if (o.dongBo !== false) await ghiHang({ khoa: `anh:${khoa}`, loai: 'anh', id: khoa, luc: Date.now() })
+}
 
 export const layMeta = (k: string) => moDb().then(d => d.get('meta', k))
 export const datMeta = (k: string, v: unknown) => moDb().then(d => d.put('meta', v, k).then(() => {}))
