@@ -1,0 +1,862 @@
+Học Giỏi
+Thầy Thái Minh Nguyên
+Tác giả
+Lên đầu trang
+Bài chấm
+Kết quả
+Chấm
+Phiếu
+Trộn đề
+Điều hướng
+Chấm Phiếu
+Không thấy phiếu
+Không thấy bài
+Phiếu này không còn trong máy
+Bài chấm này không còn trong máy
+Có thể đã bị xoá ở máy này, hoặc xoá ở máy khác rồi đồng bộ về.
+Về bài chấm
+Về danh sách bài chấm
+Đang mở…
+Không tải được khuôn 
+Số báo danh (máy đoán ${g})
+Số báo danh
+Mã đề (máy đoán ${v})
+Mã đề
+Phần I câu ${_.q}
+Phần II câu ${_.q}
+Phần III câu ${_.q}
+Toán 2025
+Môn khác 2025
+Giữa kì · có tự luận
+Trắc nghiệm · thang 10
+HSG · có điểm trừ
+ · đã chấm
+Phiếu số ${e.stt}
+).length>=1&&/đề|ma|mã/i.test(Nn(g[0])));if(s<0)throw new Error(
+Đề \\ Câu | 1 | 2 | …
+).replace(/^Đ.*/,
+Tệp không có mã đề nào
+Đề \\ Câu
+Phần II mỗi ý một ô, ghi Đ (hoặc D) là Đúng, S là Sai; cột 1a là câu 1 ý a. 
+CÁCH ĐIỀN TỆP ĐÁP ÁN
+Đáp án
+   Hàng mã đề để trống hết đáp án sẽ được bỏ qua: thừa hàng ví dụ cũng không sao, thiếu thì chép thêm hàng.
+2. Phần I (cột 1 → ${i.p1||
+}): ghi một chữ A, B, C hoặc D. Câu nhận 2 đáp án ghi liền 
+. Câu huỷ (ai cũng được điểm) ghi *.
+Phần II: bài này không có.
+4. Phần III (cột 1 → ${i.p3||
+} sau Phần II): ghi đáp số, dấu phẩy hay dấu chấm đều được (0,5 hoặc 0.5). Nhiều đáp số đúng: 0,5/1. Huỷ câu: *.
+5. Đừng sửa hàng tiêu đề (Đề \\ Câu, 1, 2, …, 1a, 1b, …). Lưu tệp rồi vào app bấm 
+Tệp tạo cho bài 
+: ${i.p1} câu Phần I · ${i.p2} câu Phần II · ${i.p3} câu Phần III.
+App Chấm Phiếu Học Giỏi · tác giả Thầy Thái Minh Nguyên · champhieu.hoc-gioi.pages.dev
+${n.ten} - đáp án
+Chấm Phiếu Học Giỏi
+Hướng dẫn
+)}async function XS(n){const e=await cw(n),s=e.findIndex(f=>f.some(m=>/sbd|số báo danh/i.test(Nn(m))));if(s<0)throw new Error(
+ trong tệp
+Họ và tên
+Phần I
+Phần II
+Phần III
+Tự luận
+Ghi chú
+SBD không có trong danh sách
+chưa có đáp án mã này
+còn ${v.can.length} chỗ cần xem
+Chấm bằng App Chấm Phiếu Học Giỏi · tác giả Thầy Thái Minh Nguyên · champhieu.hoc-gioi.pages.dev
+${n.ten} - bảng điểm
+Bảng điểm
+Chi tiết
+Bản này chưa có cấu hình tài khoản
+Google Drive từ chối (${i.status})
+Google Drive lỗi ${i.status}: ${(await i.text()).slice(0,160)}
+Lưu bài lên tài khoản lỗi: 
+Lưu phiếu lên tài khoản lỗi: 
+} · mã ${i.kq?.ma?.s||
+Tải từ tài khoản lỗi: 
+Đang mất mạng: bài vẫn lưu trong máy, có mạng sẽ tự đồng bộ
+Tài khoản ${n.email??
+lỗi đồng bộ
+đang lưu
+còn mục chờ lưu
+đã lưu hết
+Lưu lên tài khoản
+Tài khoản & lưu trữ
+Đăng xuất
+Đồng bộ ngay
+Tài khoản Google
+Bài chấm và điểm
+${n.cho} mục đang chờ lưu lên tài khoản
+đã lưu hết · lần cuối ${MC(n.luc)}
+đang kiểm tra…
+Ảnh phiếu trên Google Drive
+${n.anhCho} ảnh đang chờ đẩy lên
+đã đẩy hết
+ · thư mục 
+Phiên Google Drive đã hết hạn (mỗi lần đăng nhập dùng được khoảng 1 giờ). Bấm để kết nối lại, ảnh đang chờ sẽ tự đẩy lên.
+Kết nối lại
+ Mở thư mục trên Google Drive
+Lưu bài chấm lên tài khoản
+Không lo mất bài
+ khi đổi máy, mất máy hay xoá ứng dụng.
+Chấm trên nhiều máy
+: điện thoại, máy tính bảng, máy tính đều thấy cùng một bài.
+Ảnh phiếu đã chấm
+ cất vào thư mục 
+ trong Google Drive của chính thầy cô (miễn phí, 15GB).
+Đăng nhập bằng Google
+Dùng chung tài khoản với Học Giỏi. App chỉ xin quyền với 
+tệp do chính nó tạo
+ trên Drive, không đọc được tài liệu khác của thầy cô. Chưa đăng nhập vẫn chấm bình thường, bài chỉ lưu trên máy này.
+Chấm phiếu trắc nghiệm bằng camera điện thoại: đưa phiếu vào là có điểm, không cần máy quét.
+Bắt đầu
+Bước 1
+Tạo bài chấm
+Đặt tên bài, chọn mẫu phiếu. Không biết phiếu loại nào thì bấm Quét phiếu, chụp một tờ là máy tìm giúp.
+Tiếp tục
+Bước 2
+Nhập đáp án
+Nạp tệp Excel, dán hoặc gõ đáp án. Mỗi mã đề một dòng, máy tự khớp mã đề học sinh tô.
+Bước 3
+Đưa phiếu vào camera
+Giữ yên một chút: khung xanh sáng lên, máy tự chụp và hiện điểm ngay. Đưa tờ tiếp theo vào là chấm tiếp.
+Bước 4
+Xem lại chỗ máy chưa chắc
+Vòng cam là chỗ học sinh tô mờ hay tô hai ô. Bấm vào để chọn đáp án đúng, điểm tự tính lại.
+Bước 5
+Kết quả và bảng điểm
+Điểm từng em, câu nhiều em sai, xuất Excel. Lưu lên tài khoản Google để dùng trên nhiều máy.
+Xem nhanh các nút nhé
+Vài bước ngắn, app chỉ cho thầy cô từng nút trên màn hình chính.
+Xem các nút
+Bắt đầu ở đây cho mỗi bài kiểm tra: tên bài, mẫu phiếu, cách tính điểm, rồi nhập đáp án.
+Mở camera chấm bài gần nhất. Cũng chấm được từ ảnh có sẵn hay tệp PDF máy scan.
+Điểm từng em, phiếu còn chỗ cần xem, thống kê câu và nút xuất Excel.
+Thư viện mẫu phiếu để tải PDF in cho học sinh.
+Nạp danh sách lớp từ Excel để máy ghi đúng tên em theo số báo danh.
+Đăng nhập Google để bài chấm và ảnh phiếu được lưu lên mạng, đổi máy không mất.
+Xem lại hướng dẫn
+Quên cách làm thì bấm nút này, hướng dẫn hiện lại từ đầu.
+Hướng dẫn dùng Chấm Phiếu
+Thẻ ${s+1} trên ${Ti.length}
+Thẻ ${m+1}
+Thẻ trước
+Hoặc thử ngay với bài mẫu có sẵn phiếu
+Các nút trên màn hình chính
+Thầy cô đã sẵn sàng!
+Muốn xem lại, bấm nút 
+ cạnh lời chào ở trang chủ.
+Bước 
+Bước trước
+Bắt đầu dùng
+Tiếp
+Chủ Nhật
+Thứ Hai
+Thứ Ba
+Thứ Tư
+Thứ Năm
+Thứ Sáu
+Thứ Bảy
+Chào mừng quý thầy cô
+ · ${n.length} bài chấm${u?
+Trộn đề Word
+Giữ hình, công thức MathType · tải các mã đề + đáp án, chuyển thẳng sang chấm
+Chưa có bài chấm nào
+Tạo bài chấm, chọn mẫu phiếu, nhập đáp án rồi chấm từ ảnh chụp hoặc tệp PDF máy scan.
+Tạo bài chấm đầu tiên
+Thử với bài mẫu
+Bài gần nhất
+Thiếu đáp án mã 
+ mã đề
+ + tự luận
+/ ${i.hocSinh.length} phiếu đã chấm
+phiếu đã chấm
+Điểm TB
+ phiếu
+Không đọc được
+Chấm tiếp
+ phiếu còn chỗ cần xem
+Máy chưa chắc, SBD trùng hoặc tô vào câu thừa.
+gõ, dán, Excel
+Danh sách
+nạp Excel lớp
+In phiếu
+589 mẫu
+Chấm PDF
+tệp máy scan
+Tất cả bài chấm
+Chưa có đáp án
+ cần xem
+ phiếu đã chấm
+ · ${f.loi} không đọc được
+${_} · bên trái
+${_} · bên phải
+${_} · nửa trên
+${_} · nửa dưới
+Máy chấm gặp sự cố (có thể ảnh quá lớn): thử lại tờ này
+Máy nhận dạng gặp sự cố (có thể ảnh quá lớn) — thử lại
+Chưa nhận ra loại phiếu. Thầy chụp lại cho thấy đủ 4 ô vuông đen ở 4 góc phiếu, phiếu nằm phẳng, không lẹm mép.
+Quét phiếu
+Ảnh phiếu vừa chụp
+Đang nhận dạng loại phiếu…
+Máy chưa chắc lắm — thầy so ảnh mẫu với tờ phiếu rồi bấm chọn đúng loại.
+Máy đoán phiếu của thầy là loại dưới đây. Thầy so ảnh mẫu rồi bấm chọn.
+Giống nhất
+Hoặc (lựa chọn ${_+1})
+Chụp lại
+Mã đề 4 số
+Học sinh giỏi
+A4-50 Bộ GD
+A4 Trắc nghiệm + Tự luận
+Phiếu QM 2025 (3 phần: TN · Đúng/Sai · Trả lời ngắn)
+Phiếu trắc nghiệm A4-50 · A5-50 · A4-120
+Phiếu riêng của trường
+Trường
+${n.p1} câu trắc nghiệm
+Phần I ${n.p1} câu
+Phần II ${n.p2} câu
+Phần III ${n.p3} câu
+Tờ tự luận
+SBD ${n.so_sbd} số
+không tô SBD
+ · có phách
+${n.p1} câu
+Tìm: 50 câu, A5-50, 12-04-06, phách, QM…
+Không biết phiếu loại nào? Bấm 
+ rồi chụp một tờ bài làm, máy tìm giúp.
+Loại phiếu
+Tất cả (
+ mẫu)
+Số câu
+Mọi số câu
+Phách
+Tất cả
+Có phách
+Không phách
+ mẫu phiếu
+ khớp 
+Toán
+Hoá
+Thêm
+Sửa bài chấm
+Thầy đặt tên bài, ví dụ 
+Đề phải có ít nhất một câu.
+Bước 1 trên 3 · sửa lại được sau
+Thông tin & điểm
+Danh sách học sinh
+Bài kiểm tra
+Tên bài
+Giữa kì 1 · Toán 10
+Phiếu trả lời
+Đổi phiếu
+Đã chấm 
+ phiếu nên không đổi mẫu phiếu được.
+Học sinh tô số báo danh
+Đang tắt: máy bỏ qua ô SBD, không báo vàng. Thầy vẫn chọn tên học sinh cho phiếu được.
+Máy đọc SBD để biết bài của em nào. Tắt nếu học sinh không tô SBD.
+Số câu đề dùng thật
+Phiếu in nhiều câu hơn đề cũng được. Câu thừa máy bỏ qua; học sinh lỡ tô vào thì máy báo.
+Phần I · trắc nghiệm
+4 lựa chọn A B C D
+4 lựa chọn A B C D · phiếu in ${b.p1} câu, dùng bao nhiêu chỉnh ở đây
+Phần II · đúng sai
+mỗi câu 4 ý
+Phần III · trả lời ngắn
+tối đa 4 kí tự
+Cách tính điểm
+ câu × 
+ câu, điểm theo số ý đúng
+ · thầy nhập khi xem phiếu, tối đa 
+Làm tròn điểm tổng
+Không
+Phần III: 
+ tính bằng 
+bỏ số 0 thừa phía sau
+Phần III: chấp nhận 
+ là 
+học sinh quên tô số 0 đầu
+Trừ điểm mỗi câu Phần I sai
+để 0 nếu không trừ (đề thi HSG hay dùng)
+Huỷ
+Lưu thay đổi
+Lưu và nhập đáp án
+Chọn mẫu phiếu
+).replace(/[^ĐS*]/g,
+)].forEach((f,m)=>{m<n.p1.length&&(n.p1[m]=f)});const u=s.toUpperCase().replace(/Đ/g,
+Đã nạp ${U.dapAn.length} mã đề.
+ Tệp có ${U.soCau.p1}-${U.soCau.p2}-${U.soCau.p3} câu, bài đang đặt ${R.p1}-${R.p2}-${R.p3} câu: phần thừa bị bỏ, thầy sửa số câu ở 
+ nếu cần.
+Không đọc được tệp: 
+Không tạo được tệp: 
+Mã ${k.ma} giống hệt mã ${O.ma} ở cả ${R.p1} câu Phần I
+${s.ten} · ${s.dapAn.length} mã đề
+✓ đủ ${re} câu
+${k} / ${re} câu
++ Mã
+thêm mã đề
+Tải tệp Excel các mã đề đang có
+Tải tệp Excel trống đúng số câu bài này để điền đáp án
+Excel mẫu
+Dán chuỗi
+Xoá đáp án mã ${T.ma}?
+Xoá mã
+Thầy có dán nhầm không?
+Chưa có mã đề nào
+Tải tệp Excel mẫu (đã đúng số câu bài này), điền đáp án từng mã đề rồi bấm Nạp Excel. Hoặc thêm từng mã rồi bấm đáp án. Tệp đáp án của app QM cũng nạp được.
+Tải Excel mẫu
+Thêm mã đề
+Phần I · 
+ câu
+huỷ
+Phần II · 
+Máy tính: gõ 
+ (hoặc D, 1) / 
+ (hoặc 0), tự nhảy ý sau; phím ← → ↑ ↓ để di chuyển, xoá lùi để sửa.
+Phần III · 
+Gõ dấu phẩy hoặc dấu chấm đều được. Nhiều đáp số đúng thì cách nhau bằng 
+, ví dụ 
+. Gõ 
+ để huỷ câu.
+Phần II · Câu 
+bấm là tự nhảy ý sau
+Về Phần I
+← Ý trước
+Xoá
+đang nhập câu nhiều đáp án
+bấm là tự nhảy câu sau
+Huỷ câu
+2 đáp án
+Mã đề (đúng như học sinh tô trên phiếu)
+Mã này đã có.
+Dán chuỗi đáp án
+Điền vào mã này
+Phần II (mỗi câu 4 kí tự Đ/S)
+ĐSĐS ĐĐSS SĐĐS
+Phần III (cách nhau bằng dấu ;)
+Camera chỉ mở được khi app chạy qua https.
+Trình duyệt này không cho web dùng camera.
+Chưa được cho phép dùng camera.
+Không tìm thấy camera trên máy này.
+Camera đang bị app khác dùng.
+Không mở được camera: 
+${s} phẩy ${i}
+Chấm phiếu
+${e.ten} · đã chấm ${b.dong.length} phiếu
+Bài này chưa có đáp án
+Vẫn chấm được: máy đọc và lưu bài làm, nhập đáp án sau là có điểm ngay.
+Nhập
+tự chụp, chấm liên tục
+Chọn ảnh
+chọn nhiều ảnh một lúc
+máy scan, nhiều trang · tự tách 2 phiếu/trang
+Hoặc chụp từng tấm bằng máy ảnh của điện thoại
+Đang chấm 
+ · ${i.loi} ảnh không đọc được
+Chụp sao cho máy đọc chắc nhất
+Đặt phiếu trên mặt bàn phẳng, chụp thẳng từ trên xuống.
+Thấy đủ các ô vuông đen ở 4 góc phiếu.
+Đủ sáng, không để bóng tay hay đèn chói lên phiếu.
+Vừa chấm
+Phiếu gần đây
+Tất cả 
+}mã ${j.doc.ma||
+ · ${S} chỗ cần xem
+Xem kết quả cả bài
+;if(E.replace(/[^ĐS*]/g,
+Tô đúng
+Đáp án đúng
+Vết tẩy
+Máy chưa chắc
+Kiểu tô màu
+Viền
+Tô đặc
+Câu ${s} · Phần I
+[+i]} · Phần II
+Câu ${s} · Phần III
+Bỏ trống
+Lưu bỏ trống
+Phóng to ${Uu(n)}
+Máy đọc: 
+bỏ trống
+ · đang tính: 
+ô thầy bấm
+Nhiều ô: AB
+Mã đề có đáp án
+Học sinh khớp phần đã tô
+ · sáng = khớp phần đã tô
+Học sinh bỏ trống câu này thì bấm 
+Bỏ sửa tay, dùng lại kết quả máy đọc
+Đưa app ra màn hình
+Không nhắc nữa
+Mở như một app riêng: 
+camera chấm rộng hết màn hình
+ (mất thanh địa chỉ), mở nhanh từ biểu tượng, dùng được cả khi mất mạng.
+Đã cài. Mở app 
+ từ màn hình chính nhé.
+Bấm nút 
+Chia sẻ
+ trên thanh địa chỉ (hoặc mở trang này bằng 
+Chọn 
+Thêm vào MH chính
+, rồi mở app từ biểu tượng 
+ ở thanh dưới của Safari (iPad: góc trên bên phải).
+Kéo xuống, chọn 
+ ở góc trên, rồi mở app từ biểu tượng 
+ trên màn hình chính.
+Đang mở trong Zalo / Facebook: bấm 
+Mở bằng trình duyệt
+ (Chrome) trước.
+ ở góc dưới bên phải trình duyệt.
+ba chấm
+ ở góc trên bên phải trình duyệt.
+Thêm trang vào → Màn hình chờ
+Thêm vào màn hình chính
+ (có máy ghi 
+Cài đặt ứng dụng
+Cài đặt
+Trên máy tính: bấm biểu tượng cài đặt ở cuối thanh địa chỉ của Chrome / Edge.
+chụp gần như ngay khi thấy phiếu
+giữ yên chưa tới nửa giây
+Chắc chắn
+giữ yên lâu hơn, ảnh nét nhất
+SBD trùng với phiếu đã chấm
+Chưa có đáp án mã ${ve.ma||
+Phiếu số ${oe.stt}
+Không đọc được phiếu
+số báo danh ${Zt.d.sbd.split(
+${Nk(Zt.dm.tong)} điểm
+đã chấm
+cần xem lại
+Viền ô in bị mờ · tránh đèn chiếu thẳng, đưa máy gần hơn
+Chưa thấy đủ 4 góc phiếu · lùi máy ra một chút
+${Ne.videoWidth} × ${Ne.videoHeight}
+Không thấy bài chấm này
+Về trang đầu
+Chưa mở được camera
+Đang mở camera…
+Đang chấm ảnh ${Math.min(ye.xong+1,ye.tong)}/${ye.tong}
+Đang chấm ảnh…
+Đang chấm…
+Đã chấm
+Chưa đọc được · chụp lại
+Đã chấm · lật sang phiếu tiếp
+Đã chấm · đưa phiếu tiếp theo vào
+Chưa đọc được tờ này · bấm nút chụp để thử lại
+Phiếu hơi nhỏ · đưa máy lại gần hơn
+Ảnh đang nhòe · giữ yên máy…
+Thấy đủ ${g[0]} ô mốc · giữ yên…
+Thấy phiếu · bấm nút chụp
+Đưa cả phiếu vào, thấy đủ 4 ô vuông đen ở góc
+Đưa phiếu vào màn hình
+Thoát camera
+Tắt đèn
+Bật đèn
+Cài đặt chấm
+Đã chấm ${mt} phiếu${Pn?
+Chụp ngay
+Đang ở chế độ giá đỡ, bấm để về cầm tay
+Đang cầm tay, bấm để sang chế độ giá đỡ
+Giá đỡ
+Phiếu vừa chấm
+Phiếu của ${n.ten}
+ · II ${E}/${h.p2.length*4} ý
+Chưa có đáp án mã ${u.ma}
+Chưa đọc được mã đề
+Chọn mã đề (sáng = khớp phần đã tô):
+Chọn mã đề:
+Chấm lại · đã thay kết quả cũ
+Tờ này đã chấm · giữ kết quả cũ
+ chỗ cần xem
+ · bấm ô cam để xác nhận
+đang kiểm lại bằng 3 khung…
+✓ 3 khung hình khớp nhau
+đã sửa ${n.soSua} chỗ sau khi kiểm 3 khung
+Xem chi tiết
+Đóng, chấm tiếp
+Đóng cài đặt
+Cách chấm
+Tự chụp
+Phiếu đứng yên là máy tự chụp, không cần bấm nút
+Độ nhạy tự chụp
+Hiện kết quả sau mỗi phiếu
+Chấm xong hiện điểm và từng câu, bấm X để chấm tiếp
+Báo hiệu
+Âm báo
+iPhone không cho trang web rung
+Đọc to tên và điểm
+Máy chưa có giọng đọc tiếng Việt: chỉ bíp
+Hợp với chế độ giá đỡ
+Màn hình
+Thấy trọn khung camera
+Thấy hết vùng camera chụp, dễ đặt phiếu nằm gọn trong khung
+Hình phủ kín màn hình, hai bên bị cắt bớt
+Toàn màn hình
+Ẩn thanh địa chỉ khi chấm (chạm vào màn hình một lần)
+Đưa app ra màn hình chính
+Mất thanh Safari, vùng chấm rộng hết cỡ
+Dùng như app riêng, rộng hết màn hình
+Chấm từ tệp
+Ảnh có sẵn
+ · có đèn
+Trên iPhone: mở Cài đặt → Safari → Camera → chọn 
+, rồi tải lại trang.
+Bấm biểu tượng ổ khoá cạnh địa chỉ trang → Quyền → Máy ảnh → Cho phép, rồi tải lại trang.
+Tắt app khác đang dùng camera (gọi video, máy ảnh) rồi thử lại.
+Mở app bằng địa chỉ https (bản đã đăng lên mạng), camera mới chạy được.
+Thầy vẫn chụp được bằng máy ảnh của điện thoại hoặc chọn ảnh có sẵn.
+Thử lại
+Cách khác
+Kết quả phiếu
+Xoá phiếu này?
+Phiếu trước
+Phiếu sau
+phiếu ${A+1}/${i.length}
+Không đọc được phiếu này
+Chụp / chọn lại ảnh
+Câu ${ae.q}: vết tẩy ở ${[...qe].join(
+)}, tính ${E.p1[ue]}
+Câu ${ae.q}: tô ${E.p1[ue].length} ô (${[...E.p1[ue]].join(
+Phần II câu ${ae.q}${
+[Oe]}: có vết tẩy, tính ${E.p2[ue][Oe]===
+${s.ten} · phiếu ${A+1}/${i.length}
+Hàng đợi
+● cần xem
+Phóng to ảnh phiếu
+Ảnh gốc
+Đang xem ảnh gốc, không có màu chấm
+So với ảnh gốc
+Ảnh chấm
+Phóng to
+Bấm vào một ô trên ảnh để xác nhận / sửa câu đó.
+ Vùng xám: câu không dùng trong đề này.
+/ ${Te(Q)} điểm
+chưa có đáp án
+Chưa rõ tên
+Đổi học sinh
+Chọn học sinh
+Chưa có đáp án mã 
+ không có trong danh sách học sinh.
+SBD này đã có ở phiếu khác (chụp trùng hoặc đọc nhầm SBD).
+ chỗ cần thầy xem
+Học sinh tô vào câu không có trong đề
+. Máy không tính điểm các câu này.
+Đã biết
+Không còn chỗ nào cần xem
+Thầy đã sửa tay ${ce} chỗ.
+Máy đọc chắc chắn cả phiếu.
+Phiếu cần xem tiếp
+Máy đã tự xử lý (không cần xem):
+đã sửa
+Xoá phiếu
+Chấm lúc 
+đã sửa tay ${ce} chỗ
+chưa có chỗ sửa tay
+Ảnh phiếu · bấm vào ô để sửa
+— máy đọc 
+ nhưng chưa chắc
+Giữ 
+Chọn khác…
+Điểm tự luận
+Xoá điểm
+Xoá cả bài 
+ cùng ${s.length} phiếu đã chấm? Không lấy lại được.
+${e.ten} · ${g.daCham} phiếu
+Xuất Excel
+Chấm thêm
+Xem bài đã chấm
+Đáp án (
+ mã)
+Sửa bài
+Điểm trung bình
+Trung vị
+ điểm trở lên
+ bài
+Cao nhất · thấp nhất
+Các phiếu mã này chưa có điểm. Nhập đáp án là có điểm ngay, không phải chấm lại.
+Máy chưa chắc, SBD trùng hoặc học sinh tô vào câu thừa.
+ ảnh không đọc được
+Ảnh thiếu góc, mờ hoặc lệch. Mở từng phiếu để chụp lại.
+ phiếu có SBD không có trong danh sách
+Có thể học sinh tô sai SBD. Bấm vào SBD trong phiếu để sửa.
+ em chưa có bài
+Tất cả ${g.dong.length}
+Lỗi ảnh ${g.loi}
+Mọi mã đề
+Thứ tự chấm
+Điểm cao → thấp
+phiếu số ${E.p.stt}
+ · cần xem
+Chưa chấm phiếu nào.
+Xoá bài chấm này
+Đã nạp ${A} em${S.length-A?
+Nạp danh sách
+Chưa có danh sách
+Nạp tệp Excel có cột 
+ và 
+ (thêm cột 
+ nếu có). Máy ghép bài với học sinh theo SBD tô trên phiếu.
+(chưa có tên)
+ · chưa có bài
+${n.length} mẫu · QM 2025, A4-50, A5-50, A4-120 và phiếu trường
+Thư viện phiếu
+In đúng khổ A4, không co giãn
+Trong hộp in chọn 
+ (100%). Phiếu photo vẫn chấm được, nhưng đừng photo thu nhỏ.
+Không tải được bài mẫu
+Phiếu mẫu tờ ${o+1}
+Tờ trước
+Thoát trình chiếu
+Phiếu mẫu để thử
+Chấm thử mà không cần phiếu thật
+Trên máy tính:
+ mở trang này, bấm 
+Trình chiếu
+ để phiếu hiện to, thấy đủ 4 ô vuông đen ở 4 góc.
+Trên điện thoại:
+Tạo bài mẫu
+. Bài có sẵn đáp án 4 mã đề và danh sách 
+Đưa camera điện thoại vào màn hình máy tính, giữ yên tới khi bíp. Lật tờ tiếp bằng phím mũi tên.
+Đang tạo…
+PDF để in
+Màn hình máy tính hay bị loá và có vân sọc khi chụp: nghiêng điện thoại một chút cho khỏi chói. In ra giấy thì máy đọc chuẩn nhất.
+Tệp XML rỗng
+XML hỏng: thẻ không đóng
+Có nội dung sau thẻ nhóm nhưng không có câu hỏi nào (${pA(S.dau)})
+Không tìm thấy câu hỏi nào. Mỗi câu phải bắt đầu bằng 
+ hoặc 
+ ở đầu dòng.
+Tệp có phần đề lặp lại: có thể chứa 2 đề, hoặc kèm bản lời giải không khớp với đề. Nên để mỗi tệp chỉ một đề.
+Tệp có thêm bản lời giải phía sau: chỉ trộn bản đề phía trên${v?
+)continue;const ie=/(?:Đáp số|Đáp án|ĐS|Trả lời|Kết quả)\s*[:.]\s*([-−]?\d[\d.,]*)/i.exec(da(X).replace(new RegExp(Aa,
+Chưa có đáp số (ghi 
+ trên dòng riêng ở cuối câu)
+,_=x?/^[\s￼]*#?\s*[aа]\s*\)/:/^[\s￼]*#?\s*[AАΑ]\s*\./,j=b.findIndex($=>$.t===
+Không thấy ý a) b) c) d): mỗi ý phải xuống dòng và bắt đầu bằng 
+Không thấy phương án: đáp án phải xuống dòng và bắt đầu bằng 
+))for(const ie of da(X).matchAll(K))$.has(ie[1].toLowerCase())||$.set(ie[1].toLowerCase(),/^Đ/i.test(ie[2]));if(v.pa.every(X=>$.has(X.chu))){for(const X of v.pa)X.dung=$.get(X.chu);v.dapAnTuLoiGiai=!0}}const G=x?
+Chỉ thấy ${v.pa.length} ${x?
+phương án
+không có
+Chưa đánh dấu đáp án đúng (gạch chân hoặc tô đỏ chữ cái A/B/C/D)
+Chưa đánh dấu ý Đúng (gạch chân hoặc tô đỏ chữ cái a/b/c/d), đang tính cả 4 ý Sai. Nếu đúng là 4 ý đều Sai thì bỏ qua.
+[AАΑ]
+[BВΒ]
+[CСϹ]
+[aа]
+[cс]
+Có chữ đứng trước nhãn đầu tiên trên dòng phương án
+SỞ GIÁO DỤC VÀ ĐÀO TẠO
+SỞ GD&ĐT ……
+Số báo danh: 
+TRƯỜNG ……
+(Đề thi có 
+KIỂM TRA
+NĂM HỌC ${n.namHoc}
+Thời gian làm bài: ${n.thoiGian||
+}, không kể thời gian phát đề
+Họ và tên: ……………………………………${n.lop?
+ Số báo danh: …………
+ Mã đề ${e} 
+ĐỀ CHÍNH THỨC
+Họ, tên thí sinh: 
+Mã đề thi 
+ - Mã đề ${n}
+------ HẾT ------
+- Thí sinh không được sử dụng tài liệu;
+- Cán bộ coi thi không giải thích gì thêm.
+Đây là tệp Word đời cũ (.doc). Thầy mở bằng Word rồi Lưu thành (Save As) dạng .docx rồi chọn lại.
+Tệp không phải Word .docx
+Tệp Word hỏng: không có nội dung văn bản
+Tệp Word hỏng: không có thân văn bản
+[bảng]
+${e} - đáp án
+MÃ ĐỀ ${n.ma}
+Phần I. Trắc nghiệm nhiều phương án
+Phần II. Trắc nghiệm đúng sai
+Phần III. Trả lời ngắn
+Đáp số
+BẢNG ĐÁP ÁN
+Giữ như gốc
+90 phút
+Trắc nghiệm
+Trả lời ngắn
+Đề (chưa chia phần)
+Phần I · Trắc nghiệm
+Phần II · Đúng sai
+Phần III · Trả lời ngắn
+Phần IV · Tự luận
+g0 · không trộn
+g1 · trộn câu
+g2 · trộn phương án
+g3 · trộn câu và phương án
+;function c3(n){const e=n.toLowerCase();return[[/toán/,
+],[/lý|lí/,
+],[/hoá|hóa/,
+],[/văn/,
+],[/sử/,
+],[/địa/,
+],[/gdcd|công dân|kinh tế|pháp luật|ktpl/,
+Đây là tệp Word đời cũ (.doc). Thầy cô mở bằng Word, chọn Lưu thành (Save As) dạng .docx rồi chọn lại.
+Chọn tệp Word dạng .docx
+Nhập ít nhất một mã đề
+Trộn không được: 
+Không có mẫu phiếu nào đủ chỗ cho đề này. Thầy cô tạo bài chấm rồi nạp tệp Excel đáp án trong gói ZIP.
+Phiếu của bài 
+ không đủ chỗ cho đề này (${de.p1}-${de.p2}-${de.p3} câu).
+Trộn đề Word · giữ hình và công thức MathType · miễn phí
+Đề khác
+Đang đọc đề…
+Chọn tệp Word đề gốc
+hoặc thả tệp .docx vào đây · đề được xử lý ngay trên máy, không gửi đi đâu
+Tải đề mẫu (cấu trúc 2025)
+Trộn
+Trình bày
+Tiêu đề
+Số đề
+Mã đề đầu tiên
+các mã sau tăng dần
+Tự gõ mã đề
+ví dụ 0132, 0209, 0315…
+Nhãn câu
+Câu đầu tiên của đề xuất ra
+vd đề ghi từ Câu 41 thì nhập 41
+Cân đối đáp án A B C D
+mỗi mã có số câu A, B, C, D gần bằng nhau
+Trộn thứ tự các nhóm
+chỉ khi đề có thẻ <g…>; nhóm <#g…> giữ chỗ
+Trộn ý a) b) c) d) Phần II
+mặc định giữ thứ tự ý (ý sau hay dùng ý trước)
+Chuẩn đề thi
+Giữ như đề gốc
+Trên
+Dưới
+Trái
+Phải
+Cỡ chữ
+Giữ
+Giãn dòng
+Không cắt câu sang trang sau
+lời dẫn, hình, phương án của một câu luôn nằm trọn một trang
+Căn giữa hình
+hình nằm riêng một dòng được đưa vào giữa
+Ghi chú cuối đề
+Thí sinh không được sử dụng tài liệu…
+Về mặc định
+Giữ nguyên khổ giấy, lề, cỡ chữ, khoảng cách của đề gốc. Câu có thể bị cắt sang trang sau.
+Phông chữ cả đề
+Đề thi thường dùng Times New Roman. Công thức MathType và phông kí hiệu giữ nguyên.
+Chân mỗi trang luôn có: 
+Trang 1/4 - Mã đề 101
+Chèn tiêu đề đề thi
+tắt nếu đề gốc đã có sẵn phần đầu
+Kiểu đề quốc gia
+Dòng thí sinh:
+Sở / Phòng GD
+SỞ GD&ĐT LÂM ĐỒNG
+TRƯỜNG THPT …
+Kì kiểm tra
+KIỂM TRA GIỮA KÌ I
+Chữ trong khung
+Năm học
+Toán 12
+Thời gian
+Đang trộn 
+Trộn 
+ đề và tải về
+Đã trộn xong 
+ gồm tệp Word từng mã đề, 
+bảng đáp án
+ (Word) và 
+tệp Excel đáp án
+ (khuôn QM, nạp được vào Chấm Phiếu và app QM).
+Tạo bài chấm từ đề này
+Thêm đáp án vào bài có sẵn
+Tải lại ZIP
+Trộn lại
+Thêm đáp án vào bài chấm
+Đáp án 
+ mã đề sẽ thay đáp án cùng mã trong bài, mã khác giữ nguyên.
+ mã đề · 
+Chưa có bài chấm nào. Bấm 
+Xem trước tiêu đề
+(Đề thi có 04 trang)
+NĂM HỌC 
+Thời gian làm bài: 
+, không kể thời gian phát đề
+Họ, tên thí sinh:
+Số báo danh:
+Họ và tên: …………………
+ Lớp: ……
+ Số báo danh: ……
+Mã đề 
+Đề đã đọc
+công thức
+ câu cần xem lại
+Vẫn trộn được; câu thiếu đáp án sẽ để trống ở bảng đáp án. Sửa đề gốc trong Word rồi chọn lại để đầy đủ.
+Hiện hết
+Chỉ câu lỗi
+Đề đúng quy cách
+ câu có đáp án
+ (tự luận không cần)
+Đáp số 
+(chỉ có hình / công thức)
+Quy cách soạn đề gốc
+Xoá phần đầu (Sở, Trường, Họ tên…) và phần cuối của đề, chỉ để lại nội dung. Phần mềm tự chèn tiêu đề, mã đề, số trang và chữ HẾT.
+Câu hỏi bắt đầu bằng 
+ (đề Tiếng Anh: 
+). Câu đánh số tự động 
+ của Word cũng được.
+Xuống dòng (Enter) trước khi gõ phương án, và trước câu tiếp theo.
+: phương án bắt đầu bằng 
+, nhiều phương án trên một dòng thì cách nhau bằng Tab. Muốn giữ cố định phương án nào thì thêm 
+ liền trước, vd 
+Đáp án đúng: 
+gạch chân
+tô đỏ
+ chữ cái 
+. Đề có lời giải ghi 
+ thì không cần đánh dấu.
+: ý bắt đầu bằng 
+, mỗi ý một dòng. Ý Đúng: gạch chân hoặc tô đỏ chữ cái 
+: đáp số đặt sau 
+ trên một dòng riêng ở cuối câu, vd 
+ (dòng này không in ra đề).
+Phần IV
+: tự luận, ý con ghi 
+ để khỏi nhầm với Phần II.
+Tiêu đề phần ghi 
+PHẦN I.
+PHẦN II.
+… ở đầu dòng. Mỗi phần đánh số câu lại từ 1.
+Hình phải để chế độ 
+ (nằm trên dòng riêng) để đi theo câu. Lời giải bắt đầu bằng 
+ sẽ được bỏ khỏi đề.
+Phương án đặt trong bảng (cho thẳng cột) cũng được, phần mềm tự xếp lại 4 cột / 2 cột / 1 cột theo độ dài.
+Nhóm câu
+: thêm một dòng thẻ phía trên mỗi nhóm.
+không trộn (bài nghe Tiếng Anh…)
+chỉ hoán vị các câu
+chỉ hoán vị phương án
+hoán vị cả câu và phương án
+Thêm 
+ sau để chỉ phần, vd 
+ = nhóm thuộc Phần II chỉ trộn câu. Nhóm cố định vị trí khi bật 
+. Đoạn dẫn ngay sau thẻ (bài đọc, dữ kiện chung) đi theo nhóm. Mặc định khi không có thẻ: Phần I trộn câu và phương án, Phần II, III trộn câu, Phần IV giữ nguyên.
+${e.ten} · ${v.length} bài
+Điểm cao
+Ẩn màu chấm
+Hiện màu chấm
+Chưa có bài nào chấm xong.
+ · bài 
+Bài trước
+Ảnh đã chấm
+So sánh
+Giữ để xem ảnh gốc
+Vị trí thanh chia
+Mở để sửa
+Màn gặp sự cố:
+Màn này gặp sự cố
+Bài và phiếu đã chấm vẫn còn nguyên trong máy. Thầy cô bấm Tải lại; nếu vẫn lỗi, chụp màn hình này gửi tác giả.
+Tải lại
