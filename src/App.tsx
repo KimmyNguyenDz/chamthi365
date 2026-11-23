@@ -7,6 +7,7 @@ import { TaoBai } from './screens/TaoBai'
 import { DapAnScr } from './screens/DapAn'
 import { Camera } from './screens/Camera'
 import { ChamTep } from './screens/ChamTep'
+import { PhieuXem } from './screens/PhieuXem'
 
 const docHash = () => (typeof location === 'undefined' ? '#/' : location.hash || '#/')
 
@@ -57,6 +58,7 @@ export function App() {
     return <SapCo ten="Bài chấm" />
   }
   if (ten === 'cham') return h.includes('tep=1') ? <ChamTep id={id ?? ''} /> : <Camera id={id ?? ''} />
+  if (ten === 'phieu') return <PhieuXem id={id ?? ''} />
   if (ten === 'ket-qua') return <SapCo ten="Kết quả" />
   if (ten === 'tron-de') return <SapCo ten="Trộn đề Word" />
   if (ten === 'in-phieu') return <SapCo ten="Thư viện mẫu phiếu" />
