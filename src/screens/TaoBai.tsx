@@ -8,7 +8,7 @@ import { dsPhieu, layBai, luuBai } from '../lib/db'
 import { MAU_DIEM, diemMau } from '../lib/diem'
 import { docDanhSachExcel } from '../lib/excel'
 import { idMoi } from '../lib/id'
-import { nhanCau, tomTat, urlAnh } from '../lib/thuvien'
+import { mucLuc, nhanCau, tomTat, urlAnh } from '../lib/thuvien'
 import type { Bai, Diem, HocSinh, MauPhieu } from '../types'
 
 const MON = ['Toán', 'Vật lí', 'Hóa học', 'Sinh học', 'Ngữ văn', 'Tiếng Anh', 'Lịch sử', 'Địa lí', 'GDCD', 'Tin học', 'KHTN', 'KHXH']
@@ -51,7 +51,6 @@ export function TaoBai({ id }: { id?: string }) {
       const daCham = (await dsPhieu(id)).some(p => p.ok)
       setKhoaMau(daCham)
       // mau chỉ có mã — lưu lại mã vào trường phieu; cần MauPhieu đầy đủ → tải mục lục tìm
-      const { mucLuc } = await import('../lib/thuvien')
       const m = (await mucLuc()).find(x => x.ma === cu.phieu) ?? null
       setB({
         mau: m, ten: cu.ten, mon: cu.mon, lop: cu.lop.join(', '), boSbd: !!cu.boSbd,

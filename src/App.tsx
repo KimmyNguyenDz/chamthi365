@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { ManHinh } from './components/ManHinh'
 import { NutDen } from './components/Nut'
 import { Home } from './screens/Home'
@@ -11,7 +11,8 @@ import { PhieuXem } from './screens/PhieuXem'
 import { BaiXem } from './screens/BaiXem'
 import { KetQua, KetQuaTab } from './screens/KetQua'
 import { HocSinhScr } from './screens/HocSinh'
-import { Tron } from './screens/Tron'
+// Trộn đề (docx parser) nặng — tách chunk riêng
+const Tron = lazy(() => import('./screens/Tron').then(m => ({ default: m.Tron })))
 import { InPhieu } from './screens/InPhieu'
 import { TaiKhoan } from './screens/TaiKhoan'
 import { BaiMau } from './screens/BaiMau'
@@ -72,9 +73,8 @@ export function App() {
   if (ten === 'cham') return h.includes('tep=1') ? <ChamTep id={id ?? ''} /> : <Camera id={id ?? ''} />
   if (ten === 'phieu') return <PhieuXem id={id ?? ''} />
   if (ten === 'ket-qua') return <KetQuaTab />
-  if (ten === 'tron-de') return <Tron />
+  if (ten === 'tron-de') return <Suspense fallback={<ManHinh><p className="mo giua khoi">Đang tải trộn đề…</p></ManHinh>}><Tron /></Suspense>
   if (ten === 'in-phieu') return <InPhieu />
-  if (ten === 'danh-sach') return <SapCo ten="Danh sách học sinh" />
   if (ten === 'tai-khoan') return <TaiKhoan />
   if (ten === 'bai-mau') return <BaiMau />
   if (ten === 'danh-sach') return <DanhSach />

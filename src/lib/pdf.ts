@@ -1,16 +1,23 @@
 // Đọc PDF bằng pdfjs — render trang ≥200dpi, tách vùng theo clip của khuôn
-import * as pdfjs from 'pdfjs-dist'
+// pdfjs nạp động: chỉ tải chunk ~400kB khi người dùng thật sự chấm PDF
 import type { KhuonTep } from '../types'
-
-pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString()
 
 export type TrangPdf = { trang: number; bmp: ImageBitmap; wPt: number; hPt: number }
 
 const DPI = 200
+let _pdfjs: typeof import('pdfjs-dist') | null = null
+async function pdfjs() {
+  if (!_pdfjs) {
+    _pdfjs = await import('pdfjs-dist')
+    _pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString()
+  }
+  return _pdfjs
+}
 
 /** Render từng trang PDF thành ImageBitmap (≥200dpi) */
 export async function* docPdf(tep: ArrayBuffer): AsyncGenerator<TrangPdf> {
-  const doc = await pdfjs.getDocument({ data: tep }).promise
+  const p = await pdfjs()
+  const doc = await p.getDocument({ data: tep }).promise
   try {
     for (let i = 1; i <= doc.numPages; i++) {
       const pg = await doc.getPage(i)
