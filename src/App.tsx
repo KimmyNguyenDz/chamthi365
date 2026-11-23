@@ -3,6 +3,7 @@ import { ManHinh } from './components/ManHinh'
 import { NutDen } from './components/Nut'
 import { Home } from './screens/Home'
 import { HuongDan } from './screens/HuongDan'
+import { TaoBai } from './screens/TaoBai'
 
 const docHash = () => (typeof location === 'undefined' ? '#/' : location.hash || '#/')
 
@@ -45,7 +46,8 @@ export function App() {
 
   if (ten === '' || ten === 'home') return <Home />
   if (ten === 'huong-dan') return <HuongDan />
-  if (ten === 'tao') return <SapCo ten="Tạo bài chấm" />
+  if (ten === 'tao') return <TaoBai />
+  if (ten === 'sua') return <TaoBai id={id ?? undefined} />
   if (ten === 'bai') return <SapCo ten="Bài chấm" />
   if (ten === 'cham') return <SapCo ten="Chấm phiếu" />
   if (ten === 'ket-qua') return <SapCo ten="Kết quả" />
