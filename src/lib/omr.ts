@@ -7,9 +7,9 @@ import type { Khuon } from '../types'
 
 export type AnhRgba = { w: number; h: number; d: Uint8ClampedArray | Uint8Array }
 export type AnhXam = { w: number; h: number; d: Uint8Array | Uint8ClampedArray }
-type Diem2 = [number, number]
-type H9 = number[]
-type Dom = { x: number; y: number; canh: number; tron: number }
+export type Diem2 = [number, number]
+export type H9 = number[]
+export type Dom = { x: number; y: number; canh: number; tron: number }
 
 export class LoiCham extends Error {
   ma: string
@@ -877,5 +877,9 @@ export function nanAnh(a: Uint8ClampedArray | Uint8Array, c: number, o: number, 
   return { w: h, h: s, d }
 }
 
-// __DBG__ export nội bộ để test/debug
-export const _noi = { xam, thuNho, chuanNen, timDom, gomDom, nanPhieu, homography }
+// export nội bộ — ngam/nhan-dang workers dùng lại cùng pipeline
+export const _noi = {
+  xam, thuNho, chuanNen, timDom, gomDom, nanPhieu, homography,
+  mau, chieuH, tiLe, xepGoc, dienTich, trungVi, toHop, NGUONG, sangVongNgoai,
+}
+export type { Dom as _Dom }
