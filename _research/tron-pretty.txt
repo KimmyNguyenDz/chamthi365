@@ -1,0 +1,548 @@
+.ten==="mc:AlternateContent")&&s++);
+return{
+cong:e,hinh:s
+}
+}const nA=/^[-–—_.*=\s]*H\S{
+1,3
+}T[-–—_.*=\s]*$/i,aA=/^(PHIẾU TRẢ LỜI|BẢNG ĐÁP ÁN|ĐÁP ÁN VÀ (LỜI GIẢI|HƯỚNG DẪN)|ĐÁP ÁN (THAM KHẢO|CHI TIẾT)|HƯỚNG DẪN (GIẢI|CHẤM)|LỜI GIẢI (CHI TIẾT|THAM KHẢO)|PHẦN ĐÁP ÁN|ĐÁP ÁN)(?![\p{
+L
+}\d])[^\p{
+L
+}\d]*(?:\s(?:VÀ|&|ĐỀ|MÔN|TOÁN|PHẦN|MÃ|TRẮC)[^\p{
+Ll
+}]*)?$/u,sA=/^<\s*(#?)\s*g\s*([0-3])\s*(?:#\s*([1-4]))?\s*>$/i,iA=/^PH\S{
+1,3
+}N\s+(IV|I{
+1,3
+}|[1-4])(?![A-Za-z])/i,Sm=/^[\s￼]*(C(?:â|â|a)u|Question)\s*(\d+)\s*(\([^)]{
+0,30
+}\))?\s*([.:])/i,rA=/^\s*(Lời giải|Lời Giải|LỜI GIẢI|Hướng dẫn giải|Hướng dẫn|HDG|Giải chi tiết|Giải\s*[:.]|Chọn\s+(đáp án\s+)?[A-D]\b|Đáp án\s*[:.]?\s*[A-D]\b)/,lA=/^\s*(?:A\s*\.|Đáp số\s*[:.]|Đáp án\s*[:.]|ĐS\s*[:.]|Trả lời\s*[:.])\s*(\S.*)$/,oA={
+I:1,II:2,III:3,IV:4,1:1,2:2,3:3,4:4
+},cA=n=>n===4?0:n===2||n===3?1:3,uA=n=>n===2?"ds":n===3?"tln":n===4?"tl":"tn";
+function hA(n){
+const e=new Map,s=new Map;
+if(n){
+for(const i of Gr(n,"w:abstractNum")){
+const o=new Map;
+for(const u of Gr(i,"w:lvl")){
+const h=bt(u,"w:lvlText");
+o.set(Bn(u,"w:ilvl")??"0",h?Bn(h,"w:val")??"":"")
+}e.set(Bn(i,"w:abstractNumId")??"",o)
+}for(const i of Gr(n,"w:num")){
+const o=bt(i,"w:abstractNumId");
+s.set(Bn(i,"w:numId")??"",o?Bn(o,"w:val")??"":"")
+}
+}return{
+laCau(i){
+const o=i&&bt(i,"w:numPr");
+if(!o)return!1;
+const u=bt(o,"w:numId"),h=bt(o,"w:ilvl"),f=e.get(s.get(u?Bn(u,"w:val")??"":"")??"")?.get(h?Bn(h,"w:val")??"0":"0")??"";
+return/^\s*(Câu|Question|Bài)\s*%\d/i.test(f)
+}
+}
+}const da=n=>na(Li(n).manh);
+function dA(n,e){
+const s={
+mo:[],phan:[],tiengAnh:!1,haiCham:!1,canhBao:[],ghiChu:[]
+};
+let i=null,o=null,u=null,h=0,f=0,m=!1;
+const g=[],v=()=>{
+u=null,m=!1
+},y=(j=0)=>(i||(i={
+so:j,dau:[],nhom:[]
+},s.phan.push(i)),i),b=()=>{
+const j=y();
+return o||(o={
+kieu:cA(j.so),coDinh:!1,coThe:!1,dau:[],cau:[]
+},j.nhom.push(o)),o
+},x=j=>{
+u?u.than.push(j):o?o.dau.push(j):i?i.dau.push(j):s.mo.push(j)
+};
+for(const j of n.con){
+if(j.t!=="el")continue;
+if(j.ten==="w:sectPr"){
+s.sectPr=j;
+continue
+}if(j.ten!=="w:p"){
+m||x(j);
+continue
+}const S=da(j).split(Aa).join(" ").trim();
+if(nA.test(S)&&S.length<40){
+v(),o=null,m=g.length>0;
+continue
+}if(aA.test(S)&&S.length<70&&g.length){
+v(),o=null,m=!0;
+continue
+}const C=sA.exec(S.replace(/\s+/g,""));
+if(C){
+v();
+const G=C[3]?Number(C[3]):void 0;
+if(G&&(!i||i.so!==G)){
+const $=s.phan.find(K=>K.so===G);
+$?i=$:i&&!i.so&&!i.nhom.some(K=>K.cau.length)?i.so=G:(i={
+so:G,dau:[],nhom:[]
+},s.phan.push(i))
+}y(),o={
+kieu:Number(C[2]),coDinh:C[1]==="#",coThe:!0,dau:[],cau:[]
+},i.nhom.push(o);
+continue
+}const E=iA.exec(S);
+if(E&&!Sm.test(S)){
+v();
+const G=oA[E[1].toUpperCase()];
+if(i&&i.so===G&&!i.nhom.some($=>$.cau.length)){
+i.dau.push(j);
+continue
+}i={
+so:G,dau:[j],nhom:[]
+},s.phan.push(i),o=null;
+continue
+}const A=bt(j,"w:pPr"),T=e.laCau(A),R=Sm.exec(S);
+if(T||R){
+const G=b();
+m=!1,u={
+p:j,than:[],tuDong:T,soGoc:T?++f:Number(R[2])
+},R&&/question/i.test(R[1])&&(s.tiengAnh=!0),R&&R[4]===":"&&(s.haiCham=!0),g.push({
+...u,nhom:G,phan:i
+}),u=g[g.length-1];
+continue
+}m||x(j)
+}const _=new Map;
+for(const j of g){
+const S=Ob(++h,j.p,j.than,j.tuDong,j.soGoc,j.phan.so);
+_.set(h,j),j.nhom.cau.push(S)
+}mA(s,(j,S)=>{
+const C=_.get(j.id);
+return Ob(j.id,C.p,C.than,C.tuDong,C.soGoc,S)
+});
+for(const j of s.phan)for(const S of j.nhom)!S.cau.length&&S.dau.length&&s.canhBao.push(`Có nội dung sau thẻ nhóm nhưng không có câu hỏi nào (${
+pA(S.dau)
+})`);
+return g.length||s.canhBao.push('Không tìm thấy câu hỏi nào. Mỗi câu phải bắt đầu bằng "Câu 1." hoặc "Câu 1:" ở đầu dòng.'),s
+}const fA=/^Chưa (đánh dấu|có đáp số)/,Db=n=>n.loai==="tln"?!!n.dapSo:n.loai==="tl"?!0:n.pa.some(e=>e.dung)||n.dapAnTuLoiGiai===!0,Ci=n=>(na(n.dau.manh)+" "+n.than.slice(0,2).map(e=>e.t==="el"&&e.ten==="w:p"?da(e):"").join(" ")).replace(new RegExp(Aa,"g"),"").replace(/[\s ]+/g,"").slice(0,50).toLowerCase();
+function mA(n,e){
+const s=[];
+for(const x of n.phan)for(const _ of x.nhom)for(const j of _.cau)s.push({
+c:j,nhom:_,phan:x
+});
+const i=n.phan.some((x,_)=>_>0&&x.so>0&&x.so<=n.phan[_-1].so&&n.phan.slice(0,_).some(j=>j.nhom.some(S=>S.cau.length))),o=s.length>3?s.findIndex((x,_)=>_>=2&&Ci(x.c).length>=8&&Ci(x.c)===Ci(s[0].c)):-1,u=()=>n.canhBao.push("Tệp có phần đề lặp lại: có thể chứa 2 đề, hoặc kèm bản lời giải không khớp với đề. Nên để mỗi tệp chỉ một đề.");
+if(o<0){
+i&&u();
+return
+}const h=s.slice(0,o),f=s.slice(o),m=[];
+let g=0;
+if(h.forEach((x,_)=>{
+const j=Ci(x.c);
+for(let C=g;
+C<Math.min(f.length,g+4);
+C++)if(Ci(f[C].c)===j){
+m.push([x,f[C]]),g=C+1;
+return
+}const S=_+1<h.length?g+1<f.length&&Ci(f[g+1].c)===Ci(h[_+1].c):g===f.length-1;
+g<f.length&&S&&(m.push([x,f[g]]),g++)
+}),m.length<.7*h.length||m.length<.7*f.length){
+u();
+return
+}let v=0;
+for(const[x,_]of m){
+const j=x.c,S=_.c.loai===j.loai||!x.phan.so?_.c:e(_.c,x.phan.so);
+if(j.loiGiai.length||(j.loiGiai=S.loiGiai),!(Db(j)||!Db(S)||S.loai!==j.loai)){
+if(j.loai==="tln")j.dapSo=S.dapSo;
+else if(j.pa.length===S.pa.length&&j.pa.every((C,E)=>C.chu===S.pa[E].chu))j.pa.forEach((C,E)=>{
+C.dung=S.pa[E].dung
+});
+else continue;
+j.dapAnTuLoiGiai=!0,j.canhBao=j.canhBao.filter(C=>!fA.test(C)),v++
+}
+}const y=new Set(f.map(x=>x.c));
+for(const x of n.phan)for(const _ of x.nhom)_.cau=_.cau.filter(j=>!y.has(j));
+const b=n.phan.indexOf(h[h.length-1].phan);
+n.phan=n.phan.filter((x,_)=>_<=b||x.nhom.some(j=>j.cau.length));
+for(const x of n.phan)x.nhom=x.nhom.filter(_=>_.cau.length||_.coThe);
+n.ghiChu.push(`Tệp có thêm bản lời giải phía sau: chỉ trộn bản đề phía trên${
+v?`, đáp án ${
+v
+} câu lấy từ bản lời giải`:""
+}.`)
+}function pA(n){
+const e=n.find(s=>s.t==="el"&&s.ten==="w:p");
+return e?da(e).replace(new RegExp(Aa,"g"),"▣").slice(0,40):"bảng"
+}function Ob(n,e,s,i,o,u){
+const h=Li(e),f=na(h.manh);
+let m,g;
+if(i)m=h.pPr&&bt(h.pPr,"w:rPr"),g={
+pPr:h.pPr,manh:Bu(h.manh)
+};
+else{
+const $=Sm.exec(f),K=$[0].search(/[^\s￼]/);
+m=x1(h.manh,K)?.rPr;
+const X=mo(h.manh,0,K).filter(Se=>Se.k!=="chu"&&Se.k!=="tab"),ie=$[3]?f.indexOf($[3],K):-1,le=mo(h.manh,$[0].length),te=ie>=0?[...mo(h.manh,ie,ie+$[3].length),{
+k:"chu",v:" ",rPr:ZE(le)
+},...le]:le;
+g={
+pPr:h.pPr,manh:[...X,...Bu(te)]
+}
+}const v={
+id:n,soGoc:o,loai:u?uA(u):"tn",dau:g,rPrNhan:m,tuDong:i,than:[],pa:[],sau:[],loiGiai:[],canhBao:[]
+};
+let y=s.findIndex($=>$.t==="el"&&$.ten==="w:p"&&rA.test(da($)));
+y<0&&(y=s.length),v.loiGiai=s.slice(y);
+const b=s.slice(0,y);
+if(v.loai==="tl")return v.than=b,v;
+if(v.loai==="tln"){
+let $=-1,K=null;
+for(let X=b.length-1;
+X>=0;
+X--){
+const ie=b[X];
+if(ie.t==="el"&&ie.ten==="w:p"&&(K=lA.exec(da(ie).replace(new RegExp(Aa,"g"),"")))){
+$=X;
+break
+}
+}if($>=0)v.dapSo=$b(K[1]),v.than=b.slice(0,$),v.loiGiai=[...b.slice($+1),...v.loiGiai];
+else{
+v.than=b;
+for(const X of v.loiGiai){
+if(X.t!=="el"||X.ten!=="w:p")continue;
+const ie=/(?:Đáp số|Đáp án|ĐS|Trả lời|Kết quả)\s*[:.]\s*([-−]?\d[\d.,]*)/i.exec(da(X).replace(new RegExp(Aa,"g"),""));
+if(ie){
+v.dapSo=$b(ie[1].replace("−","-")),v.dapAnTuLoiGiai=!0;
+break
+}
+}v.dapSo||v.canhBao.push('Chưa có đáp số (ghi "A. 12,5" trên dòng riêng ở cuối câu)')
+}return v
+}const x=v.loai==="ds",_=x?/^[\s￼]*#?\s*[aа]\s*\)/:/^[\s￼]*#?\s*[AАΑ]\s*\./,j=b.findIndex($=>$.t==="el"&&($.ten==="w:p"&&_.test(da($))||$.ten==="w:tbl"&&_.test(da(Mb($)[0]??$))));
+if(j<0)return v.than=b,u?(v.canhBao.push(x?'Không thấy ý a) b) c) d): mỗi ý phải xuống dòng và bắt đầu bằng "a)"':'Không thấy phương án: đáp án phải xuống dòng và bắt đầu bằng "A."'),v):(v.loai="tl",v);
+v.than=b.slice(0,j);
+let S=[],C=j;
+const E=b[j];
+if(E.ten==="w:tbl")S=Mb(E).filter($=>da($).trim()),C=j+1;
+else for(;
+C<b.length;
+C++){
+const $=b[C];
+if($.t==="el"){
+if($.ten!=="w:p")break;
+S.push($)
+}
+}v.sau=b.slice(C);
+const A=Li(S[0]);
+v.pPrPa=A.pPr;
+const T=[],R=[];
+S.forEach(($,K)=>{
+K&&T.push({
+k:"xuong"
+}),R.push(na(T).length),T.push(...Li($).manh)
+}),v.pa=bA(T,x,v.canhBao);
+for(const $ of v.pa){
+let K=0;
+for(;
+K+1<R.length&&R[K+1]<=$.viTri;
+)K++;
+$.pPr=bt(S[K],"w:pPr")
+}if(v.pa.length){
+const $=v.pa[v.pa.length-1];
+for(;
+$.dong.length>1;
+){
+const K=$.dong[$.dong.length-1];
+if(!na(K).replace(new RegExp(Aa,"g"),"").trim())break;
+$.dong.pop(),v.sau.unshift(yA(K,S[0]))
+}
+}if(!x&&v.pa.length&&!v.pa.some($=>$.dung))for(const $ of v.loiGiai){
+if($.t!=="el"||$.ten!=="w:p")continue;
+const K=/(?:Chọn|Đáp án)\s*(?:đáp án|phương án)?\s*[:.]?\s*([A-DАВС])(?![\p{
+L
+}\d])/iu.exec(da($));
+if(K){
+const X=vA(K[1].toUpperCase()),ie=v.pa.find(le=>le.chu===X);
+ie&&(ie.dung=!0,v.dapAnTuLoiGiai=!0);
+break
+}
+}if(x&&v.pa.length&&!v.pa.some($=>$.dung)){
+const $=new Map,K=/(?:^|[\s,;
+(])([a-d])\s*[).:–-]\s*(Đúng|Sai|Đ|S)(?![\p{
+L
+}\d])/giu;
+for(const X of v.loiGiai)if(!(X.t!=="el"||X.ten!=="w:p"))for(const ie of da(X).matchAll(K))$.has(ie[1].toLowerCase())||$.set(ie[1].toLowerCase(),/^Đ/i.test(ie[2]));
+if(v.pa.every(X=>$.has(X.chu))){
+for(const X of v.pa)X.dung=$.get(X.chu);
+v.dapAnTuLoiGiai=!0
+}
+}const G=x?"abcd":"ABCD";
+return v.pa.length!==4&&v.canhBao.push(`Chỉ thấy ${
+v.pa.length
+} ${
+x?"ý":"phương án"
+} (${
+v.pa.map($=>$.chu).join(", ")||"không có"
+}), cần đủ ${
+[...G].join(", ")
+}`),!x&&v.pa.length&&!v.pa.some($=>$.dung)&&v.canhBao.push("Chưa đánh dấu đáp án đúng (gạch chân hoặc tô đỏ chữ cái A/B/C/D)"),x&&v.pa.length&&!v.pa.some($=>$.dung)&&!v.dapAnTuLoiGiai&&v.canhBao.push("Chưa đánh dấu ý Đúng (gạch chân hoặc tô đỏ chữ cái a/b/c/d), đang tính cả 4 ý Sai. Nếu đúng là 4 ý đều Sai thì bỏ qua."),v
+}const gA={
+А:"A",В:"B",С:"C",Α:"A",Β:"B","Ϲ":"C",а:"a",с:"c"
+},vA=n=>gA[n]??n,Rb={
+A:"[AАΑ]",B:"[BВΒ]",C:"[CСϹ]",D:"D",a:"[aа]",b:"b",c:"[cс]",d:"d"
+};
+function Mb(n){
+const e=[],s=i=>{
+for(const o of i.con)o.t==="el"&&(o.ten==="w:p"?e.push(o):o.ten!=="w:tblPr"&&o.ten!=="w:tblGrid"&&s(o))
+};
+return s(n),e
+}function yA(n,e){
+return Rr(bt(e,"w:pPr"),n)
+}function $b(n){
+return n.replace(/[\s]+$/,"").replace(/\.$/,"").replace(/\s+/g,"").replace(/\./g,",")
+}function bA(n,e,s){
+const i=na(n),o=e?["a","b","c","d"]:["A","B","C","D"],u=[];
+let h=0;
+for(const f of o){
+const m=new RegExp(e?`(#?)${
+Rb[f]
+}\\s*\\)`:`(#?)${
+Rb[f]
+}\\s*\\.`,"g");
+let g=null,v=null;
+m.lastIndex=h;
+let y;
+for(;
+y=m.exec(i);
+){
+const _=y.index===0?`
+`:i[y.index-1];
+if(_===`
+`||_==="	"){
+g=y;
+break
+}!v&&/\s/.test(_)&&(v=y)
+}const b=g??v;
+if(!b)break;
+const x=b.index+b[0].search(/[^#\s]/);
+u.push({
+chu:f,dau:b.index,cuoi:b.index+b[0].length,viTriChu:x,coDinh:b[1]==="#"
+}),h=b.index+b[0].length
+}return u.length?(u[0].dau>0&&i.slice(0,u[0].dau).trim()&&s.push("Có chữ đứng trước nhãn đầu tiên trên dòng phương án"),u.map((f,m)=>{
+const g=m+1<u.length?u[m+1].dau:i.length,v=Bu(mo(n,f.cuoi,g)),y=x1(n,f.viTriChu),b=KE(v).map(Bu);
+for(;
+b.length>1&&!na(b[b.length-1]).trim();
+)b.pop();
+return{
+chu:f.chu,coDinh:f.coDinh,dung:XE(y?.rPr)||YE(y?.rPr),dong:b,rPr:y?.rPr,viTri:f.dau
+}
+})):[]
+}const Fm={
+le:{
+tren:1.5,duoi:1.5,trai:2,phai:1.5
+},coChu:12,gianDong:1.1,hinhGiua:!0,khongTach:!0,ghiChuCuoi:!1
+},Cr=n=>Math.round(n*567),wA=["w:pStyle","w:keepNext","w:keepLines","w:pageBreakBefore","w:framePr","w:widowControl","w:numPr","w:suppressLineNumbers","w:pBdr","w:shd","w:tabs","w:suppressAutoHyphens","w:kinsoku","w:wordWrap","w:overflowPunct","w:topLinePunct","w:autoSpaceDE","w:autoSpaceDN","w:bidi","w:adjustRightInd","w:snapToGrid","w:spacing","w:ind","w:contextualSpacing","w:mirrorIndents","w:suppressOverlap","w:jc","w:textDirection","w:textAlignment","w:textboxTightWrap","w:outlineLvl","w:divId","w:cnfStyle","w:rPr","w:sectPr","w:pPrChange"],Ub=["w:headerReference","w:footerReference","w:footnotePr","w:endnotePr","w:type","w:pgSz","w:pgMar","w:paperSrc","w:pgBorders","w:lnNumType","w:pgNumType","w:cols","w:formProt","w:vAlign","w:noEndnote","w:titlePg","w:textDirection","w:bidi","w:rtlGutter","w:docGrid","w:printerSettings","w:sectPrChange"],xA=["w:cnfStyle","w:divId","w:gridBefore","w:gridAfter","w:wBefore","w:wAfter","w:cantSplit","w:trHeight","w:tblHeader","w:tblCellSpacing","w:jc","w:hidden","w:ins","w:del","w:trPrChange"];
+function zu(n,e,s){
+const i=s.indexOf(e.ten);
+n.con=n.con.filter(u=>!(u.t==="el"&&u.ten===e.ten));
+const o=n.con.findIndex(u=>u.t==="el"&&s.indexOf(u.ten)>i);
+o<0?n.con.push(e):n.con.splice(o,0,e),n.tuDong=void 0
+}function _1(n){
+let e=bt(n,"w:pPr");
+return e||(e=Tt("w:pPr"),n.con.unshift(e),n.tuDong=void 0),e
+}const to=(n,e)=>zu(_1(n),e,wA);
+function jA(n,e){
+if(!e.le)return;
+zu(n,Tt("w:pgSz",'w:w="11906" w:h="16838"'),Ub);
+const{
+tren:s,duoi:i,trai:o,phai:u
+}=e.le;
+zu(n,Tt("w:pgMar",`w:top="${
+Cr(s)
+}" w:right="${
+Cr(u)
+}" w:bottom="${
+Cr(i)
+}" w:left="${
+Cr(o)
+}" w:header="${
+Cr(Math.min(.8,s*.55))
+}" w:footer="${
+Cr(Math.min(.7,i*.5))
+}" w:gutter="0"`),Ub),n.con=n.con.filter(h=>!(h.t==="el"&&h.ten==="w:cols"))
+}const Lb=n=>n.t==="el"&&n.ten==="w:p",_A=n=>n.t==="el"&&n.ten==="w:tbl";
+function SA(n){
+const e=Li(n).manh,{
+cong:s,hinh:i
+}=Zm(e);
+return!i||s||na(e).split(Aa).join("").replace(/[\s\t]/g,"")?!1:!JSON.stringify(n).includes('"wp:anchor"')
+}function TA(n,e,s){
+const i=n.map(u=>u.t==="el"?tl(u):u),o=i.filter(u=>Lb(u)||_A(u));
+return o.forEach((u,h)=>{
+const f=h===o.length-1;
+if(Lb(u)){
+if(e.gianDong>0&&to(u,Tt("w:spacing",`w:before="${
+s==="cau"&&h===0?100:s==="dau"&&h===0?120:0
+}" w:after="${
+s==="dau"&&f?40:0
+}" w:line="${
+Math.round(240*e.gianDong)
+}" w:lineRule="auto"`)),e.hinhGiua&&SA(u)){
+const m=_1(u);
+m.con=m.con.filter(g=>!(g.t==="el"&&(g.ten==="w:ind"||g.ten==="w:numPr"))),to(u,Tt("w:jc",'w:val="center"'))
+}e.khongTach&&(to(u,Tt("w:keepLines")),(!f||s==="dau")&&to(u,Tt("w:keepNext")))
+}else if(e.khongTach){
+const m=Gr(u,"w:tr");
+m.forEach((g,v)=>{
+let y=bt(g,"w:trPr");
+if(!y){
+y=Tt("w:trPr");
+const x=g.con.findIndex(_=>_.t==="el"&&_.ten==="w:tc");
+g.con.splice(x<0?0:x,0,y),g.tuDong=void 0
+}if(zu(y,Tt("w:cantSplit"),xA),!f||s==="dau"||v<m.length-1)for(const x of NA(g))to(x,Tt("w:keepNext"))
+})
+}
+}),i
+}function NA(n){
+const e=[],s=i=>{
+for(const o of i.con)o.t==="el"&&(o.ten==="w:p"?e.push(o):s(o))
+};
+return s(n),e
+}function CA(n,e){
+if(!e)return n;
+const s=Math.round(e*2);
+return n.replace(/<w:(sz|szCs) w:val="\d+"\s*\/>/g,`<w:$1 w:val="${
+s
+}"/>`)
+}function kA(n,e){
+if(!e)return n;
+const s=Math.round(e*2),i=`<w:sz w:val="${
+s
+}"/><w:szCs w:val="${
+s
+}"/>`,o=u=>{
+const h=u.replace(/<w:(sz|szCs) w:val="\d+"\s*\/>/g,"");
+return/<w:rPr>/.test(h)?h.replace(/<\/w:rPr>/,`${
+i
+}</w:rPr>`):/<w:rPr\/>/.test(h)?h.replace(/<w:rPr\/>/,`<w:rPr>${
+i
+}</w:rPr>`):h
+};
+return n.replace(/<w:rPrDefault>[\s\S]*?<\/w:rPrDefault>/,o).replace(/<w:style\b[^>]*w:styleId="Normal"[^>]*>[\s\S]*?<\/w:style>/,u=>/<w:rPr>|<w:rPr\/>/.test(u)?o(u):u.replace(/<\/w:style>$/,`<w:rPr>${
+i
+}</w:rPr></w:style>`))
+}const Hf=(n,e)=>[...n].reduce((s,i)=>s+(i===" "?60:/[,.&()\-–]/.test(i)?80:e?178:165),0);
+function ep(n,e,s="qg"){
+const i=!!n.truong.trim(),o=(n.so||(s==="qg"?"SỞ GIÁO DỤC VÀ ĐÀO TẠO":"SỞ GD&ĐT ……")).toUpperCase(),u=Math.max(Hf(o,s==="qg"&&!i),i?Hf(n.truong.toUpperCase(),!0):0,s==="qg"?Hf((n.nhanDe??"").toUpperCase(),!0)+500:0)+260,h=Math.round(e*(s==="qg"?.4:.42)),f=Math.round(e*.56),m=Math.max(h,Math.min(f,u)),g=u<=f?24:Math.max(20,Math.floor(24*(f-260)/(u-260)));
+return{
+trai:m,sz:g
+}
+}function du(n,e=40,s=40){
+const i=n.map(([,u])=>`<w:tab w:val="right" w:leader="dot" w:pos="${
+Math.round(u)
+}"/>`).join(""),o=n.map(([u],h)=>(h?Fe(" "):"")+Fe(u,tn)+`<w:r>${
+qs()
+}<w:tab/></w:r>`).join("");
+return`<w:p><w:pPr><w:tabs>${
+i
+}</w:tabs><w:spacing w:before="${
+e
+}" w:after="${
+s
+}" w:line="300" w:lineRule="auto"/></w:pPr>${
+o
+}</w:p>`
+}function EA(n,e,s){
+const i=n.sbd!==!1,o=!!n.lop,u=[du([[s,e]])];
+return i&&o?u.push(du([["Số báo danh: ",e*.62],["Lớp: ",e]])):i?u.push(du([["Số báo danh: ",e]])):o&&u.push(du([["Lớp: ",e]])),u.join("")
+}const qs=(n="",e=24)=>`<w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>${
+n
+}<w:sz w:val="${
+e
+}"/><w:szCs w:val="${
+e
+}"/></w:rPr>`,Fe=(n,e="",s=24)=>`<w:r>${
+qs(e,s)
+}<w:t xml:space="preserve">${
+Js(n)
+}</w:t></w:r>`,Pu=(n,e="",s=24,i="1")=>`<w:r>${
+qs(e,s)
+}<w:fldChar w:fldCharType="begin"/></w:r><w:r>${
+qs(e,s)
+}<w:instrText xml:space="preserve"> ${
+Js(n)
+} </w:instrText></w:r><w:r>${
+qs(e,s)
+}<w:fldChar w:fldCharType="separate"/></w:r><w:r>${
+qs(e,s)
+}<w:t>${
+i
+}</w:t></w:r><w:r>${
+qs(e,s)
+}<w:fldChar w:fldCharType="end"/></w:r>`,$t=(n,e="center",s=0)=>`<w:p><w:pPr><w:spacing w:before="0" w:after="${
+s
+}" w:line="240" w:lineRule="auto"/><w:jc w:val="${
+e
+}"/></w:pPr>${
+n
+}</w:p>`,tn="<w:b/><w:bCs/>",dn="<w:i/><w:iCs/>";
+function AA(n,e,s){
+const{
+trai:i,sz:o
+}=ep(n,s,"gon"),u=s-i,h=(b,x)=>`<w:tc><w:tcPr><w:tcW w:w="${
+b
+}" w:type="dxa"/></w:tcPr>${
+x
+}</w:tc>`,f=[$t(Fe((n.so||"SỞ GD&ĐT ……").toUpperCase(),"",o)),$t(Fe((n.truong||"TRƯỜNG ……").toUpperCase(),tn,o)),$t(Fe("—————",tn)),$t(Fe("(Đề thi có ",dn)+Pu("NUMPAGES",dn)+Fe(" trang)",dn))].join(""),m=[$t(Fe((n.kyThi||"KIỂM TRA").toUpperCase(),tn)),n.namHoc?$t(Fe(`NĂM HỌC ${
+n.namHoc
+}`,tn)):"",$t(Fe(`Môn: ${
+(n.mon||"……").toUpperCase()
+}`,tn)),$t(Fe(`Thời gian làm bài: ${
+n.thoiGian||"……"
+}, không kể thời gian phát đề`,dn))].join(""),g=`<w:tbl><w:tblPr><w:tblW w:w="${
+s
+}" w:type="dxa"/><w:tblBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders><w:tblLayout w:type="fixed"/><w:tblLook w:val="0000"/></w:tblPr><w:tblGrid><w:gridCol w:w="${
+i
+}"/><w:gridCol w:w="${
+u
+}"/></w:tblGrid><w:tr>${
+h(i,f)
+}${
+h(u,m)
+}</w:tr></w:tbl>`,v=`Họ và tên: ……………………………………${
+n.lop?" Lớp: …………":""
+}${
+n.sbd!==!1?" Số báo danh: …………":""
+}`,y=`<w:p><w:pPr><w:tabs><w:tab w:val="right" w:pos="${
+s
+}"/></w:tabs><w:spacing w:before="160" w:after="160"/></w:pPr>${
+Fe(v)
+}<w:r>${
+qs()
+}<w:tab/></w:r>${
+Fe(` Mã đề ${
+e
+} `,tn+'<w:bdr w:val="single" w:sz="8" w:space="0" w:color="auto"/>')
+}</w:p>`;
+return g+y
+}const Bb='<w:tblBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders>',Hb=(n=8)=>`<w:top w:val="single" w:sz="${
+n
+}" w:space="0" w:color="auto"/><w:left w:val="single" w:sz="${
+n
+}" w:space="0" w:color="auto"/><w:bottom w:val="single" w:sz="${
+n
+}" w:space="0" w:color="auto"/><w:right w:val="single" w:sz="${
+n
+}" w:space="0" w:color="auto"/>`,zb=(n=0)=>`<w:p><w:pPr><w:spacing w:before="0" w:after="${
+n
+}" w:line="120" w:lineRule="exact"/><w:rPr><w:sz w:val="8"/></w:rPr></w:pPr></w:p>`,Pb=(n,e,s=.34)=>{
+const i=Math.round(e*(1-s)/2);
+return $t(n)+`<w:p><w:pPr><w:pBdr><w:top w:val="single" w:sz="6" w:space="1" w:color="auto"/></w:pBdr><w:spacing w:before="60" w:after="90" w:line="60" w:lineRule="exact"/><w:ind w:left="${
+i
+}" w:right="${
+i
+}"/><w:jc w:val="center"/><w:rPr><w:sz w:val="4"/></w:rPr></w:pPr></w:p>`
+},bu=(n,e)=>n.replace('w:before="0"',`w:before="${
+e
+}"`);
+function DA(n,e,s){
+const{
+trai:i,sz:o
+}=ep(n,s,"qg"),u=s-i,h=(E,A)=>`<w:tc><w:tcPr><w:tcW w:w="${
+E
+}" w:type="dxa"/></w:tcPr>${
+A
+}</w:tc>`,f=!!n.truong.trim(),m=(n.so||"SỞ GIÁO DỤC VÀ ĐÀO TẠO").toUpperCase(),g=(n.nhanDe??
