@@ -8,6 +8,8 @@ import { DapAnScr } from './screens/DapAn'
 import { Camera } from './screens/Camera'
 import { ChamTep } from './screens/ChamTep'
 import { PhieuXem } from './screens/PhieuXem'
+import { BaiXem } from './screens/BaiXem'
+import { KetQua, KetQuaTab } from './screens/KetQua'
 
 const docHash = () => (typeof location === 'undefined' ? '#/' : location.hash || '#/')
 
@@ -55,11 +57,12 @@ export function App() {
   if (ten === 'bai' && id) {
     const p2 = h.split('?')[0].split('/').filter(Boolean)[2]
     if (p2 === 'dap-an') return <DapAnScr id={id} />
-    return <SapCo ten="Bài chấm" />
+    if (p2 === 'ket-qua') return <KetQua id={id} />
+    return <BaiXem id={id} />
   }
   if (ten === 'cham') return h.includes('tep=1') ? <ChamTep id={id ?? ''} /> : <Camera id={id ?? ''} />
   if (ten === 'phieu') return <PhieuXem id={id ?? ''} />
-  if (ten === 'ket-qua') return <SapCo ten="Kết quả" />
+  if (ten === 'ket-qua') return <KetQuaTab />
   if (ten === 'tron-de') return <SapCo ten="Trộn đề Word" />
   if (ten === 'in-phieu') return <SapCo ten="Thư viện mẫu phiếu" />
   if (ten === 'danh-sach') return <SapCo ten="Danh sách học sinh" />
