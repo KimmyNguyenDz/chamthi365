@@ -10,6 +10,7 @@ import { ChamTep } from './screens/ChamTep'
 import { PhieuXem } from './screens/PhieuXem'
 import { BaiXem } from './screens/BaiXem'
 import { KetQua, KetQuaTab } from './screens/KetQua'
+import { HocSinhScr } from './screens/HocSinh'
 
 const docHash = () => (typeof location === 'undefined' ? '#/' : location.hash || '#/')
 
@@ -58,6 +59,7 @@ export function App() {
     const p2 = h.split('?')[0].split('/').filter(Boolean)[2]
     if (p2 === 'dap-an') return <DapAnScr id={id} />
     if (p2 === 'ket-qua') return <KetQua id={id} />
+    if (p2 === 'hoc-sinh') return <HocSinhScr id={id} />
     return <BaiXem id={id} />
   }
   if (ten === 'cham') return h.includes('tep=1') ? <ChamTep id={id ?? ''} /> : <Camera id={id ?? ''} />
