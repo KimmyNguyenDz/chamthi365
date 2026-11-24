@@ -8,6 +8,7 @@ import { dsPhieu, layBai, luuBai } from '../lib/db'
 import { MAU_DIEM, diemMau } from '../lib/diem'
 import { docDanhSachExcel, vietDanhSachExcelBytes } from '../lib/excel'
 import { taiTep } from '../lib/tai'
+import { thongBao } from '../lib/thongBao'
 import { idMoi } from '../lib/id'
 import { Camera } from 'lucide-react'
 import { mucLuc, nhanCau, tomTat, urlAnh } from '../lib/thuvien'
@@ -76,19 +77,19 @@ export function TaoBai({ id }: { id?: string }) {
     setBuoc(1)
   }
 
-  const luu = async () => {
-    if (!b?.mau) return
+  const luu = async (v = b) => {
+    if (!v?.mau) return
     setDangLuu(true)
     try {
       const cu = id ? await layBai(id) : undefined
       const bai: Bai = {
         id: id ?? idMoi(),
-        ten: b.ten.trim() || 'Bài chấm',
-        mon: b.mon, lop: b.lop.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean),
-        phieu: b.mau.ma, khuon: b.mau.khuon[0].khuon,
-        diem: { ...b.diem, soCau: { ...b.soCau } },
-        dapAn: cu?.dapAn ?? [], hocSinh: b.hocSinh,
-        boSbd: b.boSbd || undefined,
+        ten: v.ten.trim() || 'Bài chấm',
+        mon: v.mon, lop: v.lop.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean),
+        phieu: v.mau.ma, khuon: v.mau.khuon[0].khuon,
+        diem: { ...v.diem, soCau: { ...v.soCau } },
+        dapAn: cu?.dapAn ?? [], hocSinh: v.hocSinh,
+        boSbd: v.boSbd || undefined,
         tao: cu?.tao ?? Date.now(), sua: Date.now(),
       }
       await luuBai(bai)
@@ -100,8 +101,12 @@ export function TaoBai({ id }: { id?: string }) {
     try {
       const hs = await docDanhSachExcel(await f.arrayBuffer())
       if (!hs.length) { setLoi('Tệp không có học sinh nào'); return }
-      setB(v => v && { ...v, hocSinh: hs })
+      const v = b && { ...b, hocSinh: hs }
+      setB(v)
       setLoi('')
+      // Nạp xong → tự lưu bài và sang màn tiếp theo
+      thongBao(`Đã nạp ${hs.length} học sinh`)
+      await luu(v)
     } catch (e) { setLoi(String((e as Error)?.message ?? e)) }
   }
 
@@ -207,7 +212,7 @@ export function TaoBai({ id }: { id?: string }) {
           {loi && <p style={{ color: 'var(--red-d)' }}>{loi}</p>}
           <div className="hang khoi">
             <Nut kieu="nhat" onClick={() => setBuoc(1)}>Bước trước</Nut>
-            <Nut kieu="xanh" style={{ flex: 1 }} disabled={dangLuu} onClick={luu}>{dangLuu ? 'Đang lưu…' : sua ? 'Lưu bài chấm' : 'Tạo bài — sang nhập đáp án'}</Nut>
+            <Nut kieu="xanh" style={{ flex: 1 }} disabled={dangLuu} onClick={() => luu()}>{dangLuu ? 'Đang lưu…' : sua ? 'Lưu bài chấm' : 'Tạo bài — sang nhập đáp án'}</Nut>
           </div>
         </>
       )}

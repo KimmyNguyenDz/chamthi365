@@ -153,6 +153,10 @@ svg.lucide { flex-shrink: 0; }
 .bang tr:last-child td { border-bottom: none; }
 .cuon-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
+/* ---------- toast ---------- */
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 300; background: var(--ink); color: #fff; font: 700 13.5px/1.35 var(--f-head); padding: 12px 18px; border-radius: 14px; box-shadow: 0 8px 24px rgba(15,23,42,.28); max-width: min(92vw, 420px); text-align: center; animation: toast-len .22s ease-out; pointer-events: none; }
+@keyframes toast-len { from { opacity: 0; transform: translateX(-50%) translateY(12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }

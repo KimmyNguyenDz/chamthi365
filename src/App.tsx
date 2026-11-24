@@ -19,6 +19,7 @@ import { BaiMau } from './screens/BaiMau'
 import { DanhSach } from './screens/DanhSach'
 import { khoiDongSync } from './lib/sync'
 import { coSupabase } from './lib/supabase'
+import { ngheThongBao } from './lib/thongBao'
 import { Construction } from 'lucide-react'
 
 const docHash = () => (typeof location === 'undefined' ? '#/' : location.hash || '#/')
@@ -56,9 +57,22 @@ function SapCo({ ten }: { ten: string }) {
   )
 }
 
+/** Toast toàn cục — mount ở App nên hiện được cả sau khi đổi route */
+function Toast() {
+  const [chu, setChu] = useState('')
+  useEffect(() => ngheThongBao(setChu), [])
+  useEffect(() => {
+    if (!chu) return
+    const t = setTimeout(() => setChu(''), 3200)
+    return () => clearTimeout(t)
+  }, [chu])
+  return chu ? <div className="toast" role="status">{chu}</div> : null
+}
+
 export function App() {
   const h = useHash()
   const { ten, id } = tachRoute(h)
+  const man = () => {
 
   if (ten === '' || ten === 'home') return <Home />
   if (ten === 'huong-dan') return <HuongDan />
@@ -78,8 +92,10 @@ export function App() {
   if (ten === 'in-phieu') return <InPhieu />
   if (ten === 'tai-khoan') return <TaiKhoan />
   if (ten === 'bai-mau') return <BaiMau />
-  if (ten === 'danh-sach') return <DanhSach />
-  return <SapCo ten="Không thấy trang" />
+    if (ten === 'danh-sach') return <DanhSach />
+    return <SapCo ten="Không thấy trang" />
+  }
+  return <>{man()}<Toast /></>
 }
 
 // Tự đồng bộ khi dữ liệu đổi (chỉ khi đã cấu hình Supabase + có mạng)

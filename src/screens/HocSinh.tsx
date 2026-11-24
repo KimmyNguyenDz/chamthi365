@@ -5,6 +5,7 @@ import { The, Muc } from '../components/The'
 import { dsPhieu, layBai, luuBai } from '../lib/db'
 import { docDanhSachExcel, vietDanhSachExcelBytes } from '../lib/excel'
 import { taiTep } from '../lib/tai'
+import { thongBao } from '../lib/thongBao'
 import type { Bai, HocSinh } from '../types'
 
 /** Quản lý danh sách lớp của bài: nạp Excel, xem em chưa có phiếu, SBD lạ */
@@ -28,7 +29,9 @@ export function HocSinhScr({ id }: { id: string }) {
       const hs = await docDanhSachExcel(await f.arrayBuffer())
       const moi = { ...bai!, hocSinh: hs, sua: Date.now() }
       await luuBai(moi)
-      setBai(moi); setLoi('')
+      // Nạp xong → thông báo rồi quay về màn bài
+      thongBao(`Đã nạp ${hs.length} học sinh`)
+      location.hash = `#/bai/${bai!.id}`
     } catch (e) { setLoi(String((e as Error)?.message ?? e)) }
   }
 
