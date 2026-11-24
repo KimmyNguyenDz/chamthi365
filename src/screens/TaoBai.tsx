@@ -66,7 +66,8 @@ export function TaoBai({ id }: { id?: string }) {
   const soCauIn = useMemo(() => (m ? { p1: m.p1, p2: m.p2, p3: m.p3 } : null), [m])
 
   const chonMau = (x: MauPhieu) => {
-    const soCau = { p1: x.p1, p2: x.p2, p3: x.p3 }
+    // mặc định theo format đề 2025: 12 câu P.I + 4 câu P.II + 6 câu P.III (không vượt số câu in)
+    const soCau = { p1: Math.min(12, x.p1), p2: Math.min(4, x.p2), p3: Math.min(6, x.p3) }
     setB(v => ({
       mau: x, ten: v?.ten ?? '', mon: v?.mon ?? 'Toán', lop: v?.lop ?? '', boSbd: v?.boSbd ?? false,
       soCau, diem: diemMau('toan-2025', soCau), hocSinh: v?.hocSinh ?? [],
