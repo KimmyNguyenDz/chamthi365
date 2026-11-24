@@ -7,6 +7,7 @@ import { dsPhieu, layAnh, layBai, layPhieu, luuPhieu, xoaPhieu } from '../lib/db
 import { chamPhieu, dinhDangDiem, timHocSinh, timMaDe } from '../lib/diem'
 import { khuon as taiKhuon } from '../lib/thuvien'
 import { docHieuLuc, diemTuLuan } from '../lib/chamKq'
+import { thongBao } from '../lib/thongBao'
 import type { Bai, OCham, Phieu } from '../types'
 import { AlertTriangle } from 'lucide-react'
 
@@ -44,6 +45,10 @@ export function PhieuXem({ id }: { id: string }) {
   const can = useMemo(() => new Set(p?.kq?.can.map(c => `${c.phan}:${c.q ?? ''}:${c.i ?? ''}`) ?? []), [p])
   const hs = useMemo(() => (bai && doc ? timHocSinh(bai, doc.sbd)[0] : null), [bai, doc])
   const goiMa = useMemo(() => (bai && doc ? timMaDe(bai, doc.ma) : []), [bai, doc])
+  const soSua = useMemo(() => {
+    const s = p?.sua ?? {}
+    return Object.keys(s).reduce((n, k) => n + (typeof s[k as keyof typeof s] === 'object' ? Object.keys(s[k as keyof typeof s] as object).length : 1), 0)
+  }, [p])
 
   if (khong) return <ManHinh><p className="mo giua khoi">Phiếu này không còn trong máy</p><div className="giua"><NutDen to="#/" kieu="nhat">Về danh sách bài chấm</NutDen></div></ManHinh>
   if (!p || !bai || !doc) return <ManHinh><p className="mo giua khoi">Đang mở…</p></ManHinh>
@@ -60,6 +65,7 @@ export function PhieuXem({ id }: { id: string }) {
     const moi = { ...p, sua: s }
     setP(moi)
     await luuPhieu(moi)
+    thongBao(gia === null ? 'Đã bỏ sửa tay — dùng lại kết quả máy' : 'Đã lưu thay đổi')
     setSua(null); setSuaSbd(false); setSuaMa(false)
   }
 
@@ -102,6 +108,7 @@ export function PhieuXem({ id }: { id: string }) {
               value={diemTuLuan(p) || ''} onChange={e => ghiSua('tuLuan', undefined, e.target.value === '' ? null : +e.target.value)} />
           </div>
         )}
+        {soSua > 0 && <p className="trang-thai xanh" style={{ marginBottom: 0 }}>✎ Đã sửa tay {soSua} chỗ — thay đổi được lưu ngay, điểm đã tính lại.</p>}
         {p.kq!.can.length > 0 && <p className="trang-thai cam" style={{ marginBottom: 0 }}><AlertTriangle size={14} /> {p.kq!.can.length} chỗ máy chưa chắc — bấm vào ô cam trên phiếu để xác nhận.</p>}
       </The>
 
