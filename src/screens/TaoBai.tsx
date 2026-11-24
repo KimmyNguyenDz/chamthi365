@@ -6,7 +6,8 @@ import { ChonPhieu } from '../components/ChonPhieu'
 import { QuetPhieu } from '../components/QuetPhieu'
 import { dsPhieu, layBai, luuBai } from '../lib/db'
 import { MAU_DIEM, diemMau } from '../lib/diem'
-import { docDanhSachExcel } from '../lib/excel'
+import { docDanhSachExcel, vietDanhSachExcelBytes } from '../lib/excel'
+import { taiTep } from '../lib/tai'
 import { idMoi } from '../lib/id'
 import { Camera } from 'lucide-react'
 import { mucLuc, nhanCau, tomTat, urlAnh } from '../lib/thuvien'
@@ -193,10 +194,14 @@ export function TaoBai({ id }: { id?: string }) {
             ) : (
               <p className="mo">Nạp danh sách lớp từ Excel để máy ghi đúng tên em theo số báo danh. Bỏ qua cũng được.</p>
             )}
-            <label className="nut nhat" style={{ cursor: 'pointer' }}>
-              Nạp Excel lớp
-              <input type="file" accept=".xlsx,.xls,.csv" hidden onChange={e => { const f = e.target.files?.[0]; if (f) napLop(f); e.target.value = '' }} />
-            </label>
+            <div className="hang">
+              <label className="nut nhat" style={{ cursor: 'pointer' }}>
+                Nạp Excel lớp
+                <input type="file" accept=".xlsx,.xls,.csv" hidden onChange={e => { const f = e.target.files?.[0]; if (f) napLop(f); e.target.value = '' }} />
+              </label>
+              <Nut kieu="nhat" onClick={() => taiTep(vietDanhSachExcelBytes(), 'danh-sach-lop-mau.xlsx')}>Tải file mẫu</Nut>
+            </div>
+            <p className="mo nho" style={{ marginBottom: 0 }}>Tệp cần cột “SBD” (bắt buộc), “Họ và tên” và “Lớp” (tuỳ chọn). File mẫu có sẵn hướng dẫn điền.</p>
           </The>
           {loi && <p style={{ color: 'var(--red-d)' }}>{loi}</p>}
           <div className="hang khoi">

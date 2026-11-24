@@ -157,7 +157,10 @@ export async function docDanhSachExcel(buf: ArrayBuffer): Promise<HocSinh[]> {
   const wb = XLSX.read(buf, { type: 'array' })
   const rows: unknown[][] = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: null, raw: true })
   const hd = rows.findIndex(r => r.some(v => /sbd|số báo danh/i.test(Nn(v))))
-  if (hd < 0) throw new Error('Không thấy cột SBD trong tệp')
+  if (hd < 0) {
+    const dau = rows.slice(0, 3).map(r => r.map(Nn).filter(Boolean).join(' | ')).filter(Boolean).join(' — ')
+    throw new Error(`Không thấy cột SBD trong tệp${dau ? ` (đầu tệp đang có: ${dau.slice(0, 120)})` : ''}`)
+  }
   const tieuDe = rows[hd].map(Nn)
   const iSbd = tieuDe.findIndex(v => /sbd|số báo danh/i.test(v))
   const iTen = tieuDe.findIndex(v => /họ|tên/i.test(v))
@@ -174,6 +177,35 @@ export async function docDanhSachExcel(buf: ArrayBuffer): Promise<HocSinh[]> {
   }
   if (!hs.length) throw new Error('Tệp không có học sinh nào')
   return hs
+}
+
+/** File Excel mẫu danh sách lớp, kèm sheet hướng dẫn */
+export function vietDanhSachExcelBytes(): Uint8Array {
+  const ds = XLSX.utils.aoa_to_sheet([
+    ['STT', 'SBD', 'Họ và tên', 'Lớp'],
+    [1, '10010201', 'Nguyễn Văn An', '10A1'],
+    [2, '10010202', 'Trần Thị Bình', '10A1'],
+    [3, '10010203', 'Lê Minh Châu', '10A1'],
+  ])
+  ds['!cols'] = [{ wch: 5 }, { wch: 12 }, { wch: 28 }, { wch: 8 }]
+  const hd = XLSX.utils.aoa_to_sheet([
+    ['CÁCH ĐIỀN DANH SÁCH LỚP'], [],
+    ['1. Trang "Danh sách": mỗi hàng là một học sinh.'],
+    ['2. Cột SBD (hoặc "Số báo danh") là BẮT BUỘC — ghi đủ số như học sinh tô trên phiếu'],
+    ['   (phiếu 8 cột thì ghi 8 số, ví dụ 10010201).'],
+    ['3. Cột "Họ và tên" nên có để bảng điểm hiện tên; cột "Lớp" tuỳ chọn.'],
+    ['4. Hàng tiêu đề đặt ở đâu cũng được, miễn có chữ SBD trong một ô.'],
+    ['   Các hàng trống hoặc không có SBD sẽ bị bỏ qua.'],
+    ['5. Có thể dùng tệp Excel lớp sẵn có của nhà trường — chỉ cần đổi tên cột'],
+    ['   thành "SBD" / "Họ và tên" cho máy nhận ra.'], [],
+    ['Chấm bằng Chamthi365'],
+  ])
+  hd['!cols'] = [{ wch: 90 }]
+  const wb = XLSX.utils.book_new()
+  wb.Props = { Title: 'Danh sách lớp - mẫu', Author: 'Chamthi365', Company: 'Chamthi365' }
+  XLSX.utils.book_append_sheet(wb, ds, 'Danh sách')
+  XLSX.utils.book_append_sheet(wb, hd, 'Hướng dẫn')
+  return new Uint8Array(XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as unknown as number[])
 }
 
 // ---------- BẢNG ĐIỂM ----------

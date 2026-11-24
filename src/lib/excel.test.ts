@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import * as XLSX from 'xlsx'
-import { docDapAnExcel, aoaDapAn, docDanhSachExcel, vietBangDiemAoa, docDapAnChuoi } from './excel'
+import { docDapAnExcel, aoaDapAn, docDanhSachExcel, vietBangDiemAoa, docDapAnChuoi, vietDanhSachExcelBytes } from './excel'
 import { diemMau, chamPhieu } from './diem'
 import type { Bai, Phieu, DocCham } from '../types'
 
@@ -84,6 +84,16 @@ describe('docDanhSachExcel', () => {
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Tên'], ['An']]), 'x')
     await expect(docDanhSachExcel(wb2buf(wb))).rejects.toThrow('SBD')
+  })
+
+  it('file mẫu vietDanhSachExcelBytes parse round-trip', async () => {
+    const u8 = vietDanhSachExcelBytes()
+    const hs = await docDanhSachExcel(u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength) as ArrayBuffer)
+    expect(hs).toEqual([
+      { sbd: '10010201', ten: 'Nguyễn Văn An', lop: '10A1' },
+      { sbd: '10010202', ten: 'Trần Thị Bình', lop: '10A1' },
+      { sbd: '10010203', ten: 'Lê Minh Châu', lop: '10A1' },
+    ])
   })
 })
 

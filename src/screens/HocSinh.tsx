@@ -3,7 +3,8 @@ import { Dau, ManHinh } from '../components/ManHinh'
 import { Nut, NutDen } from '../components/Nut'
 import { The, Muc } from '../components/The'
 import { dsPhieu, layBai, luuBai } from '../lib/db'
-import { docDanhSachExcel } from '../lib/excel'
+import { docDanhSachExcel, vietDanhSachExcelBytes } from '../lib/excel'
+import { taiTep } from '../lib/tai'
 import type { Bai, HocSinh } from '../types'
 
 /** Quản lý danh sách lớp của bài: nạp Excel, xem em chưa có phiếu, SBD lạ */
@@ -44,11 +45,14 @@ export function HocSinhScr({ id }: { id: string }) {
   return (
     <ManHinh dau={<Dau tieuDe={`Danh sách — ${bai.ten}`} phu={`${bai.hocSinh.length} học sinh`} phai={<NutDen to={`#/bai/${bai.id}`} kieu="nhat" nho>Về bài</NutDen>} />}>
       <The pang className="khoi">
-        <label className="nut xanh" style={{ cursor: 'pointer' }}>
-          Nạp Excel lớp
-          <input type="file" accept=".xlsx,.xls,.csv" hidden onChange={e => { const f = e.target.files?.[0]; if (f) nap(f); e.target.value = '' }} />
-        </label>
-        <p className="mo nho" style={{ marginBottom: 0 }}>Tệp cần cột “SBD” và “Họ và tên” (có thể thêm “Lớp”). Nạp lại sẽ thay danh sách cũ.</p>
+        <div className="hang">
+          <label className="nut xanh" style={{ cursor: 'pointer' }}>
+            Nạp Excel lớp
+            <input type="file" accept=".xlsx,.xls,.csv" hidden onChange={e => { const f = e.target.files?.[0]; if (f) nap(f); e.target.value = '' }} />
+          </label>
+          <Nut kieu="nhat" onClick={() => taiTep(vietDanhSachExcelBytes(), 'danh-sach-lop-mau.xlsx')}>Tải file mẫu</Nut>
+        </div>
+        <p className="mo nho" style={{ marginBottom: 0 }}>Tệp cần cột “SBD” (bắt buộc), “Họ và tên” và “Lớp” (tuỳ chọn). Nạp lại sẽ thay danh sách cũ.</p>
         {loi && <p style={{ color: 'var(--red-d)', marginBottom: 0 }}>{loi}</p>}
       </The>
 
