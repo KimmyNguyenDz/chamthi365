@@ -20,7 +20,7 @@ const CAC_BUOC: TheHd[] = [
   },
   {
     buoc: 'Bước 2', tieuDe: 'Nhập đáp án',
-    noiDung: 'Nạp tệp Excel, dán hoặc gõ đáp án. Mỗi mã đề một dòng, máy tự khớp mã đề học sinh tô.',
+    noiDung: 'Nạp tệp Excel, dán/gõ đáp án, hoặc bấm "Quét QR nạp" để chụp mã QR đáp án (QR Chamthi365 hoặc QR có sẵn chứa chuỗi đáp án). Mỗi mã đề một dòng, máy tự khớp.',
   },
   {
     buoc: 'Bước 3', tieuDe: 'Đưa phiếu vào camera',
@@ -45,7 +45,7 @@ const CAC_NUT: { ten: string; mo: string }[] = [
   { ten: 'Tạo bài chấm', mo: 'Bắt đầu ở đây cho mỗi bài kiểm tra: tên bài, mẫu phiếu, cách tính điểm, rồi nhập đáp án.' },
   { ten: 'Chấm', mo: 'Mở camera chấm bài gần nhất. Cũng chấm được từ ảnh có sẵn hay tệp PDF máy scan.' },
   { ten: 'Kết quả', mo: 'Điểm từng em, phiếu còn chỗ cần xem, thống kê câu và nút xuất Excel.' },
-  { ten: 'In phiếu', mo: 'Thư viện mẫu phiếu để tải PDF in cho học sinh.' },
+  { ten: 'In phiếu', mo: 'Thư viện mẫu phiếu tải PDF in cho học sinh, kể cả phiếu QR in sẵn mã đề và SBD từng em.' },
   { ten: 'Danh sách', mo: 'Nạp danh sách lớp từ Excel để máy ghi đúng tên em theo số báo danh.' },
   { ten: 'Tài khoản', mo: 'Đăng nhập Google để bài chấm và ảnh phiếu được lưu lên mạng, đổi máy không mất.' },
   { ten: 'Xem lại hướng dẫn', mo: 'Quên cách làm thì bấm nút này, hướng dẫn hiện lại từ đầu.' },

@@ -24,6 +24,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@napi-rs/canvas": "^1.2.0",
     "@types/pngjs": "^6.0.5",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18.3.12",
