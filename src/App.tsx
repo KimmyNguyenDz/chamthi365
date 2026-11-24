@@ -19,6 +19,7 @@ import { BaiMau } from './screens/BaiMau'
 import { DanhSach } from './screens/DanhSach'
 import { khoiDongSync } from './lib/sync'
 import { coSupabase } from './lib/supabase'
+import { Construction } from 'lucide-react'
 
 const docHash = () => (typeof location === 'undefined' ? '#/' : location.hash || '#/')
 
@@ -47,7 +48,7 @@ function SapCo({ ten }: { ten: string }) {
       </header>
     }>
       <div className="giua khoi">
-        <div style={{ fontSize: 44 }}>🚧</div>
+        <Construction size={44} strokeWidth={1.6} style={{ color: 'var(--ink-faint)' }} />
         <p className="mo">Màn hình này đang được xây dựng.</p>
         <NutDen to="#/" kieu="nhat">Về trang chủ</NutDen>
       </div>

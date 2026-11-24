@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { CloudUpload, CircleHelp, ClipboardList, Shuffle, Printer, Users, Sparkles, Plus, Camera, FileText, AlertTriangle } from 'lucide-react'
 import { Dau, ManHinh } from '../components/ManHinh'
 import { Nut, NutDen } from '../components/Nut'
 import { The, Muc } from '../components/The'
@@ -57,19 +58,17 @@ function TheBai({ t }: { t: ThongBai }) {
           )}
         </div>
         {(t.canXem > 0 || t.loi > 0 || t.thieuMa.length > 0 || !bai.dapAn.length) && (
-          <div className="hang" style={{ flexWrap: 'wrap', marginTop: 8 }}>
-            {t.canXem > 0 && <span className="chip" style={{ borderColor: 'var(--orange-d)', background: 'var(--orange-l)' }}>{t.canXem} phiếu còn chỗ cần xem</span>}
-            {t.loi > 0 && <span className="chip" style={{ borderColor: 'var(--red-d)', background: 'var(--red-l)' }}>{t.loi} không đọc được</span>}
-            {t.thieuMa.length > 0 && <span className="chip" style={{ borderColor: 'var(--red-d)', background: 'var(--red-l)' }}>Thiếu đáp án mã {t.thieuMa.join(', ')}</span>}
-            {!bai.dapAn.length && <span className="chip" style={{ borderColor: 'var(--yellow-d)', background: 'var(--yellow-l)' }}>Chưa có đáp án</span>}
+          <div className="hang" style={{ flexWrap: 'wrap', marginTop: 8, gap: 6 }}>
+            {t.canXem > 0 && <span className="chip cam"><AlertTriangle size={13} />{t.canXem} phiếu cần xem</span>}
+            {t.loi > 0 && <span className="chip" style={{ borderColor: 'var(--red-l)', background: 'var(--red-l)', color: 'var(--red-d)' }}>{t.loi} không đọc được</span>}
+            {t.thieuMa.length > 0 && <span className="chip" style={{ borderColor: 'var(--red-l)', background: 'var(--red-l)', color: 'var(--red-d)' }}>Thiếu đáp án mã {t.thieuMa.join(', ')}</span>}
+            {!bai.dapAn.length && <span className="chip" style={{ borderColor: 'var(--yellow-l)', background: 'var(--yellow-l)', color: 'var(--yellow-d)' }}>Chưa có đáp án</span>}
           </div>
         )}
       </The>
     </a>
   )
 }
-
-const IcNho = { fontSize: 22, lineHeight: 1 } as const
 
 export function Home() {
   const [ds, setDs] = useState<ThongBai[] | null>(null)
@@ -116,25 +115,25 @@ export function Home() {
   return (
     <ManHinh dau={
       <Dau tieuDe="Chamthi365" phu="Chấm phiếu trắc nghiệm" phai={
-        <a href="#/tai-khoan" className="nut nho nhat" title="Tài khoản">☁</a>
+        <a href="#/tai-khoan" className="nut nho nhat" title="Tài khoản & đồng bộ" aria-label="Tài khoản"><CloudUpload /></a>
       } />
     }>
       <div className="hang" style={{ justifyContent: 'space-between', marginTop: 4 }}>
-        <div>
-          <div style={{ font: `800 20px/1.2 var(--f-head)` }}>Chào quý thầy cô · {thu}</div>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ font: `800 20px/1.25 var(--f-head)` }}>Chào quý thầy cô · {thu}</div>
           <div className="mo nho">{ds?.length ? `${ds.length} bài chấm` : 'Đưa phiếu vào là có điểm'}</div>
         </div>
-        <a href="#/huong-dan" className="nut nho nhat" title="Xem lại hướng dẫn">?</a>
+        <a href="#/huong-dan" className="nut nho nhat" title="Xem lại hướng dẫn" aria-label="Hướng dẫn" style={{ flexShrink: 0 }}><CircleHelp /></a>
       </div>
 
       <div className="khoi">
-        <NutDen to="#/tao" kieu="xanh" style={{ width: '100%' }}>＋ Tạo bài chấm</NutDen>
+        <NutDen to="#/tao" kieu="xanh" style={{ width: '100%' }}><Plus /> Tạo bài chấm</NutDen>
       </div>
 
       {ds === null ? <p className="mo giua">Đang mở…</p> : ds.length === 0 ? (
         <The className="giua khoi">
-          <div style={{ fontSize: 40 }}>📝</div>
-          <h2>Chưa có bài chấm nào</h2>
+          <ClipboardList size={44} strokeWidth={1.6} style={{ color: 'var(--green)', margin: '0 auto' }} />
+          <h2 style={{ marginTop: 8 }}>Chưa có bài chấm nào</h2>
           <p className="mo">Tạo bài chấm, chọn mẫu phiếu, nhập đáp án rồi chấm từ ảnh chụp hoặc tệp PDF máy scan.</p>
           <NutDen to="#/tao" kieu="xanh">Tạo bài chấm đầu tiên</NutDen>
           <div className="cach" />
@@ -145,8 +144,8 @@ export function Home() {
           <Muc>Bài gần nhất</Muc>
           {ganNhat && <TheBai t={ganNhat} />}
           <div className="hang khoi">
-            <NutDen to={ganNhat ? `#/cham/${ganNhat.bai.id}` : '#/'} kieu="vang" style={{ flex: 1 }}>Chấm tiếp</NutDen>
-            <NutDen to={ganNhat ? `#/cham/${ganNhat.bai.id}?tep=1` : '#/'} kieu="nhat" style={{ flex: 1 }}>Chấm PDF · tệp máy scan</NutDen>
+            <NutDen to={ganNhat ? `#/cham/${ganNhat.bai.id}` : '#/'} kieu="vang" style={{ flex: 1 }}><Camera /> Chấm tiếp</NutDen>
+            <NutDen to={ganNhat ? `#/cham/${ganNhat.bai.id}?tep=1` : '#/'} kieu="nhat" style={{ flex: 1 }}><FileText /> <span>Chấm PDF · tệp scan</span></NutDen>
           </div>
           {ds.length > 1 && <Muc>Tất cả bài chấm</Muc>}
           {ds.slice(1).map(t => <TheBai key={t.bai.id} t={t} />)}
@@ -154,13 +153,12 @@ export function Home() {
       )}
 
       <Muc>Công cụ</Muc>
-      <div className="hang khoi" style={{ flexWrap: 'wrap' }}>
-        <NutDen to="#/tron-de" kieu="tim" style={{ flex: 1, minWidth: 140 }}><span style={IcNho}>⧉</span> Trộn đề Word</NutDen>
-        <NutDen to="#/in-phieu" kieu="nhat" style={{ flex: 1, minWidth: 140 }}><span style={IcNho}>🖨</span> In phiếu · 819 mẫu</NutDen>
-        <NutDen to="#/danh-sach" kieu="nhat" style={{ flex: 1, minWidth: 140 }}><span style={IcNho}>👥</span> Danh sách · nạp Excel lớp</NutDen>
-        <NutDen to="#/bai-mau" kieu="nhat" style={{ flex: 1, minWidth: 140 }}><span style={IcNho}>✨</span> Bài mẫu · phiếu quét thật</NutDen>
+      <div className="luoi luoi-2 khoi">
+        <a href="#/tron-de" className="the-cong-cu"><Shuffle /><span className="txt">Trộn đề Word</span></a>
+        <a href="#/in-phieu" className="the-cong-cu"><Printer /><span className="txt">In phiếu · 819 mẫu</span></a>
+        <a href="#/danh-sach" className="the-cong-cu"><Users /><span className="txt">DS lớp · nạp Excel</span></a>
+        <a href="#/bai-mau" className="the-cong-cu"><Sparkles /><span className="txt">Bài mẫu · phiếu thật</span></a>
       </div>
-      <p className="mo nho giua">Trộn đề: giữ hình, công thức MathType · tải các mã đề + đáp án, chuyển thẳng sang chấm</p>
       <CaiApp />
     </ManHinh>
   )

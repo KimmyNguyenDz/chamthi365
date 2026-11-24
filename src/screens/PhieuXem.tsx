@@ -8,6 +8,7 @@ import { chamPhieu, dinhDangDiem, timHocSinh, timMaDe } from '../lib/diem'
 import { khuon as taiKhuon } from '../lib/thuvien'
 import { docHieuLuc, diemTuLuan } from '../lib/chamKq'
 import type { Bai, OCham, Phieu } from '../types'
+import { AlertTriangle } from 'lucide-react'
 
 type SuaLoai = { o: OCham } | null
 
@@ -101,7 +102,7 @@ export function PhieuXem({ id }: { id: string }) {
               value={diemTuLuan(p) || ''} onChange={e => ghiSua('tuLuan', undefined, e.target.value === '' ? null : +e.target.value)} />
           </div>
         )}
-        {p.kq!.can.length > 0 && <p className="mo nho" style={{ color: 'var(--orange-d)', marginBottom: 0 }}>⚠ {p.kq!.can.length} chỗ máy chưa chắc — bấm vào ô cam trên phiếu để xác nhận.</p>}
+        {p.kq!.can.length > 0 && <p className="trang-thai cam" style={{ marginBottom: 0 }}><AlertTriangle size={14} /> {p.kq!.can.length} chỗ máy chưa chắc — bấm vào ô cam trên phiếu để xác nhận.</p>}
       </The>
 
       <div className="hang khoi">

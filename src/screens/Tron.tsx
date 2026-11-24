@@ -111,7 +111,7 @@ export function Tron() {
           <b>Đề đã đọc: {ten}</b>
           <div className="mo nho">
             {de.phan.map(p => `Phần ${'IIIIIV'[p.so - 1]}: ${p.nhom.flatMap(n => n.cau).length} câu`).join(' · ')}
-            {cauLoi.length ? ` · ⚠ ${cauLoi.length} câu lỗi` : ' · không lỗi'}
+            {cauLoi.length ? ` · ${cauLoi.length} câu lỗi` : ' · không lỗi'}
           </div>
           {cauLoi.length > 0 && (
             <>

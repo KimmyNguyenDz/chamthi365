@@ -8,6 +8,7 @@ import { QuetQR } from '../components/QuetQR'
 import { layBai, luuBai } from '../lib/db'
 import { docDapAnChuoi, docDapAnExcel, vietDapAnExcelBytes } from '../lib/excel'
 import { docPayloadDapAn, ghepDapAn, payloadDapAn } from '../lib/qr'
+import { AlertTriangle } from 'lucide-react'
 import type { Bai, DapAn } from '../types'
 
 function taiTep(bytes: Uint8Array, ten: string) {
@@ -38,20 +39,36 @@ export function DapAnScr({ id }: { id: string }) {
 
   const khiQuetQR = (t: string) => {
     const d = docPayloadDapAn(t)
-    if (!d) { setLoi('QR này không phải QR đáp án Chamthi365'); setQuetQR(false); return }
-    cacPhan.current.set(d.i, d.goi)
-    if (cacPhan.current.size >= d.n) {
-      const g = ghepDapAn(cacPhan.current)
-      if (g && bai) {
-        const map = new Map(bai.dapAn.map(x => [x.ma, x]))
-        for (const x of g.dapAn) map.set(x.ma, x)
-        const ds = [...map.values()]
-        setBai({ ...bai, dapAn: ds }); setChon(ds[0]?.ma ?? null); setLoi('')
+    if (d) {
+      cacPhan.current.set(d.i, d.goi)
+      if (cacPhan.current.size >= d.n) {
+        const g = ghepDapAn(cacPhan.current)
+        if (g && bai) {
+          const map = new Map(bai.dapAn.map(x => [x.ma, x]))
+          for (const x of g.dapAn) map.set(x.ma, x)
+          const ds = [...map.values()]
+          setBai({ ...bai, dapAn: ds }); setChon(ds[0]?.ma ?? null); setLoi('')
+        }
+        setQuetQR(false); cacPhan.current.clear()
+      } else {
+        setLoi(`Đã quét phần ${cacPhan.current.size}/${d.n} — quét tiếp QR khác`)
       }
-      setQuetQR(false); cacPhan.current.clear()
-    } else {
-      setLoi(`Đã quét phần ${cacPhan.current.size}/${d.n} — quét tiếp QR khác`)
+      return
     }
+    // QR có sẵn bất kỳ: thử parse nội dung như chuỗi đáp án "0101 ABCD ĐSĐS 0,5;1"
+    if (bai) {
+      try {
+        const da = docDapAnChuoi(t, bai.diem.soCau)
+        if (da.ma) {
+          const co = bai.dapAn.some(x => x.ma === da.ma)
+          setBai({ ...bai, dapAn: co ? bai.dapAn.map(x => (x.ma === da.ma ? da : x)) : [...bai.dapAn, da] })
+          setChon(da.ma); setLoi(''); setQuetQR(false)
+          return
+        }
+      } catch { }
+    }
+    setLoi('QR này không chứa đáp án — cần QR Chamthi365 hoặc QR ghi chuỗi đáp án (vd “0101 ABCD ĐSĐS 0,5;1”)')
+    setQuetQR(false)
   }
 
   useEffect(() => {
@@ -134,7 +151,7 @@ export function DapAnScr({ id }: { id: string }) {
           <Nut kieu="nhat" nho onClick={() => { cacPhan.current.clear(); setQuetQR(true) }}>Quét QR nạp</Nut>
         </div>
         {loi && <p style={{ color: 'var(--red-d)', marginBottom: 0 }}>{loi}</p>}
-        {trung.map(([a, c]) => <p key={a + c} style={{ color: 'var(--orange-d)', marginBottom: 0 }}>⚠ Mã {a} và {c} giống hệt Phần I — kiểm tra lại có nhập nhầm không.</p>)}
+        {trung.map(([a, c]) => <p key={a + c} className="trang-thai cam" style={{ marginBottom: 0 }}><AlertTriangle size={15} /> Mã {a} và {c} giống hệt Phần I — kiểm tra lại có nhập nhầm không.</p>)}
       </The>
 
       <Muc phai={<span className="mo nho">{bai.dapAn.length} mã</span>}>Mã đề</Muc>
@@ -177,6 +194,7 @@ export function DapAnScr({ id }: { id: string }) {
           <div onClick={e => e.stopPropagation()} style={{ maxWidth: 460, width: '100%' }}>
             <The className="khoi">
               <h2>Quét QR đáp án</h2>
+              <p className="mo nho">Hỗ trợ QR Chamthi365 (nhiều phần quét liên tiếp) hoặc QR bất kỳ ghi sẵn chuỗi đáp án, vd “0101 ABCD ĐSĐS 0,5;1”. Chụp trực tiếp hoặc chọn ảnh QR có sẵn.</p>
               <QuetQR onKq={khiQuetQR} onDong={() => setQuetQR(false)} />
             </The>
           </div>

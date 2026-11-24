@@ -48,7 +48,7 @@ export function QuetQR({ onKq, onDong }: { onKq: (t: string) => void; onDong?: (
     <video ref={vid} playsInline muted style={{ width: '100%', borderRadius: 12, background: '#000', aspectRatio: '4/3' }} />
     {loi && <div className="chip cam">{loi}</div>}
     <div style={{ display: 'flex', gap: 8 }}>
-      <label className="nut xam">
+      <label className="nut nhat">
         Chọn ảnh QR
         <input type="file" accept="image/*" hidden onChange={e => { const f = e.target.files?.[0]; if (f) chonAnh(f) }} />
       </label>

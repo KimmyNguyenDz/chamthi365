@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Camera, FileText, BarChart3, AlertTriangle, XCircle } from 'lucide-react'
 import { Dau, ManHinh } from '../components/ManHinh'
 import { Nut, NutDen } from '../components/Nut'
 import { The, Muc } from '../components/The'
@@ -37,9 +38,9 @@ export function BaiXem({ id }: { id: string }) {
   return (
     <ManHinh dau={<Dau tieuDe={bai.ten} phu={`${bai.mon} · ${bai.lop.join(', ')}`} />}>
       <div className="hang khoi" style={{ flexWrap: 'wrap' }}>
-        <NutDen to={`#/cham/${bai.id}`} kieu="xanh" style={{ flex: 1, minWidth: 130 }}>📷 Chấm camera</NutDen>
-        <NutDen to={`#/cham/${bai.id}?tep=1`} kieu="vang" style={{ flex: 1, minWidth: 130 }}>Chấm từ tệp</NutDen>
-        <NutDen to={`#/bai/${bai.id}/ket-qua`} kieu="tim" style={{ flex: 1, minWidth: 130 }}>📊 Kết quả</NutDen>
+        <NutDen to={`#/cham/${bai.id}`} kieu="xanh" style={{ flex: 1 }}><Camera /> Chấm camera</NutDen>
+        <NutDen to={`#/cham/${bai.id}?tep=1`} kieu="vang" style={{ flex: 1 }}><FileText /> Chấm từ tệp</NutDen>
+        <NutDen to={`#/bai/${bai.id}/ket-qua`} kieu="tim" style={{ flex: 1 }}><BarChart3 /> Kết quả</NutDen>
       </div>
       <div className="hang khoi" style={{ flexWrap: 'wrap' }}>
         <NutDen to={`#/bai/${bai.id}/dap-an`} kieu="nhat" nho>Đáp án ({bai.dapAn.length} mã)</NutDen>
@@ -50,8 +51,8 @@ export function BaiXem({ id }: { id: string }) {
 
       {(canXem > 0 || loi > 0) && (
         <The pang className="khoi">
-          {canXem > 0 && <p style={{ color: 'var(--orange-d)', margin: 0 }}>⚠ {canXem} phiếu còn chỗ cần xem — máy chưa chắc, SBD trùng hoặc tô vào câu thừa.</p>}
-          {loi > 0 && <p style={{ color: 'var(--red-d)', margin: '4px 0 0' }}>✗ {loi} phiếu không đọc được.</p>}
+          {canXem > 0 && <p className="trang-thai cam" style={{ margin: 0 }}><AlertTriangle size={15} /> {canXem} phiếu còn chỗ cần xem — máy chưa chắc, SBD trùng hoặc tô vào câu thừa.</p>}
+          {loi > 0 && <p className="trang-thai do" style={{ margin: '4px 0 0' }}><XCircle size={15} /> {loi} phiếu không đọc được.</p>}
         </The>
       )}
 

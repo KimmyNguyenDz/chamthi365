@@ -8,6 +8,7 @@ import { dsPhieu, layBai, luuBai } from '../lib/db'
 import { MAU_DIEM, diemMau } from '../lib/diem'
 import { docDanhSachExcel } from '../lib/excel'
 import { idMoi } from '../lib/id'
+import { Camera } from 'lucide-react'
 import { mucLuc, nhanCau, tomTat, urlAnh } from '../lib/thuvien'
 import type { Bai, Diem, HocSinh, MauPhieu } from '../types'
 
@@ -112,7 +113,7 @@ export function TaoBai({ id }: { id?: string }) {
       {buoc === 0 && (
         <>
           <div className="hang khoi">
-            <Nut kieu="nhat" onClick={() => setQuet(true)}>📷 Quét phiếu — máy tìm giúp</Nut>
+            <Nut kieu="nhat" onClick={() => setQuet(true)}><Camera /> Quét phiếu — máy tìm giúp</Nut>
           </div>
           <ChonPhieu chon={m?.ma} onChon={chonMau} />
           {quet && <QuetPhieu onChon={chonMau} onDong={() => setQuet(false)} />}

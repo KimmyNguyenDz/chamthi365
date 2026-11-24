@@ -6,6 +6,7 @@ import { dsBai, dsPhieu, layBai } from '../lib/db'
 import { chamPhieu, dinhDangDiem, timHocSinh, type KqDiem } from '../lib/diem'
 import { docHieuLuc, diemTuLuan } from '../lib/chamKq'
 import { vietBangDiemBytes } from '../lib/excel'
+import { AlertTriangle, XCircle } from 'lucide-react'
 import type { Bai, DocCham, Phieu } from '../types'
 
 type Hang = { p: Phieu; doc: DocCham; kq: KqDiem; ten: string; sbdLa: boolean }
@@ -94,8 +95,8 @@ export function KetQua({ id }: { id: string }) {
 
       {(canXem > 0 || loiDs.length > 0 || chuaCham > 0) && (
         <The pang className="khoi">
-          {canXem > 0 && <div className="mo nho" style={{ color: 'var(--orange-d)' }}>⚠ {canXem} phiếu còn chỗ cần xem</div>}
-          {loiDs.length > 0 && <div className="mo nho" style={{ color: 'var(--red-d)' }}>✗ {loiDs.length} phiếu không đọc được</div>}
+          {canXem > 0 && <div className="trang-thai cam"><AlertTriangle size={14} /> {canXem} phiếu còn chỗ cần xem</div>}
+          {loiDs.length > 0 && <div className="trang-thai do"><XCircle size={14} /> {loiDs.length} phiếu không đọc được</div>}
           {chuaCham > 0 && <div className="mo nho">· {chuaCham} học sinh chưa có phiếu</div>}
         </The>
       )}
@@ -160,7 +161,7 @@ export function KetQua({ id }: { id: string }) {
                 <td style={{ padding: '7px 6px', textAlign: 'center' }}><b style={{ color: 'var(--green-d)' }}>{h.kq.coDapAn ? dinhDangDiem(h.kq.tong) : '—'}</b></td>
                 <td style={{ padding: '7px 6px', textAlign: 'center' }}>
                   <a href={`#/phieu/${h.p.id}`}>Xem</a>
-                  {h.p.kq!.can.length > 0 && <span style={{ color: 'var(--orange-d)' }}> ⚠</span>}
+                  {h.p.kq!.can.length > 0 && <AlertTriangle size={14} style={{ color: 'var(--orange-d)', verticalAlign: '-2px' }} />}
                 </td>
               </tr>
             ))}

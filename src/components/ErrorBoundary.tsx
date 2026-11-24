@@ -1,4 +1,5 @@
 import { Component, type PropsWithChildren, type ReactNode } from 'react'
+import { CloudOff } from 'lucide-react'
 
 /** Chặn crash React — dữ liệu trong IndexedDB vẫn còn, mở lại là chạy tiếp */
 export class ErrorBoundary extends Component<PropsWithChildren, { loi: ReactNode }> {
@@ -9,7 +10,7 @@ export class ErrorBoundary extends Component<PropsWithChildren, { loi: ReactNode
     return (
       <div style={{ minHeight: '100dvh', display: 'grid', placeItems: 'center', padding: 20, fontFamily: 'system-ui' }}>
         <div style={{ textAlign: 'center', maxWidth: 420 }}>
-          <div style={{ fontSize: 44 }}>😵</div>
+          <CloudOff size={44} strokeWidth={1.6} style={{ color: '#8ba4ac' }} />
           <h2>Màn gặp sự cố</h2>
           <p style={{ color: '#555' }}>Bài chấm và phiếu vẫn còn nguyên trên máy — mở lại app là tiếp tục được.</p>
           <p style={{ fontSize: 12, color: '#999' }}>{this.state.loi}</p>
