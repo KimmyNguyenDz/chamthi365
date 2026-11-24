@@ -65,7 +65,7 @@ export function App() {
   if (ten === 'tao') return <TaoBai />
   if (ten === 'sua') return <TaoBai id={id ?? undefined} />
   if (ten === 'bai' && id) {
-    const p2 = h.split('?')[0].split('/').filter(Boolean)[2]
+    const p2 = h.replace(/^#\/?/, '').split('?')[0].split('/').filter(Boolean)[2]
     if (p2 === 'dap-an') return <DapAnScr id={id} />
     if (p2 === 'ket-qua') return <KetQua id={id} />
     if (p2 === 'hoc-sinh') return <HocSinhScr id={id} />
