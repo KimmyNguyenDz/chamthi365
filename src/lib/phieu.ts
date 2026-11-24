@@ -1,4 +1,5 @@
 import type { Phieu, DocCham, CanXem, Bai, HocSinh } from '../types'
+import { timMaDe } from './diem'
 
 const lay = <T>(sua: Record<string, unknown>, k: string, goc: T): T =>
   (sua[k] as T | undefined) ?? goc
@@ -34,3 +35,19 @@ export const khoaCan = (c: CanXem): string =>
 const bo0 = (s: string) => s.replace(/^0+/, '')
 export const timHocSinhSbd = (bai: Bai, sbd: string): HocSinh | undefined =>
   bai.hocSinh.find(h => bo0(h.sbd) === bo0(sbd))
+
+/** Đối chiếu bài đọc với đáp án + danh sách lớp → các cảnh báo cho cán bộ */
+export function canhBaoPhieu(bai: Bai, doc: DocCham, sbdTrung = false): string[] {
+  const w: string[] = []
+  if (bai.dapAn.length && doc.ma && !timMaDe(bai, doc.ma).some(g => g.khop))
+    w.push('Tô sai mã đề? — mã này không có đáp án')
+  if (!bai.boSbd) {
+    if (!doc.sbd) w.push('Chưa đọc được số báo danh')
+    else {
+      if (bai.hocSinh.length && !timHocSinhSbd(bai, doc.sbd))
+        w.push('SBD không có trong danh sách lớp')
+      if (sbdTrung) w.push('SBD trùng với phiếu khác')
+    }
+  }
+  return w
+}

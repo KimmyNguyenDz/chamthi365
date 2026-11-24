@@ -7,6 +7,7 @@ import { dsPhieu, layAnh, layBai, layPhieu, luuPhieu, xoaPhieu } from '../lib/db
 import { chamPhieu, dinhDangDiem, timHocSinh, timMaDe } from '../lib/diem'
 import { khuon as taiKhuon } from '../lib/thuvien'
 import { docHieuLuc, diemTuLuan } from '../lib/chamKq'
+import { canhBaoPhieu } from '../lib/phieu'
 import { thongBao } from '../lib/thongBao'
 import type { Bai, OCham, Phieu } from '../types'
 import { AlertTriangle } from 'lucide-react'
@@ -49,6 +50,11 @@ export function PhieuXem({ id }: { id: string }) {
     const s = p?.sua ?? {}
     return Object.keys(s).reduce((n, k) => n + (typeof s[k as keyof typeof s] === 'object' ? Object.keys(s[k as keyof typeof s] as object).length : 1), 0)
   }, [p])
+  const canhBao = useMemo(() => {
+    if (!bai || !doc) return []
+    const dem = ds.filter(x => x.id !== p?.id && docHieuLuc(x).sbd.replace(/^0+/, '') === doc.sbd.replace(/^0+/, '') && doc.sbd).length
+    return canhBaoPhieu(bai, doc, dem > 0)
+  }, [bai, doc, ds, p])
 
   if (khong) return <ManHinh><p className="mo giua khoi">Phiếu này không còn trong máy</p><div className="giua"><NutDen to="#/" kieu="nhat">Về danh sách bài chấm</NutDen></div></ManHinh>
   if (!p || !bai || !doc) return <ManHinh><p className="mo giua khoi">Đang mở…</p></ManHinh>
@@ -108,6 +114,7 @@ export function PhieuXem({ id }: { id: string }) {
               value={diemTuLuan(p) || ''} onChange={e => ghiSua('tuLuan', undefined, e.target.value === '' ? null : +e.target.value)} />
           </div>
         )}
+        {canhBao.map(w => <p key={w} className="trang-thai do" style={{ marginBottom: 0 }}><AlertTriangle size={14} /> {w}</p>)}
         {soSua > 0 && <p className="trang-thai xanh" style={{ marginBottom: 0 }}>✎ Đã sửa tay {soSua} chỗ — thay đổi được lưu ngay, điểm đã tính lại.</p>}
         {p.kq!.can.length > 0 && <p className="trang-thai cam" style={{ marginBottom: 0 }}><AlertTriangle size={14} /> {p.kq!.can.length} chỗ máy chưa chắc — bấm vào ô cam trên phiếu để xác nhận.</p>}
       </The>
