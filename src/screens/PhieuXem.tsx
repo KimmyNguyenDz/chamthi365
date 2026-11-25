@@ -4,13 +4,15 @@ import { Nut, NutDen } from '../components/Nut'
 import { The } from '../components/The'
 import { AnhPhieu } from '../components/AnhPhieu'
 import { dsPhieu, layAnh, layBai, layPhieu, luuPhieu, xoaPhieu } from '../lib/db'
-import { chamPhieu, dinhDangDiem, timHocSinh, timMaDe } from '../lib/diem'
+import { chamPhieu, dinhDangDiem, timDapAn, timHocSinh, timMaDe, type KqDiem } from '../lib/diem'
 import { khuon as taiKhuon } from '../lib/thuvien'
 import { docHieuLuc, diemTuLuan } from '../lib/chamKq'
 import { canhBaoPhieu } from '../lib/phieu'
 import { thongBao } from '../lib/thongBao'
-import type { Bai, OCham, Phieu } from '../types'
-import { AlertTriangle } from 'lucide-react'
+import { anhPhieuCham } from '../lib/xuatPhieu'
+import { taiTep } from '../lib/tai'
+import type { Bai, DocCham, OCham, Phieu } from '../types'
+import { AlertTriangle, Download } from 'lucide-react'
 
 type SuaLoai = { o: OCham } | null
 
@@ -85,6 +87,17 @@ export function PhieuXem({ id }: { id: string }) {
     else setSua(o.phan === 'p1' || o.phan === 'p2' || o.phan === 'p3' ? { o } : null)
   }
 
+  const taiAnh = async () => {
+    if (!anh) { thongBao('Phiếu này không có ảnh để xuất'); return }
+    const dong = [
+      `${hs?.ten ?? 'Chưa nhận tên'} — SBD ${doc.sbd || '?'} · Mã đề ${doc.ma || '?'} · Điểm ${diem?.coDapAn ? dinhDangDiem(diem.tong) : '—'}`,
+      `Phần I ${diem ? dinhDangDiem(diem.phan.p1) : '—'} · II ${diem ? dinhDangDiem(diem.phan.p2) : '—'} · III ${diem ? dinhDangDiem(diem.phan.p3) : '—'} — ô xanh đúng, ô đỏ sai — Chấm bằng Chamthi365`,
+    ]
+    const blob = await anhPhieuCham(anh, p.kq!, trang, dong)
+    taiTep(blob, `phieu-${p.stt}-sbd-${doc.sbd || 'ko'}-cham.png`)
+    thongBao('Đã tải ảnh phiếu đã chấm')
+  }
+
   return (
     <ManHinh tab={false} dau={
       <Dau tieuDe={`Phiếu số ${p.stt}`} phu={hs?.ten ?? `SBD ${doc.sbd || '?'}`} phai={
@@ -119,10 +132,11 @@ export function PhieuXem({ id }: { id: string }) {
         {p.kq!.can.length > 0 && <p className="trang-thai cam" style={{ marginBottom: 0 }}><AlertTriangle size={14} /> {p.kq!.can.length} chỗ máy chưa chắc — bấm vào ô cam trên phiếu để xác nhận.</p>}
       </The>
 
-      <div className="hang khoi">
+      <div className="hang khoi" style={{ flexWrap: 'wrap' }}>
         {truoc && <NutDen to={`#/phieu/${truoc.id}`} kieu="nhat" nho>← Trước</NutDen>}
         <Nut kieu="nhat" nho onMouseDown={() => setAnhGoc(true)} onMouseUp={() => setAnhGoc(false)}
           onTouchStart={() => setAnhGoc(true)} onTouchEnd={() => setAnhGoc(false)}>Giữ xem ảnh gốc</Nut>
+        <Nut kieu="nhat" nho onClick={taiAnh}><Download size={14} /> Tải phiếu đã chấm</Nut>
         {sau && <NutDen to={`#/phieu/${sau.id}`} kieu="nhat" nho>Sau →</NutDen>}
         <NutDen to={`#/bai/${bai.id}`} kieu="nhat" nho style={{ marginLeft: 'auto' }}>Về bài</NutDen>
       </div>
@@ -130,6 +144,8 @@ export function PhieuXem({ id }: { id: string }) {
       {!anhGoc
         ? <AnhPhieu anh={anh} kq={p.kq!} trang={trang} can={can} onBam={bamO} />
         : <AnhPhieuGoc p={p} />}
+
+      {diem?.coDapAn && <ChiTietCau bai={bai} doc={doc} diem={diem} />}
 
       {/* Popup sửa ô P1/P2/P3 */}
       {sua && (
@@ -183,6 +199,57 @@ function AnhPhieuGoc({ p }: { p: Phieu }) {
   return url
     ? <img src={url} alt="Ảnh gốc" style={{ width: '100%', border: 'var(--bo)', borderRadius: 14, filter: 'contrast(1.1)' }} />
     : <div className="the giua mo" style={{ padding: 60 }}>Không lưu ảnh gốc</div>
+}
+
+/** Bảng đúng/sai từng câu — xanh đúng, đỏ sai kèm đáp án, xám bỏ trống */
+function ChiTietCau({ bai, doc, diem }: { bai: Bai; doc: DocCham; diem: KqDiem }) {
+  const da = timDapAn(bai, doc.ma)
+  if (!da) return null
+  const fmtDa = (x?: string) => (!x ? '' : x === '*' ? '∗' : x)
+  const chip = (k: string, dung: boolean | null, txt: string, daDung: string) => (
+    <span key={k} title={dung === false ? `Đáp án: ${daDung}` : undefined} style={{
+      padding: '3px 7px', borderRadius: 8, fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap',
+      background: dung === true ? '#e4f6ec' : dung === false ? '#fde8e9' : '#eef0f7',
+      color: dung === true ? '#1f8a4c' : dung === false ? '#c53340' : '#6b7394',
+      border: `1px solid ${dung === true ? '#a9e2c0' : dung === false ? '#f2b4b8' : '#dde1ee'}`,
+    }}>{txt}{dung === false && daDung ? <span style={{ opacity: .85 }}> →{daDung}</span> : ''}</span>
+  )
+  const nDung1 = diem.p1.filter(x => x.dung === true).length
+  const nDung2 = diem.p2.reduce((n, x) => n + x.y.filter(Boolean).length, 0)
+  const nDung3 = diem.p3.filter(x => x.dung === true).length
+  return (
+    <The pang className="khoi">
+      <b className="nho">Chi tiết từng câu — xanh đúng · đỏ sai (→ đáp án) · xám bỏ trống</b>
+      {doc.p1.length > 0 && (
+        <>
+          <p className="mo nho" style={{ margin: '8px 0 4px' }}><b>Phần I</b> — đúng {nDung1}/{doc.p1.length} câu</p>
+          <div className="hang" style={{ flexWrap: 'wrap', gap: 4 }}>
+            {doc.p1.map((g, v) => chip(`p1${v}`, diem.p1[v]?.dung ?? null, `${v + 1}.${g || '—'}`, fmtDa(da.p1[v])))}
+          </div>
+        </>
+      )}
+      {doc.p2.length > 0 && (
+        <>
+          <p className="mo nho" style={{ margin: '10px 0 4px' }}><b>Phần II</b> — đúng {nDung2}/{doc.p2.length * 4} ý</p>
+          <div className="hang" style={{ flexWrap: 'wrap', gap: 4 }}>
+            {doc.p2.flatMap((g, v) => [0, 1, 2, 3].map(i => {
+              const dung = diem.p2[v]?.y[i] ?? null
+              const x = g[i] ?? ''
+              return chip(`p2${v}${i}`, dung, `${v + 1}${'abcd'[i]}:${x || '—'}`, da.p2[v]?.[i] ?? '')
+            }))}
+          </div>
+        </>
+      )}
+      {doc.p3.length > 0 && (
+        <>
+          <p className="mo nho" style={{ margin: '10px 0 4px' }}><b>Phần III</b> — đúng {nDung3}/{doc.p3.length} câu</p>
+          <div className="hang" style={{ flexWrap: 'wrap', gap: 4 }}>
+            {doc.p3.map((g, v) => chip(`p3${v}`, diem.p3[v]?.dung ?? null, `${v + 1}.${g || '—'}`, fmtDa(da.p3[v])))}
+          </div>
+        </>
+      )}
+    </The>
+  )
 }
 
 function PopGiua({ children, onDong }: { children: React.ReactNode; onDong: () => void }) {
