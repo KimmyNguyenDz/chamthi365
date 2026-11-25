@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { omrKqToKq } from './docKq'
 import type { KqOmr } from './omr'
 
-const o = (tt: string): { x: number; y: number; dam: number; sang: number; vien: number; tt: string } =>
-  ({ x: 10, y: 20, dam: tt === 'to' ? .8 : 0, sang: 250, vien: .5, tt })
+const o = (tt: string): { x: number; y: number; r: number; dam: number; sang: number; vien: number; tt: string } =>
+  ({ x: 10, y: 20, r: 4, dam: tt === 'to' ? .8 : 0, sang: 250, vien: .5, tt })
 
 const kqGia = (over: Partial<KqOmr> = {}): KqOmr => ({
   sbd: { s: '37', nghi: false, o: [[o('trong'), o('trong')], [o('trong'), o('to')]] },
@@ -18,6 +18,7 @@ const kqGia = (over: Partial<KqOmr> = {}): KqOmr => ({
   nghi: ['Câu 2'],
   chatLuong: { doNet: .5, khopMoc: 6, tongMoc: 6, xoay180: false, nguong: .3, damTo: .7 },
   chieu: (x, y) => [x, y],
+  nguoc: (x, y) => [x, y],
   ...over,
 })
 

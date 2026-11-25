@@ -48,7 +48,7 @@ function vietDapAn(c: CanvasRenderingContext2D, x: number, y: number, r: number,
 function veChua(c: CanvasRenderingContext2D, os: OCham[], dy: number, chua: { doc: DocCham; da: DapAn; diem: KqDiem }) {
   const { doc, da, diem } = chua
   const oTai = (phan: OCham['phan'], q: number, i: number) => os.find(x => x.phan === phan && x.q === q && x.i === i)
-  const R = (o?: OCham) => (o?.r ?? 8) * 1.15
+  const R = (o?: OCham) => (o?.r ?? 8) * 1.7
 
   // Phần I: đúng → ✓ ô đã tô; sai → ✗ ô đã tô + ✓ ô đáp án đúng
   doc.p1.forEach((g, v) => {

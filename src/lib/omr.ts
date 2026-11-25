@@ -16,7 +16,7 @@ export class LoiCham extends Error {
   constructor(ma: string, msg: string) { super(msg); this.ma = ma }
 }
 
-export type ODoc = { x: number; y: number; dam: number; sang: number; vien: number; tt: string }
+export type ODoc = { x: number; y: number; r: number; dam: number; sang: number; vien: number; tt: string }
 export type CauP1 = { q: number; chon: string; nghi: boolean; o: ODoc[] }
 export type CauP2 = { q: number; y: string[]; nghi: boolean[]; o: ODoc[][] }
 export type CauP3 = {
@@ -34,6 +34,8 @@ export type KqOmr = {
   nghi: string[]
   chatLuong: { doNet: number; khopMoc: number; tongMoc: number; xoay180: boolean; nguong: number; damTo: number }
   chieu: (x: number, y: number) => Diem2
+  /** ngược lại: pixel ảnh gốc → tọa độ khuôn (để vẽ overlay lên ảnh nắn) */
+  nguoc: (x: number, y: number) => Diem2
 }
 
 // ---------- tiền xử lý ----------
@@ -223,6 +225,17 @@ function chieuH(a: H9, c: number, o: number): Diem2 {
   return [(a[0] * c + a[1] * o + a[2]) / e, (a[3] * c + a[4] * o + a[5]) / e]
 }
 
+function nghichH(a: H9): H9 | null {
+  const [A, B, C, D, E, F, G, H, I] = a
+  const det = A * (E * I - F * H) - B * (D * I - F * G) + C * (D * H - E * G)
+  if (Math.abs(det) < 1e-12) return null
+  return [
+    (E * I - F * H) / det, (C * H - B * I) / det, (B * F - C * E) / det,
+    (F * G - D * I) / det, (A * I - C * G) / det, (C * D - A * F) / det,
+    (D * H - E * G) / det, (B * G - A * H) / det, (A * E - B * D) / det,
+  ]
+}
+
 function giaiTT(a: number[], c: number[], o: number): number[] | null {
   const e = a.slice(), i = c.slice()
   for (let s = 0; s < o; s++) {
@@ -345,7 +358,7 @@ function khopMoc(a: H9, c: Khuon, o: Dom[]): KhopMoc {
 }
 
 type KqNan = {
-  H: H9; chieu: (x: number, y: number) => Diem2
+  H: H9; chieu: (x: number, y: number) => Diem2; nguoc: (x: number, y: number) => Diem2
   khop: number; tong: number; xoay180: boolean; tl: number
 }
 
@@ -438,6 +451,7 @@ function nanPhieu(
     return [T.d[0] - f[0], T.d[1] - f[1]] as Diem2
   })
   const J = C.length >= 6
+  const yn = nghichH(y)
   return {
     H: y,
     chieu: (T, f) => {
@@ -449,6 +463,20 @@ function nanPhieu(
         M += P; w += P * j[q][0]; S += P * j[q][1]
       }
       return [p[0] + w / M, p[1] + S / M]
+    },
+    nguoc: (T, f) => {
+      if (!yn) return [T, f] as Diem2
+      let [px, py] = chieuH(yn, T, f)
+      if (J) {
+        let M = 0, w = 0, S = 0
+        for (let q = 0; q < C.length; q++) {
+          const P = 1 / ((C[q].s[0] - px) ** 2 + (C[q].s[1] - py) ** 2 + 400)
+          M += P; w += P * j[q][0]; S += P * j[q][1]
+        }
+        const n = chieuH(yn, T - w / M, f - S / M)
+        px = n[0]; py = n[1]
+      }
+      return [px, py]
     },
     khop: C.length, tong: c.moc.length,
     xoay180: v.xoay === 2,
@@ -768,7 +796,7 @@ function chamMot(a: AnhXam, c: AnhXam, o: number, e: Khuon, i: Dom[]): KqOmr {
     return { chon, nghi: Q }
   }
   const lt = (t: number): ODoc => ({
-    x: r[t].img[0] / o, y: r[t].img[1] / o,
+    x: r[t].img[0] / o, y: r[t].img[1] / o, r: r[t].r,
     dam: +r[t].damTru.toFixed(3), sang: Math.round(r[t].sangGoc),
     vien: +r[t].vien.toFixed(3), tt: r[t].tt,
   })
@@ -849,6 +877,7 @@ function chamMot(a: AnhXam, c: AnhXam, o: number, e: Khuon, i: Dom[]): KqOmr {
       const l = g.chieu(t, n)
       return [l[0] / o, l[1] / o]
     },
+    nguoc: (t, n) => g.nguoc(t * o, n * o),
   }
 }
 

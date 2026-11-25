@@ -6,7 +6,7 @@ const TRANG_THAI: Record<string, OCham['trangThai']> = {
 }
 
 const oCham = (phan: OCham['phan'], o: ODoc, q?: number, i?: number): OCham => ({
-  phan, q, i, x: o.x, y: o.y, to: o.tt === 'to', trangThai: TRANG_THAI[o.tt] ?? 'mo',
+  phan, q, i, x: o.x, y: o.y, r: o.r, to: o.tt === 'to', trangThai: TRANG_THAI[o.tt] ?? 'mo',
 })
 
 /** KqOmr thô → KqCham {doc, can, o, xoay180} (chưa chấm điểm) */
@@ -51,6 +51,11 @@ export function omrKqToKq(kq: KqOmr): { doc: DocCham; can: CanXem[]; o: OCham[];
     p2: kq.p2.map(c => c.y),
     p3: kq.p3.map(c => c.s),
     ...(kq.khac?.length ? { khac: kq.khac.map(k => ({ ten: k.ten, s: k.s })) } : {}),
+  }
+  // tọa độ ô từ pixel ảnh gốc → không gian khuôn (khớp ảnh nắn + viewBox)
+  for (const oo of os) {
+    const [x, y] = kq.nguoc(oo.x, oo.y)
+    oo.x = x; oo.y = y
   }
   return { doc, can, o: os, xoay180: kq.chatLuong.xoay180 }
 }
