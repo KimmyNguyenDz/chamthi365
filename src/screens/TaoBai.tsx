@@ -5,7 +5,7 @@ import { The, Muc } from '../components/The'
 import { ChonPhieu } from '../components/ChonPhieu'
 import { QuetPhieu } from '../components/QuetPhieu'
 import { dsPhieu, layBai, luuBai, dsLop } from '../lib/db'
-import { MAU_DIEM, diemMau } from '../lib/diem'
+import { MAU_DIEM, diemMau, dinhDangDiem } from '../lib/diem'
 import { docDanhSachExcel, vietDanhSachExcelBytes } from '../lib/excel'
 import { taiTep } from '../lib/tai'
 import { thongBao } from '../lib/thongBao'
@@ -198,6 +198,18 @@ export function TaoBai({ id }: { id?: string }) {
             <OSo nhan="Làm tròn" v={b.diem.lamTron} buoc={0.05} on={n => setB({ ...b, diem: { ...b.diem, lamTron: n } })} />
           </div>
           <p className="mo nho">Phần II theo số ý đúng: {b.diem.p2.map((x, i) => `${i}ý=${x}`).join(' · ')}</p>
+          {(() => {
+            const d = b.diem
+            const td = b.soCau.p1 * d.p1 + b.soCau.p2 * (d.p2[4] ?? 0) + b.soCau.p3 * d.p3 + d.tuLuan
+            const tron = Math.round(td / d.lamTron) * d.lamTron
+            const khac = Math.abs(tron - 10) > 1e-9
+            return (
+              <p className={`trang-thai ${khac ? 'cam' : 'xanh'}`} style={{ marginTop: 2 }}>
+                ∑ Tổng điểm tối đa: <b>{dinhDangDiem(tron)}</b>
+                {khac ? ` — khác thang 10 (P.I ${b.soCau.p1}×${d.p1} + P.II ${b.soCau.p2}×${d.p2[4] ?? 0} + P.III ${b.soCau.p3}×${d.p3}${d.tuLuan ? ` + TL ${d.tuLuan}` : ''}), kiểm tra lại` : ' ✓'}
+              </p>
+            )
+          })()}
 
           <div className="hang khoi">
             <Nut kieu="nhat" onClick={() => setBuoc(0)}>Bước trước</Nut>
