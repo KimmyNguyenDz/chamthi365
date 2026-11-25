@@ -102,7 +102,7 @@ export function DanhSach() {
               {l.hocSinh.map((h, i) => (
                 <div key={h.sbd || i} className="hang" style={{ justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px dashed var(--ke)' }}>
                   <span className="nho"><b>{h.ten || '—'}</b></span>
-                  <span className="mo nho">{h.sbd}{h.ngaySinh ? ` · ${h.ngaySinh}` : ''}{h.lop ? ` · ${h.lop}` : ''}</span>
+                  <span className="mo nho">{h.sbd}{h.gioiTinh ? ` · ${h.gioiTinh}` : ''}{h.ngaySinh ? ` · ${h.ngaySinh}` : ''}{h.lop ? ` · ${h.lop}` : ''}</span>
                 </div>
               ))}
             </div>

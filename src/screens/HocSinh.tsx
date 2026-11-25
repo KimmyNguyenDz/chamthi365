@@ -100,7 +100,7 @@ export function HocSinhScr({ id }: { id: string }) {
         {bai.hocSinh.map(h => (
           <The key={h.sbd} pang>
             <div className="hang" style={{ justifyContent: 'space-between' }}>
-              <span><b>{h.ten || '—'}</b><div className="mo nho">{h.sbd}{h.ngaySinh ? ` · ${h.ngaySinh}` : ''}{h.lop ? ` · ${h.lop}` : ''}</div></span>
+              <span><b>{h.ten || '—'}</b><div className="mo nho">{h.sbd}{h.gioiTinh ? ` · ${h.gioiTinh}` : ''}{h.ngaySinh ? ` · ${h.ngaySinh}` : ''}{h.lop ? ` · ${h.lop}` : ''}</div></span>
               {dsSbdCham.has(h.sbd.replace(/^0+/, '')) && <span style={{ color: 'var(--green-d)' }}>✓ đã chấm</span>}
             </div>
           </The>

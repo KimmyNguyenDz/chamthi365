@@ -90,9 +90,22 @@ describe('docDanhSachExcel', () => {
     const u8 = vietDanhSachExcelBytes()
     const hs = await docDanhSachExcel(u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength) as ArrayBuffer)
     expect(hs).toEqual([
-      { sbd: '10010201', ten: 'Nguyễn Văn An', lop: '10A1', ngaySinh: '15/03/2010' },
-      { sbd: '10010202', ten: 'Trần Thị Bình', lop: '10A1', ngaySinh: '02/07/2010' },
-      { sbd: '10010203', ten: 'Lê Minh Châu', lop: '10A1', ngaySinh: '28/11/2009' },
+      { sbd: '10010201', ten: 'Nguyễn Văn An', lop: '10A1', ngaySinh: '15/03/2010', gioiTinh: 'Nam' },
+      { sbd: '10010202', ten: 'Trần Thị Bình', lop: '10A1', ngaySinh: '02/07/2010', gioiTinh: 'Nữ' },
+      { sbd: '10010203', ten: 'Lê Minh Châu', lop: '10A1', ngaySinh: '28/11/2009', gioiTinh: 'Nữ' },
+    ])
+  })
+
+  it('đọc đúng file có cả cột SBD riêng và Mã học sinh riêng', async () => {
+    const aoa = [
+      ['STT', 'Lớp', 'Mã học sinh', 'SBD', 'Họ và tên', 'Ngày sinh', 'Giới tính'],
+      [1, '10A1', 'HS001', '10010201', 'Nguyễn Văn An', '15/03/2010', 'Nam'],
+    ]
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), 'x')
+    const hs = await docDanhSachExcel(wb2buf(wb))
+    expect(hs).toEqual([
+      { sbd: '10010201', ten: 'Nguyễn Văn An', lop: '10A1', ngaySinh: '15/03/2010', gioiTinh: 'Nam', maHs: 'HS001' },
     ])
   })
 })
@@ -131,10 +144,10 @@ describe('vietBangDiemAoa', () => {
     const docC: DocCham = { sbd: '001', ma: '101', p1: ['A', 'B', 'C', 'D'], p2: [['S', 'Đ', 'Đ', 'Đ']], p3: ['0,5', '12'] }
     const phieu: Phieu[] = [{ id: 'p1', baiId: 'b', stt: 1, nguon: 'tep', luc: 1, ok: true, kq: { doc: docC, can: [], o: [] }, sua: {} }]
     const { bangDiem, chiTiet } = vietBangDiemAoa(b, phieu, p => chamPhieu(b, p, 0))
-    expect(bangDiem[0]).toEqual(['STT', 'SBD', 'Họ và tên', 'Ngày sinh', 'Lớp', 'Mã đề', 'Phần I', 'Phần II', 'Phần III', 'Tự luận', 'Tổng', 'Ghi chú'])
+    expect(bangDiem[0]).toEqual(['STT', 'SBD', 'Họ và tên', 'Ngày sinh', 'Giới tính', 'Lớp', 'Mã đề', 'Phần I', 'Phần II', 'Phần III', 'Tự luận', 'Tổng', 'Ghi chú'])
     expect(bangDiem[1][0]).toBe(1)
-    expect(bangDiem[1][6]).toBe(1) // Phần I = 4×.25
-    expect(bangDiem[1][10]).toBe(1 + 1 + 1) // tổng = 1 + 1(P2 4 ý) + 1(P3 2×.5)
+    expect(bangDiem[1][7]).toBe(1) // Phần I = 4×.25
+    expect(bangDiem[1][11]).toBe(1 + 1 + 1) // tổng = 1 + 1(P2 4 ý) + 1(P3 2×.5)
     const footer = bangDiem[bangDiem.length - 1][0] as string
     expect(footer).toContain('Chamthi365')
     expect(footer).not.toContain('Thái Minh Nguyên')

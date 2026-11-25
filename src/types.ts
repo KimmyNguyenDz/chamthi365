@@ -41,7 +41,7 @@ export type Diem = {
 
 export type DapAn = { ma: string; p1: string[]; p2: string[]; p3: string[] }
 
-export type HocSinh = { sbd: string; ten: string; lop?: string; ngaySinh?: string }
+export type HocSinh = { sbd: string; ten: string; lop?: string; ngaySinh?: string; gioiTinh?: string; maHs?: string }
 
 /** Danh sách lớp lưu sẵn — dùng lại cho nhiều bài chấm, đồng bộ qua tài khoản */
 export type Lop = { id: string; ten: string; hocSinh: HocSinh[]; tao: number; sua: number }

@@ -201,25 +201,31 @@ const fmtNgaySinh = (v: unknown): string => {
 export async function docDanhSachExcel(buf: ArrayBuffer): Promise<HocSinh[]> {
   const wb = XLSX.read(buf, { type: 'array', cellDates: true })
   const rows: unknown[][] = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: null, raw: true })
-  const hd = rows.findIndex(r => r.some(v => /sbd|số báo danh/i.test(Nn(v))))
+  const hd = rows.findIndex(r => r.some(v => /sbd|số báo danh|mã học sinh|mã hs|mhs/i.test(Nn(v))))
   if (hd < 0) {
     const dau = rows.slice(0, 3).map(r => r.map(Nn).filter(Boolean).join(' | ')).filter(Boolean).join(' — ')
-    throw new Error(`Không thấy cột SBD trong tệp${dau ? ` (đầu tệp đang có: ${dau.slice(0, 120)})` : ''}`)
+    throw new Error(`Không thấy cột SBD/Mã học sinh trong tệp${dau ? ` (đầu tệp đang có: ${dau.slice(0, 120)})` : ''}`)
   }
   const tieuDe = rows[hd].map(Nn)
-  const iSbd = tieuDe.findIndex(v => /sbd|số báo danh/i.test(v))
-  const iTen = tieuDe.findIndex(v => /họ|tên/i.test(v))
+  const iSbd0 = tieuDe.findIndex(v => /sbd|số báo danh/i.test(v))
+  const iMhs = tieuDe.findIndex(v => /mã học sinh|mã hs|mhs|ma hoc sinh|ma hs/i.test(v))
+  const iSbd = iSbd0 >= 0 ? iSbd0 : iMhs
+  const iTen = tieuDe.findIndex(v => /họ|tên/i.test(v) && !/mã|sinh/i.test(v))
   const iLop = tieuDe.findIndex(v => /lớp/i.test(v))
-  const iNs = tieuDe.findIndex(v => /ngày sinh|sinh|dob|birth/i.test(v))
+  const iNs = tieuDe.findIndex(v => /sinh|dob|birth/i.test(v) && !/họ|mã/i.test(v))
+  const iGt = tieuDe.findIndex(v => /giới|phái|gender|sex/i.test(v))
   const hs: HocSinh[] = []
   for (const r of rows.slice(hd + 1)) {
     const sbd = Nn(r[iSbd])
     if (!sbd) continue
+    const mhs = iMhs >= 0 && iMhs !== iSbd ? Nn(r[iMhs]) : ''
     hs.push({
       sbd,
       ten: iTen >= 0 ? Nn(r[iTen]) : '',
       lop: iLop >= 0 ? Nn(r[iLop]) || undefined : undefined,
       ngaySinh: iNs >= 0 ? fmtNgaySinh(r[iNs]) || undefined : undefined,
+      gioiTinh: iGt >= 0 ? Nn(r[iGt]) || undefined : undefined,
+      maHs: mhs && mhs !== sbd ? mhs : undefined,
     })
   }
   if (!hs.length) throw new Error('Tệp không có học sinh nào')
@@ -229,23 +235,24 @@ export async function docDanhSachExcel(buf: ArrayBuffer): Promise<HocSinh[]> {
 /** File Excel mẫu danh sách lớp, kèm sheet hướng dẫn */
 export function vietDanhSachExcelBytes(): Uint8Array {
   const ds = XLSX.utils.aoa_to_sheet([
-    ['STT', 'SBD', 'Họ và tên', 'Ngày sinh', 'Lớp'],
-    [1, '10010201', 'Nguyễn Văn An', '15/03/2010', '10A1'],
-    [2, '10010202', 'Trần Thị Bình', '02/07/2010', '10A1'],
-    [3, '10010203', 'Lê Minh Châu', '28/11/2009', '10A1'],
+    ['STT', 'Lớp', 'Mã học sinh', 'Họ và tên', 'Ngày sinh', 'Giới tính'],
+    [1, '10A1', '10010201', 'Nguyễn Văn An', '15/03/2010', 'Nam'],
+    [2, '10A1', '10010202', 'Trần Thị Bình', '02/07/2010', 'Nữ'],
+    [3, '10A1', '10010203', 'Lê Minh Châu', '28/11/2009', 'Nữ'],
   ])
-  ds['!cols'] = [{ wch: 5 }, { wch: 12 }, { wch: 28 }, { wch: 11 }, { wch: 8 }]
+  ds['!cols'] = [{ wch: 5 }, { wch: 8 }, { wch: 12 }, { wch: 28 }, { wch: 11 }, { wch: 9 }]
   const hd = XLSX.utils.aoa_to_sheet([
     ['CÁCH ĐIỀN DANH SÁCH LỚP'], [],
     ['1. Trang "Danh sách": mỗi hàng là một học sinh.'],
-    ['2. Cột SBD (hoặc "Số báo danh") là BẮT BUỘC — ghi đủ số như học sinh tô trên phiếu'],
-    ['   (phiếu 8 cột thì ghi 8 số, ví dụ 10010201).'],
-    ['3. Cột "Họ và tên" nên có để bảng điểm hiện tên; cột "Ngày sinh" giúp phân biệt'],
-    ['   2 em trùng tên; cột "Lớp" tuỳ chọn. Ngày sinh ghi dạng ngày/tháng/năm.'],
-    ['4. Hàng tiêu đề đặt ở đâu cũng được, miễn có chữ SBD trong một ô.'],
-    ['   Các hàng trống hoặc không có SBD sẽ bị bỏ qua.'],
-    ['5. Có thể dùng tệp Excel lớp sẵn có của nhà trường — chỉ cần đổi tên cột'],
-    ['   thành "SBD" / "Họ và tên" cho máy nhận ra.'], [],
+    ['2. Cột "Mã học sinh" (hoặc "SBD"/"Số báo danh") là BẮT BUỘC — ghi đủ số'],
+    ['   như học sinh tô trên phiếu (phiếu 8 cột thì ghi 8 số, ví dụ 10010201).'],
+    ['3. Các cột "Họ và tên", "Ngày sinh", "Giới tính", "Lớp" tuỳ chọn nhưng nên có —'],
+    ['   giúp bảng điểm đầy đủ và phân biệt 2 em trùng tên.'],
+    ['   Ngày sinh ghi dạng ngày/tháng/năm; Giới tính ghi Nam/Nữ.'],
+    ['4. Hàng tiêu đề đặt ở đâu cũng được, miễn có cột mã học sinh.'],
+    ['   Các hàng trống hoặc không có mã sẽ bị bỏ qua.'],
+    ['5. Có thể dùng tệp Excel lớp sẵn có của nhà trường — máy tự nhận cột'],
+    ['   "Mã học sinh"/"SBD", "Họ và tên", "Ngày sinh", "Giới tính", "Lớp".'], [],
     ['Chấm bằng Chamthi365'],
   ])
   hd['!cols'] = [{ wch: 90 }]
@@ -264,7 +271,7 @@ export function vietBangDiemAoa(
   cham: (doc: DocCham) => KqDiem | null,
 ): { bangDiem: (string | number)[][]; chiTiet: (string | number)[][] } {
   const { soCau } = bai.diem
-  const bangDiem: (string | number)[][] = [['STT', 'SBD', 'Họ và tên', 'Ngày sinh', 'Lớp', 'Mã đề', 'Phần I', 'Phần II', 'Phần III', 'Tự luận', 'Tổng', 'Ghi chú']]
+  const bangDiem: (string | number)[][] = [['STT', 'SBD', 'Họ và tên', 'Ngày sinh', 'Giới tính', 'Lớp', 'Mã đề', 'Phần I', 'Phần II', 'Phần III', 'Tự luận', 'Tổng', 'Ghi chú']]
   const chiTiet: (string | number)[][] = [[
     'SBD', 'Họ và tên', 'Mã đề',
     ...Array.from({ length: soCau.p1 }, (_, i) => `P1.${i + 1}`),
@@ -284,7 +291,7 @@ export function vietBangDiemAoa(
       can.size ? `còn ${can.size} chỗ cần xem` : '',
     ].filter(Boolean).join('; ')
     bangDiem.push([
-      ++stt, d.sbd, hs?.ten ?? '', hs?.ngaySinh ?? '', hs?.lop ?? '', d.ma,
+      ++stt, d.sbd, hs?.ten ?? '', hs?.ngaySinh ?? '', hs?.gioiTinh ?? '', hs?.lop ?? '', d.ma,
       kq?.phan.p1 ?? '', kq?.phan.p2 ?? '', kq?.phan.p3 ?? '', d.tuLuan ?? '', kq?.tong ?? '', ghiChu,
     ])
     chiTiet.push([
@@ -303,7 +310,7 @@ export function vietBangDiemBytes(bai: Bai, ds: Phieu[], cham: (doc: DocCham) =>
   const wb = XLSX.utils.book_new()
   wb.Props = { Title: `${bai.ten} - bảng điểm`, Author: 'Chamthi365', Company: 'Chamthi365' }
   const sh = XLSX.utils.aoa_to_sheet(bangDiem)
-  sh['!cols'] = [{ wch: 5 }, { wch: 11 }, { wch: 26 }, { wch: 7 }, { wch: 7 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 7 }, { wch: 34 }]
+  sh['!cols'] = [{ wch: 5 }, { wch: 11 }, { wch: 26 }, { wch: 11 }, { wch: 9 }, { wch: 7 }, { wch: 7 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 7 }, { wch: 34 }]
   XLSX.utils.book_append_sheet(wb, sh, 'Bảng điểm')
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(chiTiet), 'Chi tiết')
   return XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as Uint8Array

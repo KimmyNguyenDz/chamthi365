@@ -100,7 +100,7 @@ export function timHocSinh(
   bai: Bai,
   sbdDoc: string,
   daCham?: Set<string>,
-): { v: string; ten: string; lop?: string; ns?: string; khop: boolean; xong: boolean }[] {
+): { v: string; ten: string; lop?: string; ns?: string; gt?: string; khop: boolean; xong: boolean }[] {
   const so = [...sbdDoc].filter(c => c !== '?').length
   if (!bai.hocSinh.length || so < Math.ceil(sbdDoc.length / 2)) return []
   const bo0 = (s: string) => s.replace(/^0+/, '')
@@ -109,5 +109,5 @@ export function timHocSinh(
     .filter(x => x.l >= 0 && x.l <= 1)
     .sort((a, b) => a.l - b.l || Number(a.xong) - Number(b.xong))
     .slice(0, 8)
-    .map(({ h, l, xong }) => ({ v: h.sbd, ten: h.ten, lop: h.lop, ns: h.ngaySinh, khop: l === 0, xong }))
+    .map(({ h, l, xong }) => ({ v: h.sbd, ten: h.ten, lop: h.lop, ns: h.ngaySinh, gt: h.gioiTinh, khop: l === 0, xong }))
 }
