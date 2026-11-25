@@ -754,9 +754,16 @@ function chamMot(a: AnhXam, c: AnhXam, o: number, e: Khuon, i: Dom[]): KqOmr {
         if (r[U].tt === 'nghi' && !St(r[U]) && !r[U].net && r[U].damTru < Math.min(.45 * b, .25)) r[U].tt = 'tay'
     }
     const N = !t.some(b => r[b].tt === 'to') && t.some(b => r[b].tt === 'tay' && r[b].damTru >= .8 * K)
-    const Q = D || N || t.some(b => r[b].tt === 'nghi' || Ft.has(r[b].khoi))
+    // ô tô quá nhạt không đạt 'to' nhưng trội rõ so với phần còn lại → đoán, vẫn cờ xem lại
+    let chon = t.filter(b => r[b].tt === 'to'), you = false
+    if (!chon.length) {
+      const j = t.reduce((a2, b2) => (r[a2].damTru >= r[b2].damTru ? a2 : b2))
+      const m2 = Math.max(...t.filter(b => b !== j).map(b => r[b].damTru), 0)
+      if (r[j].damTru >= .06 && r[j].damTru >= 2.5 * m2) { chon = [j]; you = true }
+    }
+    const Q = D || N || you || t.some(b => r[b].tt === 'nghi' || Ft.has(r[b].khoi))
     if (Q) at.push(n)
-    return { chon: t.filter(b => r[b].tt === 'to'), nghi: Q }
+    return { chon, nghi: Q }
   }
   const lt = (t: number): ODoc => ({
     x: r[t].img[0] / o, y: r[t].img[1] / o,
