@@ -11,29 +11,22 @@ export const MAU_CHAM: Record<OCham['trangThai'], string> = {
 const XANH = '#0a8a3e'
 const DO = '#d21f30'
 
-/** nét tick V (bút xanh) */
-function tickV(c: CanvasRenderingContext2D, x: number, y: number, r: number) {
-  c.strokeStyle = XANH
-  c.lineWidth = Math.max(2.5, r * 0.34)
-  c.lineCap = 'round'
-  c.lineJoin = 'round'
+/** chấm tròn đặc (xanh đúng / đỏ sai) — giữ nguyên vết chì học sinh bên dưới */
+function chamTron(c: CanvasRenderingContext2D, x: number, y: number, r: number, dung: boolean) {
   c.beginPath()
-  c.moveTo(x - r * 0.72, y + r * 0.05)
-  c.lineTo(x - r * 0.18, y + r * 0.6)
-  c.lineTo(x + r * 0.8, y - r * 0.62)
-  c.stroke()
+  c.arc(x, y, r * 0.62, 0, Math.PI * 2)
+  c.fillStyle = dung ? XANH : DO
+  c.globalAlpha = 0.85
+  c.fill()
+  c.globalAlpha = 1
 }
 
-/** nét gạch X (bút đỏ) */
-function tickX(c: CanvasRenderingContext2D, x: number, y: number, r: number) {
-  c.strokeStyle = DO
-  c.lineWidth = Math.max(2.5, r * 0.3)
-  c.lineCap = 'round'
+/** vòng xanh rỗng đánh dấu ô đáp án đúng khi học sinh chọn sai */
+function vongDung(c: CanvasRenderingContext2D, x: number, y: number, r: number) {
   c.beginPath()
-  c.moveTo(x - r * 0.6, y - r * 0.6)
-  c.lineTo(x + r * 0.6, y + r * 0.6)
-  c.moveTo(x + r * 0.6, y - r * 0.6)
-  c.lineTo(x - r * 0.6, y + r * 0.6)
+  c.arc(x, y, r * 0.75, 0, Math.PI * 2)
+  c.strokeStyle = XANH
+  c.lineWidth = Math.max(2, r * 0.28)
   c.stroke()
 }
 
@@ -45,8 +38,8 @@ function vietDapAn(c: CanvasRenderingContext2D, x: number, y: number, r: number,
   c.fillText(`→ ${txt}`, x, y)
 }
 
-/** Chữa trên phiếu: ✓xanh ô đúng, ✗đỏ ô sai + ✓xanh đáp án đúng; P.III sai ghi đáp số.
- *  Vị trí lấy theo khuôn (P.I/II) + ô đã lưu (P.III) — đúng cả phiếu chấm trước khi sửa toạ độ. */
+/** Chữa trên phiếu: chấm xanh ô tô đúng, chấm đỏ ô tô sai + vòng xanh ô đáp án đúng;
+ *  P.III sai ghi đáp số. Vị trí theo khuôn (P.I/II) + ô lưu trong-khung (P.III). */
 function veChua(c: CanvasRenderingContext2D, os: OCham[], khuon: Khuon, dy: number, chua: { doc: DocCham; da: DapAn; diem: KqDiem }) {
   const { doc, da, diem } = chua
   const r = (khuon.r ?? 3.4) * 1.7
@@ -63,22 +56,22 @@ function veChua(c: CanvasRenderingContext2D, os: OCham[], khuon: Khuon, dy: numb
     return o && trongKhuon(o) ? [o.x, o.y] as [number, number] : kpos(phan, q, i)
   }
 
-  // Phần I: đúng → ✓ ô đã tô; sai → ✗ ô đã tô + ✓ ô đáp án đúng
+  // Phần I: đúng → chấm xanh ô đã tô; sai → chấm đỏ ô đã tô + vòng xanh ô đáp án đúng
   doc.p1.forEach((g, v) => {
     const dung = diem.p1[v]?.dung
     if (dung == null) return
     for (const ch of g) {
       const p = pos('p1', v + 1, 'ABCDEFGH'.indexOf(ch))
-      if (p) (dung ? tickV : tickX)(c, p[0], p[1] + dy, r)
+      if (p) chamTron(c, p[0], p[1] + dy, r, dung)
     }
     if (!dung) for (const ch of da.p1[v] ?? '') {
       if (ch === '*') continue
       const p = pos('p1', v + 1, 'ABCDEFGH'.indexOf(ch))
-      if (p) tickV(c, p[0], p[1] + dy, r)
+      if (p) vongDung(c, p[0], p[1] + dy, r)
     }
   })
 
-  // Phần II: từng ý — đúng → ✓ ô Đ/S đã tô; sai → ✗ ô đã tô + ✓ ô đúng
+  // Phần II: từng ý — đúng → chấm xanh ô Đ/S đã tô; sai → chấm đỏ ô đã tô + vòng xanh ô đúng
   doc.p2.forEach((g, v) => {
     for (let y = 0; y < 4; y++) {
       const dung = diem.p2[v]?.y[y]
@@ -86,28 +79,27 @@ function veChua(c: CanvasRenderingContext2D, os: OCham[], khuon: Khuon, dy: numb
       const chon = g[y]
       if (chon === 'Đ' || chon === 'ĐS') {
         const p = pos('p2', v + 1, y * 2)
-        if (p) (dung ? tickV : tickX)(c, p[0], p[1] + dy, r)
+        if (p) chamTron(c, p[0], p[1] + dy, r, dung)
       }
       if (chon === 'S' || chon === 'ĐS') {
         const p = pos('p2', v + 1, y * 2 + 1)
-        if (p) (dung ? tickV : tickX)(c, p[0], p[1] + dy, r)
+        if (p) chamTron(c, p[0], p[1] + dy, r, dung)
       }
       const dungDa = da.p2[v]?.[y]
       if (!dung && (dungDa === 'Đ' || dungDa === 'S')) {
         const p = pos('p2', v + 1, y * 2 + (dungDa === 'Đ' ? 0 : 1))
-        if (p) tickV(c, p[0], p[1] + dy, r)
+        if (p) vongDung(c, p[0], p[1] + dy, r)
       }
     }
   })
 
-  // Phần III: đúng → ✓ các ô số đã tô; sai → ghi đáp số cạnh câu
+  // Phần III: đúng → chấm xanh các ô số đã tô; sai → chấm đỏ + ghi đáp số cạnh câu
   doc.p3.forEach((g, v) => {
     const dung = diem.p3[v]?.dung
     if (dung == null) return
-    if (dung) {
-      for (const o of os.filter(x => x.phan === 'p3' && x.q === v + 1 && x.to && trongKhuon(x)))
-        tickV(c, o.x, o.y + dy, r)
-    } else {
+    for (const o of os.filter(x => x.phan === 'p3' && x.q === v + 1 && x.to && trongKhuon(x)))
+      chamTron(c, o.x, o.y + dy, r, dung)
+    if (!dung) {
       const daSo = da.p3[v]
       const cols = khuon.p3[v]?.c
       if (!daSo || daSo === '*' || !cols?.length) return
