@@ -62,6 +62,7 @@ export function ChamTep({ id }: { id: string }) {
             let i = 0
             for await (const pg of docPdf(await f.arrayBuffer())) {
               if (huyRef.current) break
+              if (i === 0) setTd(t => ({ ...t, tong: t.tong + pg.tongTrang - 1 }))
               const trang = soTrang > 1 ? i % soTrang : 0
               const vung = tachClip(kts, trang, pg.wPt, pg.hPt, pg.bmp.width, pg.bmp.height)
               const vungDung = vung.length ? vung : kt0.map(kt => ({ kt, rect: [0, 0, pg.bmp.width, pg.bmp.height] as [number, number, number, number] }))
@@ -72,19 +73,18 @@ export function ChamTep({ id }: { id: string }) {
                 cv.getContext('2d')!.drawImage(pg.bmp, x, y, w, h, 0, 0, cv.width, cv.height)
                 const im = cv.getContext('2d')!.getImageData(0, 0, cv.width, cv.height)
                 const p = await chamMot({ w: cv.width, h: cv.height, buf: im.data.buffer.slice(0) as ArrayBuffer }, khuons.get(kt.khuon)!, 'tep')
-                setTd(t => ({ ...t, moi: [...t.moi, p], loi: p.ok ? t.loi : [...t.loi, { tep: `${f.name} · tr.${pg.trang + 1}`, loi: p.loi! }] }))
+                setTd(t => ({ ...t, xong: t.xong + 1, moi: [...t.moi, p], loi: p.ok ? t.loi : [...t.loi, { tep: `${f.name} · tr.${pg.trang + 1}`, loi: p.loi! }] }))
               }
               i++
             }
           } else {
             const anh = await anhRgba(f, 2000)
             const p = await chamMot({ w: anh.w, h: anh.h, buf: anh.d.buffer as ArrayBuffer }, khuons.get(kt0[0].khuon)!, 'tep')
-            setTd(t => ({ ...t, moi: [...t.moi, p], loi: p.ok ? t.loi : [...t.loi, { tep: f.name, loi: p.loi! }] }))
+            setTd(t => ({ ...t, xong: t.xong + 1, moi: [...t.moi, p], loi: p.ok ? t.loi : [...t.loi, { tep: f.name, loi: p.loi! }] }))
           }
         } catch (e) {
-          setTd(t => ({ ...t, loi: [...t.loi, { tep: f.name, loi: String((e as Error)?.message ?? e) }] }))
+          setTd(t => ({ ...t, xong: t.xong + 1, loi: [...t.loi, { tep: f.name, loi: String((e as Error)?.message ?? e) }] }))
         }
-        setTd(t => ({ ...t, xong: t.xong + 1 }))
       }
     } finally { setDangChay(false) }
   }

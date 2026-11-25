@@ -2,7 +2,7 @@
 // pdfjs nạp động: chỉ tải chunk ~400kB khi người dùng thật sự chấm PDF
 import type { KhuonTep } from '../types'
 
-export type TrangPdf = { trang: number; bmp: ImageBitmap; wPt: number; hPt: number }
+export type TrangPdf = { trang: number; bmp: ImageBitmap; wPt: number; hPt: number; tongTrang: number }
 
 const DPI = 200
 let _pdfjs: typeof import('pdfjs-dist') | null = null
@@ -28,7 +28,7 @@ export async function* docPdf(tep: ArrayBuffer): AsyncGenerator<TrangPdf> {
       cv.width = Math.floor(vp.width)
       cv.height = Math.floor(vp.height)
       await pg.render({ canvasContext: cv.getContext('2d')!, viewport: vp, canvas: cv } as never).promise
-      yield { trang: i - 1, bmp: await createImageBitmap(cv), wPt: vp0.width, hPt: vp0.height }
+      yield { trang: i - 1, bmp: await createImageBitmap(cv), wPt: vp0.width, hPt: vp0.height, tongTrang: doc.numPages }
     }
   } finally { doc.destroy() }
 }
