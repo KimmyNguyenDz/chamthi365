@@ -3,12 +3,15 @@ import { sb, laySession, providerToken } from './supabase'
 import { layThuMuc, taiLen } from './drive'
 import {
   dsHang, xoaHang, layBai, luuBai, xoaBai, layPhieu, luuPhieu, xoaPhieu,
+  layLop, luuLop, xoaLop,
   layAnh, layMeta, datMeta, moDb, dangKyThayDoi,
 } from './db'
-import type { Bai, Phieu, HangCho } from '../types'
+import type { Bai, Lop, Phieu, HangCho } from '../types'
 
 const T_BAI = 'cp_bai'
 const T_PHIEU = 'cp_phieu'
+const T_LOP = 'cp_lop'
+const T_META = 'cp_meta'
 
 let _dangChay = false
 
@@ -48,6 +51,15 @@ export async function dongBo(): Promise<{ day: number; keo: number }> {
       if (xoa) await xoaPhieu(row.id, { dongBo: false })
       else await luuPhieu(row.data as Phieu, { dongBo: false })
     })
+    // ---- pull cp_lop ----
+    keo += await keoVe<Lop>(cli, uid, T_LOP, `moc:${uid}:${T_LOP}`, async (row, xoa) => {
+      if (xoa) await xoaLop(row.id, { dongBo: false })
+      else await luuLop(row.data as Lop, { dongBo: false })
+    })
+    // ---- pull cp_meta (cài đặt cá nhân) ----
+    keo += await keoVe<unknown>(cli, uid, T_META, `moc:${uid}:${T_META}`, async (row, xoa) => {
+      if (!xoa) await datMeta(row.id, row.data)
+    })
 
     return { day, keo }
   } finally { _dangChay = false }
@@ -80,6 +92,27 @@ async function dayLen(cli: ReturnType<typeof sb>, uid: string, h: HangCho, upAnh
       case 'xoaPhieu': {
         const { error } = await cli.from(T_PHIEU).upsert({ id: h.id, uid, data: null, xoa: true, cap_nhat: new Date().toISOString() })
         if (error) throw error
+        break
+      }
+      case 'lop': {
+        const l = await layLop(h.id)
+        if (l) {
+          const { error } = await cli.from(T_LOP).upsert({ id: l.id, uid, data: l, xoa: false, cap_nhat: new Date().toISOString() })
+          if (error) throw error
+        }
+        break
+      }
+      case 'xoaLop': {
+        const { error } = await cli.from(T_LOP).upsert({ id: h.id, uid, data: null, xoa: true, cap_nhat: new Date().toISOString() })
+        if (error) throw error
+        break
+      }
+      case 'meta': {
+        const v = await layMeta(h.id)
+        if (v !== undefined) {
+          const { error } = await cli.from(T_META).upsert({ id: h.id, uid, data: v, xoa: false, cap_nhat: new Date().toISOString() })
+          if (error) throw error
+        }
         break
       }
       case 'anh': {

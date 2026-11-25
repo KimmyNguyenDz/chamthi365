@@ -6,7 +6,8 @@ import { NhapDapAn } from '../components/NhapDapAn'
 import { MaQR } from '../components/MaQR'
 import { QuetQR } from '../components/QuetQR'
 import { layBai, luuBai } from '../lib/db'
-import { docDapAnChuoi, docDapAnExcel, vietDapAnExcelBytes } from '../lib/excel'
+import { docDapAnChuoi, docDapAnExcel, docDapAnQM, vietDapAnExcelBytes } from '../lib/excel'
+import { thongBao } from '../lib/thongBao'
 import { docPayloadDapAn, ghepDapAn, payloadDapAn } from '../lib/qr'
 import { AlertTriangle } from 'lucide-react'
 import type { Bai, DapAn } from '../types'
@@ -55,20 +56,32 @@ export function DapAnScr({ id }: { id: string }) {
       }
       return
     }
-    // QR có sẵn bất kỳ: thử parse nội dung như chuỗi đáp án "0101 ABCD ĐSĐS 0,5;1"
-    if (bai) {
-      try {
-        const da = docDapAnChuoi(t, bai.diem.soCau)
-        if (da.ma) {
-          const co = bai.dapAn.some(x => x.ma === da.ma)
-          setBai({ ...bai, dapAn: co ? bai.dapAn.map(x => (x.ma === da.ma ? da : x)) : [...bai.dapAn, da] })
-          setChon(da.ma); setLoi(''); setQuetQR(false)
-          return
-        }
-      } catch { }
-    }
-    setLoi('QR này không chứa đáp án — cần QR Chamthi365 hoặc QR ghi chuỗi đáp án (vd “0101 ABCD ĐSĐS 0,5;1”)')
+    // QR app QM / QR ghi chuỗi đáp án bất kỳ
+    if (bai && napTuChuoiQR(t)) { setQuetQR(false); return }
+    setLoi('QR này không chứa đáp án — cần QR Chamthi365, QR app QM hoặc QR ghi chuỗi đáp án (vd “0101 ABCD ĐSĐS 0,5;1”)')
     setQuetQR(false)
+  }
+
+  /** Parse nội dung QR/dán: format QM JSON [[..]] → nhiều mã; chuỗi đơn → 1 mã. Trả true nếu nạp được */
+  const napTuChuoiQR = (t: string): boolean => {
+    if (!bai) return false
+    const qm = docDapAnQM(t, bai.diem.soCau)
+    if (qm) {
+      const map = new Map(bai.dapAn.map(x => [x.ma, x]))
+      for (const x of qm) map.set(x.ma, x)
+      const ds = [...map.values()]
+      setBai({ ...bai, dapAn: ds }); setChon(ds[0]?.ma ?? null); setLoi('')
+      thongBao(`Đã nạp ${qm.length} mã đề từ QR`)
+      return true
+    }
+    try {
+      const da = docDapAnChuoi(t, bai.diem.soCau)
+      if (!da.ma) return false
+      const co = bai.dapAn.some(x => x.ma === da.ma)
+      setBai({ ...bai, dapAn: co ? bai.dapAn.map(x => (x.ma === da.ma ? da : x)) : [...bai.dapAn, da] })
+      setChon(da.ma); setLoi('')
+      return true
+    } catch { return false }
   }
 
   useEffect(() => {
@@ -110,6 +123,7 @@ export function DapAnScr({ id }: { id: string }) {
   const danChuoi = () => {
     const t = dan.trim()
     if (!t) return
+    if (t.startsWith('[[')) { if (napTuChuoiQR(t)) setDan(''); else setLoi('Không đọc được format đáp án QM'); return }
     try {
       const d = docDapAnChuoi(t, bai.diem.soCau)
       if (!d.ma) { setLoi('Chuỗi thiếu mã đề ở đầu'); return }

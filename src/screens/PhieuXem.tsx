@@ -95,7 +95,7 @@ export function PhieuXem({ id }: { id: string }) {
       <The pang className="khoi">
         <div className="hang" style={{ justifyContent: 'space-between' }}>
           <div>
-            <b style={{ fontSize: 17 }}>{hs?.ten ?? 'Chưa nhận tên'}</b>
+            <b style={{ fontSize: 17 }}>{hs?.ten ?? 'Chưa nhận tên'}{hs?.ns ? ` (${hs.ns})` : ''}</b>
             <div className="mo nho">
               SBD <a href="#/" onClick={e => { e.preventDefault(); setSuaSbd(true) }}>{doc.sbd || '—'}{doc.sbdNguon === 'tay' ? ' ✎' : ''}</a>
               {' · '}Mã <a href="#/" onClick={e => { e.preventDefault(); setSuaMa(true) }}>{doc.ma || '—'}{doc.maNguon === 'tay' ? ' ✎' : ''}</a>
@@ -144,7 +144,7 @@ export function PhieuXem({ id }: { id: string }) {
           {bai.hocSinh.length > 0 && timHocSinh(bai, doc.sbd).length > 0 && (
             <div className="hang" style={{ flexWrap: 'wrap', margin: '8px 0' }}>
               {timHocSinh(bai, doc.sbd).map(g => (
-                <button key={g.v} className="chip" onClick={() => ghiSua('sbd', undefined, g.v)}>{g.v} · {g.ten}</button>
+                <button key={g.v} className="chip" onClick={() => ghiSua('sbd', undefined, g.v)}>{g.v} · {g.ten}{g.ns ? ` (${g.ns})` : ''}</button>
               ))}
             </div>
           )}

@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { Dau, ManHinh } from '../components/ManHinh'
 import { Nut, NutDen } from '../components/Nut'
 import { The, Muc } from '../components/The'
-import { dsPhieu, layBai, luuBai } from '../lib/db'
+import { dsPhieu, layBai, luuBai, dsLop } from '../lib/db'
 import { docDanhSachExcel, vietDanhSachExcelBytes } from '../lib/excel'
 import { taiTep } from '../lib/tai'
 import { thongBao } from '../lib/thongBao'
-import type { Bai, HocSinh } from '../types'
+import type { Bai, Lop } from '../types'
 
 /** Quản lý danh sách lớp của bài: nạp Excel, xem em chưa có phiếu, SBD lạ */
 export function HocSinhScr({ id }: { id: string }) {
@@ -14,6 +14,7 @@ export function HocSinhScr({ id }: { id: string }) {
   const [khong, setKhong] = useState(false)
   const [loi, setLoi] = useState('')
   const [dsSbdCham, setDsSbdCham] = useState<Set<string>>(new Set())
+  const [lopDaCo, setLopDaCo] = useState<Lop[]>([])
 
   useEffect(() => {
     layBai(id).then(async b => {
@@ -22,6 +23,7 @@ export function HocSinhScr({ id }: { id: string }) {
       const ps = await dsPhieu(id)
       setDsSbdCham(new Set(ps.filter(p => p.ok && p.kq?.doc.sbd).map(p => p.kq!.doc.sbd.replace(/^0+/, ''))))
     })
+    dsLop().then(setLopDaCo)
   }, [id])
 
   const nap = async (f: File) => {
@@ -33,6 +35,15 @@ export function HocSinhScr({ id }: { id: string }) {
       thongBao(`Đã nạp ${hs.length} học sinh`)
       location.hash = `#/bai/${bai!.id}`
     } catch (e) { setLoi(String((e as Error)?.message ?? e)) }
+  }
+
+  const chonLop = async (l: Lop) => {
+    const lopSet = new Set(bai!.lop)
+    lopSet.add(l.ten)
+    const moi = { ...bai!, hocSinh: l.hocSinh, lop: [...lopSet], sua: Date.now() }
+    await luuBai(moi)
+    thongBao(`Đã dùng lớp ${l.ten} — ${l.hocSinh.length} học sinh`)
+    location.hash = `#/bai/${bai!.id}`
   }
 
   const chuaCo = useMemo(() => bai?.hocSinh.filter(h => !dsSbdCham.has(h.sbd.replace(/^0+/, ''))) ?? [], [bai, dsSbdCham])
@@ -47,6 +58,16 @@ export function HocSinhScr({ id }: { id: string }) {
 
   return (
     <ManHinh dau={<Dau tieuDe={`Danh sách — ${bai.ten}`} phu={`${bai.hocSinh.length} học sinh`} phai={<NutDen to={`#/bai/${bai.id}`} kieu="nhat" nho>Về bài</NutDen>} />}>
+      {!!lopDaCo.length && (
+        <The pang className="khoi">
+          <p className="mo nho" style={{ marginTop: 0 }}><b>Chọn lớp đã lưu</b> — bấm là dùng ngay:</p>
+          <div className="hang" style={{ flexWrap: 'wrap' }}>
+            {lopDaCo.map(l => (
+              <button key={l.id} className="chip" onClick={() => chonLop(l)}>{l.ten} · {l.hocSinh.length} HS</button>
+            ))}
+          </div>
+        </The>
+      )}
       <The pang className="khoi">
         <div className="hang">
           <label className="nut xanh" style={{ cursor: 'pointer' }}>
@@ -54,8 +75,9 @@ export function HocSinhScr({ id }: { id: string }) {
             <input type="file" accept=".xlsx,.xls,.csv" hidden onChange={e => { const f = e.target.files?.[0]; if (f) nap(f); e.target.value = '' }} />
           </label>
           <Nut kieu="nhat" onClick={() => taiTep(vietDanhSachExcelBytes(), 'danh-sach-lop-mau.xlsx')}>Tải file mẫu</Nut>
+          <NutDen to="#/danh-sach" kieu="nhat">Quản lý lớp</NutDen>
         </div>
-        <p className="mo nho" style={{ marginBottom: 0 }}>Tệp cần cột “SBD” (bắt buộc), “Họ và tên” và “Lớp” (tuỳ chọn). Nạp lại sẽ thay danh sách cũ.</p>
+        <p className="mo nho" style={{ marginBottom: 0 }}>Tệp cần cột “SBD” (bắt buộc), “Họ và tên”, “Ngày sinh” và “Lớp” (tuỳ chọn). Nạp lại sẽ thay danh sách cũ.</p>
         {loi && <p style={{ color: 'var(--red-d)', marginBottom: 0 }}>{loi}</p>}
       </The>
 
@@ -78,7 +100,7 @@ export function HocSinhScr({ id }: { id: string }) {
         {bai.hocSinh.map(h => (
           <The key={h.sbd} pang>
             <div className="hang" style={{ justifyContent: 'space-between' }}>
-              <span><b>{h.ten || '—'}</b><div className="mo nho">{h.sbd}{h.lop ? ` · ${h.lop}` : ''}</div></span>
+              <span><b>{h.ten || '—'}</b><div className="mo nho">{h.sbd}{h.ngaySinh ? ` · ${h.ngaySinh}` : ''}{h.lop ? ` · ${h.lop}` : ''}</div></span>
               {dsSbdCham.has(h.sbd.replace(/^0+/, '')) && <span style={{ color: 'var(--green-d)' }}>✓ đã chấm</span>}
             </div>
           </The>

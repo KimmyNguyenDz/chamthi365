@@ -18,12 +18,34 @@ create table if not exists cp_phieu (
   cap_nhat  timestamptz not null default now()
 );
 
+create table if not exists cp_lop (
+  id        text primary key,
+  uid       uuid not null references auth.users(id) on delete cascade,
+  data      jsonb,
+  xoa       boolean not null default false,
+  cap_nhat  timestamptz not null default now()
+);
+
+-- cài đặt cá nhân: id là khoá cài đặt (vd 'cp-cai-dat-cham') nên PK gộp (uid,id)
+create table if not exists cp_meta (
+  id        text not null,
+  uid       uuid not null references auth.users(id) on delete cascade,
+  data      jsonb,
+  xoa       boolean not null default false,
+  cap_nhat  timestamptz not null default now(),
+  primary key (uid, id)
+);
+
 create index if not exists cp_bai_cap_nhat on cp_bai (uid, cap_nhat);
 create index if not exists cp_phieu_cap_nhat on cp_phieu (uid, cap_nhat);
 create index if not exists cp_phieu_bai on cp_phieu (bai_id);
+create index if not exists cp_lop_cap_nhat on cp_lop (uid, cap_nhat);
+create index if not exists cp_meta_cap_nhat on cp_meta (uid, cap_nhat);
 
 alter table cp_bai enable row level security;
 alter table cp_phieu enable row level security;
+alter table cp_lop enable row level security;
+alter table cp_meta enable row level security;
 
 drop policy if exists "chi chu so huu" on cp_bai;
 create policy "chi chu so huu" on cp_bai
@@ -31,4 +53,12 @@ create policy "chi chu so huu" on cp_bai
 
 drop policy if exists "chi chu so huu" on cp_phieu;
 create policy "chi chu so huu" on cp_phieu
+  for all using (auth.uid() = uid) with check (auth.uid() = uid);
+
+drop policy if exists "chi chu so huu" on cp_lop;
+create policy "chi chu so huu" on cp_lop
+  for all using (auth.uid() = uid) with check (auth.uid() = uid);
+
+drop policy if exists "chi chu so huu" on cp_meta;
+create policy "chi chu so huu" on cp_meta
   for all using (auth.uid() = uid) with check (auth.uid() = uid);

@@ -4,7 +4,7 @@ import { Nut, NutDen } from '../components/Nut'
 import { The, Muc } from '../components/The'
 import { ChonPhieu } from '../components/ChonPhieu'
 import { QuetPhieu } from '../components/QuetPhieu'
-import { dsPhieu, layBai, luuBai } from '../lib/db'
+import { dsPhieu, layBai, luuBai, dsLop } from '../lib/db'
 import { MAU_DIEM, diemMau } from '../lib/diem'
 import { docDanhSachExcel, vietDanhSachExcelBytes } from '../lib/excel'
 import { taiTep } from '../lib/tai'
@@ -12,7 +12,7 @@ import { thongBao } from '../lib/thongBao'
 import { idMoi } from '../lib/id'
 import { Camera } from 'lucide-react'
 import { mucLuc, nhanCau, tomTat, urlAnh } from '../lib/thuvien'
-import type { Bai, Diem, HocSinh, MauPhieu } from '../types'
+import type { Bai, Diem, HocSinh, Lop, MauPhieu } from '../types'
 
 const MON = ['Toán', 'Vật lí', 'Hóa học', 'Sinh học', 'Ngữ văn', 'Tiếng Anh', 'Lịch sử', 'Địa lí', 'GDCD', 'Tin học', 'KHTN', 'KHXH']
 
@@ -43,6 +43,8 @@ export function TaoBai({ id }: { id?: string }) {
   const [sua, setSua] = useState(false)      // chế độ sửa
   const [khoaMau, setKhoaMau] = useState(false) // đã chấm ≥1 phiếu → khóa đổi mẫu
   const [dangLuu, setDangLuu] = useState(false)
+  const [lopDaCo, setLopDaCo] = useState<Lop[]>([])
+  const [lopChon, setLopChon] = useState('') // id lớp đã lưu đang dùng
 
   // Tải bài khi sửa
   useEffect(() => {
@@ -62,6 +64,9 @@ export function TaoBai({ id }: { id?: string }) {
       setBuoc(1)
     })()
   }, [id])
+
+  // Tải danh sách lớp đã lưu khi vào bước 3
+  useEffect(() => { if (buoc === 2) dsLop().then(setLopDaCo) }, [buoc])
 
   const m = b?.mau ?? null
   const soCauIn = useMemo(() => (m ? { p1: m.p1, p2: m.p2, p3: m.p3 } : null), [m])
@@ -108,6 +113,17 @@ export function TaoBai({ id }: { id?: string }) {
       thongBao(`Đã nạp ${hs.length} học sinh`)
       await luu(v)
     } catch (e) { setLoi(String((e as Error)?.message ?? e)) }
+  }
+
+  const chonLop = async (l: Lop) => {
+    const lopSet = new Set(b?.lop.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean))
+    lopSet.add(l.ten)
+    const v = b && { ...b, hocSinh: l.hocSinh, lop: [...lopSet].join(', ') }
+    setB(v)
+    setLopChon(l.id)
+    setLoi('')
+    thongBao(`Đã chọn lớp ${l.ten} — ${l.hocSinh.length} học sinh`)
+    await luu(v)
   }
 
   if (loi && !b) return <ManHinh><p className="mo giua khoi">{loi}</p><div className="giua"><NutDen to="#/" kieu="nhat">Về danh sách bài chấm</NutDen></div></ManHinh>
@@ -194,6 +210,17 @@ export function TaoBai({ id }: { id?: string }) {
       {buoc === 2 && b && (
         <>
           <Muc>Danh sách học sinh (tùy chọn)</Muc>
+          {!!lopDaCo.length && (
+            <The pang className="khoi">
+              <p className="mo nho" style={{ marginTop: 0 }}><b>Chọn lớp đã lưu</b> — bấm là xong, không cần nạp lại:</p>
+              <div className="hang" style={{ flexWrap: 'wrap' }}>
+                {lopDaCo.map(l => (
+                  <button key={l.id} className={`chip ${lopChon === l.id ? 'bat' : ''}`} disabled={dangLuu}
+                    onClick={() => chonLop(l)}>{l.ten} · {l.hocSinh.length} HS</button>
+                ))}
+              </div>
+            </The>
+          )}
           <The pang className="khoi">
             {b.hocSinh.length ? (
               <p><b>{b.hocSinh.length}</b> học sinh — ví dụ: {b.hocSinh.slice(0, 3).map(h => h.ten).join(', ')}…</p>
@@ -206,8 +233,9 @@ export function TaoBai({ id }: { id?: string }) {
                 <input type="file" accept=".xlsx,.xls,.csv" hidden onChange={e => { const f = e.target.files?.[0]; if (f) napLop(f); e.target.value = '' }} />
               </label>
               <Nut kieu="nhat" onClick={() => taiTep(vietDanhSachExcelBytes(), 'danh-sach-lop-mau.xlsx')}>Tải file mẫu</Nut>
+              <NutDen to="#/danh-sach" kieu="nhat">Quản lý lớp</NutDen>
             </div>
-            <p className="mo nho" style={{ marginBottom: 0 }}>Tệp cần cột “SBD” (bắt buộc), “Họ và tên” và “Lớp” (tuỳ chọn). File mẫu có sẵn hướng dẫn điền.</p>
+            <p className="mo nho" style={{ marginBottom: 0 }}>Tệp cần cột “SBD” (bắt buộc), “Họ và tên”, “Ngày sinh” và “Lớp” (tuỳ chọn). File mẫu có sẵn hướng dẫn điền.</p>
           </The>
           {loi && <p style={{ color: 'var(--red-d)' }}>{loi}</p>}
           <div className="hang khoi">

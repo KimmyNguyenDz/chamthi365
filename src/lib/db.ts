@@ -1,5 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
-import type { Bai, Phieu, HangCho } from '../types'
+import type { Bai, Lop, Phieu, HangCho } from '../types'
 
 interface C365DB extends DBSchema {
   bai: { key: string; value: Bai }
@@ -7,18 +7,22 @@ interface C365DB extends DBSchema {
   anh: { key: string; value: Blob }
   hang: { key: string; value: HangCho }
   meta: { key: string; value: unknown }
+  lop: { key: string; value: Lop }
 }
 
 let _db: Promise<IDBPDatabase<C365DB>> | null = null
 export function moDb(): Promise<IDBPDatabase<C365DB>> {
-  return (_db ??= openDB<C365DB>('chamthi365', 1, {
-    upgrade(db) {
-      db.createObjectStore('bai', { keyPath: 'id' })
-      const p = db.createObjectStore('phieu', { keyPath: 'id' })
-      p.createIndex('baiId', 'baiId')
-      db.createObjectStore('anh')
-      db.createObjectStore('hang', { keyPath: 'khoa' })
-      db.createObjectStore('meta')
+  return (_db ??= openDB<C365DB>('chamthi365', 2, {
+    upgrade(db, cu) {
+      if (cu < 1) {
+        db.createObjectStore('bai', { keyPath: 'id' })
+        const p = db.createObjectStore('phieu', { keyPath: 'id' })
+        p.createIndex('baiId', 'baiId')
+        db.createObjectStore('anh')
+        db.createObjectStore('hang', { keyPath: 'khoa' })
+        db.createObjectStore('meta')
+      }
+      if (cu < 2) db.createObjectStore('lop', { keyPath: 'id' })
     },
   }))
 }
@@ -94,6 +98,25 @@ export async function xoaPhieu(id: string, o: { dongBo?: boolean } = {}) {
   baoThayDoi()
 }
 
+// ---- danh sách lớp tái sử dụng ----
+export async function dsLop(): Promise<Lop[]> {
+  const ds = await (await moDb()).getAll('lop')
+  return ds.sort((a, b) => a.ten.localeCompare(b.ten, 'vi'))
+}
+export const layLop = (id: string) => (moDb().then(d => d.get('lop', id)) as Promise<Lop | undefined>)
+export async function luuLop(l: Lop, o: { dongBo?: boolean } = {}) {
+  await (await moDb()).put('lop', l)
+  if (o.dongBo !== false) await ghiHang({ khoa: `lop:${l.id}`, loai: 'lop', id: l.id, luc: Date.now() })
+  baoThayDoi()
+}
+export async function xoaLop(id: string, o: { dongBo?: boolean } = {}) {
+  const d = await moDb()
+  await d.delete('lop', id)
+  await d.delete('hang', `lop:${id}`)
+  if (o.dongBo !== false) await ghiHang({ khoa: `xoaLop:${id}`, loai: 'xoaLop', id, luc: Date.now() })
+  baoThayDoi()
+}
+
 export const layAnh = (khoa: string) => (moDb().then(d => d.get('anh', khoa)) as Promise<Blob | undefined>)
 export async function luuAnh(khoa: string, blob: Blob, o: { dongBo?: boolean } = {}) {
   await (await moDb()).put('anh', blob, khoa)
@@ -102,6 +125,11 @@ export async function luuAnh(khoa: string, blob: Blob, o: { dongBo?: boolean } =
 
 export const layMeta = (k: string) => moDb().then(d => d.get('meta', k))
 export const datMeta = (k: string, v: unknown) => moDb().then(d => d.put('meta', v, k).then(() => {}))
+/** Ghi meta + đưa vào hàng đợi đồng bộ (dùng cho cài đặt cá nhân) */
+export async function datMetaDongBo(k: string, v: unknown) {
+  await datMeta(k, v)
+  await ghiHang({ khoa: `meta:${k}`, loai: 'meta', id: k, luc: Date.now() })
+}
 
 // hàng đợi đồng bộ
 export const dsHang = () => moDb().then(d => d.getAll('hang') as Promise<HangCho[]>)

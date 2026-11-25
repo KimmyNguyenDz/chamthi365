@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from 'react'
-import { layMeta, datMeta } from '../lib/db'
+import { layMeta, datMetaDongBo } from '../lib/db'
 import { useEffect, useState } from 'react'
 import { The } from './The'
 import { Nut } from './Nut'
@@ -26,7 +26,7 @@ export function useCaiDatCham(): [CaiDatChamT, (p: Partial<CaiDatChamT>) => void
   useEffect(() => { layMeta(KHOA_CD).then(v => v && setCd({ ...CD_MAC_DINH, ...(v as object) })) }, [])
   const dat = (p: Partial<CaiDatChamT>) => setCd(v => {
     const m = { ...v, ...p }
-    datMeta(KHOA_CD, m)
+    datMetaDongBo(KHOA_CD, m)
     return m
   })
   return [cd, dat]

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import * as XLSX from 'xlsx'
-import { docDapAnExcel, aoaDapAn, docDanhSachExcel, vietBangDiemAoa, docDapAnChuoi, vietDanhSachExcelBytes } from './excel'
+import { docDapAnExcel, aoaDapAn, docDanhSachExcel, vietBangDiemAoa, docDapAnChuoi, vietDanhSachExcelBytes, docDapAnQM } from './excel'
 import { diemMau, chamPhieu } from './diem'
 import type { Bai, Phieu, DocCham } from '../types'
 
@@ -90,10 +90,28 @@ describe('docDanhSachExcel', () => {
     const u8 = vietDanhSachExcelBytes()
     const hs = await docDanhSachExcel(u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength) as ArrayBuffer)
     expect(hs).toEqual([
-      { sbd: '10010201', ten: 'Nguyễn Văn An', lop: '10A1' },
-      { sbd: '10010202', ten: 'Trần Thị Bình', lop: '10A1' },
-      { sbd: '10010203', ten: 'Lê Minh Châu', lop: '10A1' },
+      { sbd: '10010201', ten: 'Nguyễn Văn An', lop: '10A1', ngaySinh: '15/03/2010' },
+      { sbd: '10010202', ten: 'Trần Thị Bình', lop: '10A1', ngaySinh: '02/07/2010' },
+      { sbd: '10010203', ten: 'Lê Minh Châu', lop: '10A1', ngaySinh: '28/11/2009' },
     ])
+  })
+})
+
+describe('docDapAnQM — đáp án QR app QM', () => {
+  const payload = '[["1112","B","B","B","C","A","B","B","B","C","C","D","B","S","D","D","D","D","D","S","S",-1.5,3.4,-1.5,3.2],["1114","A","D","D","A","B","B","B","C","A","C","C","D","D","S","D","S","D","D","S","D",2.91,1,2.91,9.6]]'
+  it('parse nhiều mã: P1 chữ + P2 ý Đ/S theo nhóm 4 + P3 số', () => {
+    const ds = docDapAnQM(payload)!
+    expect(ds.length).toBe(2)
+    expect(ds[0].ma).toBe('1112')
+    expect(ds[0].p1).toEqual(['B', 'B', 'B', 'C', 'A', 'B', 'B', 'B', 'C', 'C', 'D', 'B'])
+    expect(ds[0].p2).toEqual(['SĐĐĐ', 'ĐĐSS']) // 8 ý → 2 câu × 4 ý, D→Đ
+    expect(ds[0].p3).toEqual(['-1,5', '3,4', '-1,5', '3,2'])
+    expect(ds[1].p1.length).toBe(12)
+    expect(ds[1].p2).toEqual(['ĐSĐS', 'ĐĐSĐ'])
+  })
+  it('chuỗi không phải JSON [[..]] → null', () => {
+    expect(docDapAnQM('0101 ABCD')).toBeNull()
+    expect(docDapAnQM('[1,2,3]')).toBeNull()
   })
 })
 
@@ -113,10 +131,10 @@ describe('vietBangDiemAoa', () => {
     const docC: DocCham = { sbd: '001', ma: '101', p1: ['A', 'B', 'C', 'D'], p2: [['S', 'Đ', 'Đ', 'Đ']], p3: ['0,5', '12'] }
     const phieu: Phieu[] = [{ id: 'p1', baiId: 'b', stt: 1, nguon: 'tep', luc: 1, ok: true, kq: { doc: docC, can: [], o: [] }, sua: {} }]
     const { bangDiem, chiTiet } = vietBangDiemAoa(b, phieu, p => chamPhieu(b, p, 0))
-    expect(bangDiem[0]).toEqual(['STT', 'SBD', 'Họ và tên', 'Lớp', 'Mã đề', 'Phần I', 'Phần II', 'Phần III', 'Tự luận', 'Tổng', 'Ghi chú'])
+    expect(bangDiem[0]).toEqual(['STT', 'SBD', 'Họ và tên', 'Ngày sinh', 'Lớp', 'Mã đề', 'Phần I', 'Phần II', 'Phần III', 'Tự luận', 'Tổng', 'Ghi chú'])
     expect(bangDiem[1][0]).toBe(1)
-    expect(bangDiem[1][5]).toBe(1) // Phần I = 4×.25
-    expect(bangDiem[1][9]).toBe(1 + 1 + 1) // tổng = 1 + 1(P2 4 ý) + 1(P3 2×.5)
+    expect(bangDiem[1][6]).toBe(1) // Phần I = 4×.25
+    expect(bangDiem[1][10]).toBe(1 + 1 + 1) // tổng = 1 + 1(P2 4 ý) + 1(P3 2×.5)
     const footer = bangDiem[bangDiem.length - 1][0] as string
     expect(footer).toContain('Chamthi365')
     expect(footer).not.toContain('Thái Minh Nguyên')
