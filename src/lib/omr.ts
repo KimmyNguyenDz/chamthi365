@@ -676,8 +676,9 @@ function chamMot(a: AnhXam, c: AnhXam, o: number, e: Khuon, i: Dom[]): KqOmr {
     ...f.flatMap(t => t.map(n => [...n.so, ...(n.tru !== undefined ? [n.tru] : []), ...(n.phay !== undefined ? [n.phay] : [])])),
   ].map(t => Math.max(...t.map(n => r[n].damTru))).filter(t => t > .22).sort((t, n) => t - n)
   const H = P.length >= 3 ? P[P.length >> 1] : .6
-  const et = Math.max(.25, Math.min(.45, .55 * H))
-  const K = Math.max(.15, Math.min(.3, .36 * H))
+  const hs = (e as { heSoNguong?: number }).heSoNguong ?? 1
+  const et = Math.max(.25 * hs, Math.min(.45, .55 * H * hs))
+  const K = Math.max(.15 * hs, Math.min(.3, .36 * H * hs))
   const W = .05
   const L = new Map<string, number>(), st = new Map<string, number>()
   for (const t of w.keys()) {
@@ -730,10 +731,12 @@ function chamMot(a: AnhXam, c: AnhXam, o: number, e: Khuon, i: Dom[]): KqOmr {
     return t.length ? t[t.length >> 1] : .2
   })()
   const Ft = new Set<number>()
-  for (const [t, n] of p) {
-    const l = n.filter(k => r[k].damTru < W && !kt(r[k])).map(k => r[k].vien).sort((k, D) => k - D)
-    if (l.length >= 3 && l[l.length >> 1] < .35 * Rt) Ft.add(t)
-  }
+  // chỉ so khối lệch khi vành ô đủ rõ — phiếu in nhạt (vienToiThieu thấp) thì bỏ qua
+  if (Rt > 3 * ((e as { vienToiThieu?: number }).vienToiThieu ?? .05))
+    for (const [t, n] of p) {
+      const l = n.filter(k => r[k].damTru < W && !kt(r[k])).map(k => r[k].vien).sort((k, D) => k - D)
+      if (l.length >= 3 && l[l.length >> 1] < .35 * Rt) Ft.add(t)
+    }
   const at: string[] = []
   const Mt = (t: number[], n: string, l: boolean) => {
     const k = t.filter(b => r[b].tt === 'to')
@@ -879,7 +882,7 @@ export function nanAnh(a: Uint8ClampedArray | Uint8Array, c: number, o: number, 
 
 // export nội bộ — ngam/nhan-dang workers dùng lại cùng pipeline
 export const _noi = {
-  xam, thuNho, chuanNen, timDom, gomDom, nanPhieu, homography,
+  xam, thuNho, chuanNen, timDom, gomDom, nanPhieu, homography, chamMot,
   mau, chieuH, tiLe, xepGoc, dienTich, trungVi, toHop, NGUONG, sangVongNgoai,
 }
 export type { Dom as _Dom }
