@@ -1,21 +1,27 @@
-import { useEffect, useMemo, useState } from 'react'
-import type { KqCham, OCham } from '../types'
+import { useEffect, useState } from 'react'
+import type { CanXem, KqCham, OCham } from '../types'
 
 export const MAU_O: Record<OCham['trangThai'], string> = {
   dung: '#36c46b', sai: '#ef4b55', mo: '#ff9a3d', xam: '#9aa0bd',
   tay: '#3a8ef0', trung: '#ffcf3f', trong: '#d5daea',
 }
 
+/** Ô trên phiếu có nằm trong chỗ cần xem không (so theo phan/q/i — p2: i ô = ý*2+cột ĐS) */
+export const laCam = (o: OCham, can: CanXem[]): boolean =>
+  can.some(c => c.phan === o.phan
+    && (c.q === undefined || c.q === o.q)
+    && (c.i === undefined || (o.phan === 'p2' ? Math.floor((o.i ?? 0) / 2) === c.i : c.i === o.i)))
+
 /**
  * Ảnh phiếu đã nắn + overlay SVG các ô đã đọc.
- * xanh=đúng · đỏ=sai · cam=cần xem · lam=sửa tay · vàng=trùng
+ * xanh=đúng · đỏ=sai · cam=cần xem (viền nhấp nháy) · lam=sửa tay · vàng=trùng
  * Bấm vào ô → onBam(o).
  */
 export function AnhPhieu({ anh, kq, trang, can, onBam }: {
   anh: Blob | null
   kq: KqCham
   trang: [number, number]
-  can: Set<string>
+  can: CanXem[]
   onBam?: (o: OCham) => void
 }) {
   const [url, setUrl] = useState('')
@@ -34,16 +40,23 @@ export function AnhPhieu({ anh, kq, trang, can, onBam }: {
         : <div className="giua mo" style={{ padding: 60 }}>Không có ảnh nắn — phiếu này chấm bằng bản cũ</div>}
       <svg viewBox={`0 0 ${w} ${h}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
         {kq.o.map((o, i) => {
-          const khoa = `${o.phan}:${o.q ?? ''}:${o.i ?? ''}`
-          const cam = can.has(khoa)
+          const cam = can.length > 0 && laCam(o, can)
           const mau = cam ? 'var(--orange)' : MAU_O[o.trangThai]
           return (
-            <circle key={i} cx={o.x} cy={o.y} r={(o.r ?? 8) * 1.6}
-              fill={o.to || cam ? mau : 'none'}
-              fillOpacity={cam ? 0.55 : o.trangThai === 'trong' ? 0.25 : 0.7}
-              stroke={mau} strokeWidth={Math.max(1.5, (o.r ?? 8) * 0.18)}
-              style={{ cursor: onBam ? 'pointer' : 'default' }}
-              onClick={onBam ? () => onBam(o) : undefined} />
+            <g key={i}>
+              {cam && (
+                <circle cx={o.x} cy={o.y} r={(o.r ?? 8) * 3.1}
+                  fill="none" stroke="var(--orange)" strokeWidth={Math.max(2, (o.r ?? 8) * 0.22)} strokeDasharray="5 4">
+                  <animate attributeName="stroke-opacity" values="1;0.25;1" dur="1.1s" repeatCount="indefinite" />
+                </circle>
+              )}
+              <circle cx={o.x} cy={o.y} r={(o.r ?? 8) * 1.6}
+                fill={o.to || cam ? mau : 'none'}
+                fillOpacity={cam ? 0.55 : o.trangThai === 'trong' ? 0.25 : 0.7}
+                stroke={mau} strokeWidth={Math.max(1.5, (o.r ?? 8) * 0.18)}
+                style={{ cursor: onBam ? 'pointer' : 'default' }}
+                onClick={onBam ? () => onBam(o) : undefined} />
+            </g>
           )
         })}
       </svg>

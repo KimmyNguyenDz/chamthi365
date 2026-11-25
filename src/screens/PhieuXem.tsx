@@ -11,7 +11,7 @@ import { canhBaoPhieu } from '../lib/phieu'
 import { thongBao } from '../lib/thongBao'
 import { anhPhieuCham } from '../lib/xuatPhieu'
 import { taiTep } from '../lib/tai'
-import type { Bai, DocCham, OCham, Phieu } from '../types'
+import type { Bai, CanXem, DocCham, OCham, Phieu } from '../types'
 import { AlertTriangle, Download } from 'lucide-react'
 
 type SuaLoai = { o: OCham } | null
@@ -45,7 +45,7 @@ export function PhieuXem({ id }: { id: string }) {
 
   const doc = useMemo(() => (p?.kq ? docHieuLuc(p) : null), [p])
   const diem = useMemo(() => (bai && doc ? chamPhieu(bai, doc, diemTuLuan(p!)) : null), [bai, doc, p])
-  const can = useMemo(() => new Set(p?.kq?.can.map(c => `${c.phan}:${c.q ?? ''}:${c.i ?? ''}`) ?? []), [p])
+  const can = useMemo(() => p?.kq?.can ?? [], [p])
   const hs = useMemo(() => (bai && doc ? timHocSinh(bai, doc.sbd)[0] : null), [bai, doc])
   const goiMa = useMemo(() => (bai && doc ? timMaDe(bai, doc.ma) : []), [bai, doc])
   const soSua = useMemo(() => {
@@ -85,6 +85,14 @@ export function PhieuXem({ id }: { id: string }) {
     if (o.phan === 'sbd') setSuaSbd(true)
     else if (o.phan === 'ma') setSuaMa(true)
     else setSua(o.phan === 'p1' || o.phan === 'p2' || o.phan === 'p3' ? { o } : null)
+  }
+
+  const moSua = (c: CanXem) => {
+    if (c.phan === 'sbd') { setSuaSbd(true); return }
+    if (c.phan === 'ma') { setSuaMa(true); return }
+    const o = p.kq!.o.find(x => x.phan === c.phan && x.q === c.q
+      && (c.i === undefined || (x.phan === 'p2' ? Math.floor((x.i ?? 0) / 2) === c.i : x.i === c.i)))
+    if (o) setSua({ o })
   }
 
   const taiAnh = async () => {
@@ -129,7 +137,18 @@ export function PhieuXem({ id }: { id: string }) {
         )}
         {canhBao.map(w => <p key={w} className="trang-thai do" style={{ marginBottom: 0 }}><AlertTriangle size={14} /> {w}</p>)}
         {soSua > 0 && <p className="trang-thai xanh" style={{ marginBottom: 0 }}>✎ Đã sửa tay {soSua} chỗ — thay đổi được lưu ngay, điểm đã tính lại.</p>}
-        {p.kq!.can.length > 0 && <p className="trang-thai cam" style={{ marginBottom: 0 }}><AlertTriangle size={14} /> {p.kq!.can.length} chỗ máy chưa chắc — bấm vào ô cam trên phiếu để xác nhận.</p>}
+        {p.kq!.can.length > 0 && (
+          <div>
+            <p className="trang-thai cam" style={{ marginBottom: 4 }}><AlertTriangle size={14} /> {p.kq!.can.length} chỗ máy chưa chắc — ô cam nhấp nháy trên phiếu, hoặc bấm nhanh:</p>
+            <div className="hang" style={{ flexWrap: 'wrap', gap: 4 }}>
+              {p.kq!.can.map((c, i) => (
+                <button key={i} className="chip" style={{ borderColor: 'var(--orange)', color: 'var(--orange-d)' }} onClick={() => moSua(c)}>
+                  {c.phan === 'sbd' ? `SBD ${doc.sbd || '?'}` : c.phan === 'ma' ? `Mã đề ${doc.ma || '?'}` : c.phan === 'p1' ? `P.I câu ${c.q}` : c.phan === 'p2' ? `P.II câu ${c.q} ý ${'abcd'[c.i ?? 0]}` : c.phan === 'p3' ? `P.III câu ${c.q}` : c.loai}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </The>
 
       <div className="hang khoi" style={{ flexWrap: 'wrap' }}>
@@ -149,7 +168,7 @@ export function PhieuXem({ id }: { id: string }) {
 
       {/* Popup sửa ô P1/P2/P3 */}
       {sua && (
-        <PopupSua p={p} bai={bai} o={sua.o} doc={doc} onChon={(g) => ghiSua(sua.o.phan, sua.o.q, g)} onDong={() => setSua(null)} />
+        <PopupSua p={p} bai={bai} o={sua.o} doc={doc} onChon={(g) => ghiSua(sua.o.phan, (sua.o.q ?? 1) - 1, g)} onDong={() => setSua(null)} />
       )}
 
       {/* Popup sửa SBD */}
@@ -267,7 +286,7 @@ function PopupSua({ p, bai, o, doc, onChon, onDong }: {
   p: Phieu; bai: Bai; o: OCham; doc: ReturnType<typeof docHieuLuc>
   onChon: (g: string | null) => void; onDong: () => void
 }) {
-  const q = o.q ?? 0
+  const q = (o.q ?? 1) - 1 // OCham.q đánh số từ 1 → mảng doc 0-based
   const da = bai.dapAn.find(d => d.ma === doc.ma)
   const daDung = o.phan === 'p1' ? da?.p1[q] : o.phan === 'p2' ? da?.p2[q] : da?.p3[q]
   const suaKey = (o.phan + ':' + q)
