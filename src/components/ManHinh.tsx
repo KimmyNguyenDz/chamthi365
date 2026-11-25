@@ -1,5 +1,6 @@
 import type { PropsWithChildren, ReactNode } from 'react'
 import { useHash } from '../App'
+import { BarChart3, ClipboardList, Printer, Shuffle, UserCircle, Users } from 'lucide-react'
 
 const IcBai = (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -21,16 +22,35 @@ function TabDen({ to, ten, ic, bat }: { to: string; ten: string; ic: ReactNode; 
   return <a href={to} className={bat ? 'bat' : ''}>{ic}<span>{ten}</span></a>
 }
 
+const MENU = [
+  { to: '#/', ten: 'Bài chấm', ic: <ClipboardList size={19} />, bat: (h: string) => h === '#/' || h.startsWith('#/bai') || h.startsWith('#/tao') || h.startsWith('#/sua') || h.startsWith('#/cham') || h.startsWith('#/phieu') },
+  { to: '#/ket-qua', ten: 'Kết quả', ic: <BarChart3 size={19} />, bat: (h: string) => h.startsWith('#/ket-qua') },
+  { to: '#/danh-sach', ten: 'Học sinh', ic: <Users size={19} />, bat: (h: string) => h.startsWith('#/danh-sach') },
+  { to: '#/in-phieu', ten: 'In phiếu', ic: <Printer size={19} />, bat: (h: string) => h.startsWith('#/in-phieu') || h.startsWith('#/bai-mau') },
+  { to: '#/tron-de', ten: 'Trộn đề', ic: <Shuffle size={19} />, bat: (h: string) => h.startsWith('#/tron-de') },
+]
+
 /**
- * Khung màn hình chuẩn của app: header xanh trời + nội dung cuộn + tab bar dưới
- * (Bài chấm / Kết quả / Trộn đề) giống app gốc.
+ * Khung màn hình chuẩn: sidebar trái (desktop) / tab bar dưới (mobile)
+ * + header + nội dung cuộn.
  */
-export function ManHinh({ children, dau, tab = true }: PropsWithChildren<{ dau?: ReactNode; tab?: boolean }>) {
+export function ManHinh({ children, dau, tab = true, rong = false }: PropsWithChildren<{ dau?: ReactNode; tab?: boolean; rong?: boolean }>) {
   const h = useHash()
   return (
     <div className="mh">
-      {dau}
-      <div className="mh-noi">{children}</div>
+      <aside className="sb">
+        <a href="#/" className="sb-logo"><img src="/logo365.svg" alt="" width={30} height={30} /><span>Chamthi365</span></a>
+        <nav>
+          {MENU.map(m => <a key={m.to} href={m.to} className={m.bat(h) ? 'bat' : ''}>{m.ic}<span>{m.ten}</span></a>)}
+        </nav>
+        <div className="sb-chan">
+          <a href="#/tai-khoan" className={h.startsWith('#/tai-khoan') ? 'bat' : ''}><UserCircle size={19} /><span>Tài khoản</span></a>
+        </div>
+      </aside>
+      <div className="mh-phai">
+        {dau}
+        <div className={`mh-noi${rong ? ' rong' : ''}`}>{children}</div>
+      </div>
       {tab && (
         <nav className="tab" aria-label="Điều hướng">
           <TabDen to="#/" ten="Bài chấm" ic={IcBai} bat={h === '#/' || h.startsWith('#/bai') || h.startsWith('#/tao')} />

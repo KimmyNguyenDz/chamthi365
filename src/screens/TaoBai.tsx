@@ -35,6 +35,17 @@ function OSo({ nhan, v, on, buoc = 0.25, min = 0, max = 99 }: { nhan: string; v:
   )
 }
 
+function Stepper({ v, on, max }: { v: number; on: (n: number) => void; max: number }) {
+  const dat = (n: number) => on(Math.max(0, Math.min(max, n)))
+  return (
+    <span className="stepper">
+      <button type="button" onClick={() => dat(v - 1)}>−</button>
+      <span className="gia">{v}</span>
+      <button type="button" onClick={() => dat(v + 1)}>+</button>
+    </span>
+  )
+}
+
 export function TaoBai({ id }: { id?: string }) {
   const [b, setB] = useState<Hanh | null>(null)
   const [buoc, setBuoc] = useState(0)
@@ -130,8 +141,18 @@ export function TaoBai({ id }: { id?: string }) {
   if (id && !b) return <ManHinh><p className="mo giua khoi">Đang mở…</p></ManHinh>
 
   const de2 = buoc === 1 && m
+  const pills = ['Chọn phiếu', 'Thông tin & điểm', 'Danh sách HS']
   return (
-    <ManHinh dau={<Dau tieuDe={sua ? 'Sửa bài chấm' : 'Tạo bài chấm'} phu={`Bước ${buoc + 1} trên 3 · sửa lại được sau`} />}>
+    <ManHinh rong={buoc > 0} dau={<Dau tieuDe={sua ? 'Sửa bài chấm' : 'Tạo bài chấm'} phu="sửa lại được sau" />}>
+      {/* thanh bước dạng pills */}
+      <div className="buoc-pills">
+        {pills.map((t, i) => (
+          <span key={t} className={`buoc-pill ${i === buoc ? 'on' : i < buoc ? 'xong' : ''}`}>
+            <span className="n">{i < buoc ? '✓' : i + 1}</span>{t}
+          </span>
+        ))}
+      </div>
+
       {/* ---------- Bước 1: chọn mẫu phiếu ---------- */}
       {buoc === 0 && (
         <>
@@ -143,77 +164,91 @@ export function TaoBai({ id }: { id?: string }) {
         </>
       )}
 
-      {/* ---------- Bước 2: thông tin & điểm ---------- */}
+      {/* ---------- Bước 2: thông tin & điểm — 3 cột ---------- */}
       {de2 && m && b && (
         <>
-          <The pang className="khoi hang">
-            <img src={urlAnh(m)} alt="" style={{ width: 46, height: 62, objectFit: 'cover', border: '2px solid var(--ink)', borderRadius: 8 }} />
-            <div style={{ minWidth: 0 }}>
-              <b>{m.ten}</b>
-              <div className="mo nho">{nhanCau(m)} · {tomTat(m)}</div>
-            </div>
-            {!khoaMau && <Nut kieu="nhat" nho style={{ marginLeft: 'auto' }} onClick={() => setBuoc(0)}>Đổi</Nut>}
-            {khoaMau && <span className="mo nho" style={{ marginLeft: 'auto' }}>Đã chấm — không đổi mẫu</span>}
-          </The>
+          <div className="tb3">
+            <The className="khoi">
+              <h3 className="the-td"><span className="so-dau">1</span>Bài kiểm tra</h3>
+              <label className="o-nhan">Tên bài</label>
+              <input className="o-vao" value={b.ten} placeholder="Ví dụ: KT 15 phút Toán 10A1" onChange={e => setB({ ...b, ten: e.target.value })} />
 
-          <Muc>Thông tin</Muc>
-          <label className="o-nhan">Tên bài</label>
-          <input className="o-vao" value={b.ten} placeholder="Ví dụ: KT 15 phút Toán 10A1" onChange={e => setB({ ...b, ten: e.target.value })} />
+              <label className="o-nhan">Môn</label>
+              <div className="hang" style={{ flexWrap: 'wrap', gap: 6 }}>
+                {MON.map(x => <button key={x} className={`chip ${b.mon === x ? 'vang' : ''}`} onClick={() => setB({ ...b, mon: x })}>{x}</button>)}
+              </div>
+              <input className="o-vao" style={{ marginTop: 8 }} value={b.mon} placeholder="Hoặc gõ môn khác…" onChange={e => setB({ ...b, mon: e.target.value })} />
 
-          <label className="o-nhan">Môn</label>
-          <div className="hang" style={{ flexWrap: 'wrap' }}>
-            {MON.map(x => <button key={x} className={`chip ${b.mon === x ? 'bat' : ''}`} onClick={() => setB({ ...b, mon: x })}>{x}</button>)}
+              <label className="o-nhan">Lớp (cách nhau dấu phẩy)</label>
+              <input className="o-vao" value={b.lop} placeholder="10A1, 10A2…" onChange={e => setB({ ...b, lop: e.target.value })} />
+            </The>
+
+            <The className="khoi">
+              <h3 className="the-td"><span className="so-dau">2</span>Phiếu trả lời</h3>
+              <div className="hang" style={{ alignItems: 'flex-start' }}>
+                <img src={urlAnh(m)} alt="" style={{ width: 64, height: 88, objectFit: 'cover', border: '2px solid var(--ink)', borderRadius: 8 }} />
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <b className="nho">{m.ten}</b>
+                  <div className="mo nho">{nhanCau(m)} · {tomTat(m)}</div>
+                  <div className="hang" style={{ marginTop: 8, flexWrap: 'wrap', gap: 6 }}>
+                    {!khoaMau && <Nut kieu="nhat" nho onClick={() => setBuoc(0)}>Đổi phiếu</Nut>}
+                    {khoaMau && <span className="mo nho">Đã chấm — không đổi mẫu</span>}
+                  </div>
+                </div>
+              </div>
+
+              {m.so_sbd > 0 && (
+                <label className="con-tat" style={{ marginTop: 10 }}>
+                  <input type="checkbox" checked={b.boSbd} onChange={e => setB({ ...b, boSbd: e.target.checked })} />
+                  <span className="nho">Phiếu không có lưới SBD (nhập tên tay khi chấm)</span>
+                </label>
+              )}
+
+              <label className="o-nhan">Số câu dùng (≤ số câu in trên phiếu)</label>
+              <div style={{ display: 'grid', gap: 8 }}>
+                {([['Phần I — trắc nghiệm', 'p1'], ['Phần II — đúng sai', 'p2'], ['Phần III — trả lời ngắn', 'p3']] as const).map(([nhan, k]) => (
+                  <div key={k} className="hang" style={{ justifyContent: 'space-between' }}>
+                    <span className="nho mo">{nhan} <span className="mo">(≤{soCauIn![k]})</span></span>
+                    <Stepper v={b.soCau[k]} max={soCauIn![k]} on={n => setB({ ...b, soCau: { ...b.soCau, [k]: n } })} />
+                  </div>
+                ))}
+              </div>
+            </The>
+
+            <The className="khoi">
+              <h3 className="the-td"><span className="so-dau">3</span>Cách tính điểm</h3>
+              <div className="hang" style={{ flexWrap: 'wrap', gap: 6, marginBottom: 4 }}>
+                {MAU_DIEM.map(x => (
+                  <button key={x.ma} className={`chip ${b.diem.mau === x.ma ? 'vang' : ''}`}
+                    onClick={() => setB({ ...b, diem: diemMau(x.ma, b.soCau) })}>{x.ten}</button>
+                ))}
+              </div>
+              <div className="hang" style={{ flexWrap: 'wrap' }}>
+                <OSo nhan="Điểm câu P.I" v={b.diem.p1} on={n => setB({ ...b, diem: { ...b.diem, p1: n } })} />
+                <OSo nhan="Điểm câu P.III" v={b.diem.p3} on={n => setB({ ...b, diem: { ...b.diem, p3: n } })} />
+                <OSo nhan="Tự luận" v={b.diem.tuLuan} on={n => setB({ ...b, diem: { ...b.diem, tuLuan: n } })} />
+                <OSo nhan="Trừ P.I sai" v={b.diem.truP1} on={n => setB({ ...b, diem: { ...b.diem, truP1: n } })} />
+                <OSo nhan="Làm tròn" v={b.diem.lamTron} buoc={0.05} on={n => setB({ ...b, diem: { ...b.diem, lamTron: n } })} />
+              </div>
+              <p className="mo nho">Phần II theo số ý đúng: {b.diem.p2.map((x, i) => `${i}ý=${x}`).join(' · ')}</p>
+              {(() => {
+                const d = b.diem
+                const td = b.soCau.p1 * d.p1 + b.soCau.p2 * (d.p2[4] ?? 0) + b.soCau.p3 * d.p3 + d.tuLuan
+                const tron = Math.round(td / d.lamTron) * d.lamTron
+                const khac = Math.abs(tron - 10) > 1e-9
+                return (
+                  <div className={`tong-bar ${khac ? 'khac' : ''}`}>
+                    <span>Tổng{khac ? ` — P.I ${b.soCau.p1}×${d.p1} + P.II ${b.soCau.p2}×${d.p2[4] ?? 0} + P.III ${b.soCau.p3}×${d.p3}` : ''}</span>
+                    <b>{dinhDangDiem(tron)} đ</b>
+                  </div>
+                )
+              })()}
+            </The>
           </div>
-          <input className="o-vao" style={{ marginTop: 8 }} value={b.mon} placeholder="Hoặc gõ môn khác…" onChange={e => setB({ ...b, mon: e.target.value })} />
-
-          <label className="o-nhan">Lớp (cách nhau dấu phẩy)</label>
-          <input className="o-vao" value={b.lop} placeholder="10A1, 10A2…" onChange={e => setB({ ...b, lop: e.target.value })} />
-
-          {m.so_sbd > 0 && (
-            <label className="con-tat" style={{ marginTop: 12 }}>
-              <input type="checkbox" checked={b.boSbd} onChange={e => setB({ ...b, boSbd: e.target.checked })} />
-              Phiếu không có lưới SBD (nhập tên tay khi chấm)
-            </label>
-          )}
-
-          <Muc>Số câu dùng (≤ số câu in trên phiếu)</Muc>
-          <div className="hang">
-            <OSo nhan={`Phần I (≤${soCauIn!.p1})`} v={b.soCau.p1} buoc={1} max={soCauIn!.p1} on={n => setB({ ...b, soCau: { ...b.soCau, p1: Math.min(n, soCauIn!.p1) } })} />
-            <OSo nhan={`Phần II (≤${soCauIn!.p2})`} v={b.soCau.p2} buoc={1} max={soCauIn!.p2} on={n => setB({ ...b, soCau: { ...b.soCau, p2: Math.min(n, soCauIn!.p2) } })} />
-            <OSo nhan={`Phần III (≤${soCauIn!.p3})`} v={b.soCau.p3} buoc={1} max={soCauIn!.p3} on={n => setB({ ...b, soCau: { ...b.soCau, p3: Math.min(n, soCauIn!.p3) } })} />
-          </div>
-
-          <Muc>Cách tính điểm</Muc>
-          <div className="hang" style={{ flexWrap: 'wrap', marginBottom: 10 }}>
-            {MAU_DIEM.map(x => (
-              <button key={x.ma} className={`chip ${b.diem.mau === x.ma ? 'bat' : ''}`}
-                onClick={() => setB({ ...b, diem: diemMau(x.ma, b.soCau) })}>{x.ten}</button>
-            ))}
-          </div>
-          <div className="hang" style={{ flexWrap: 'wrap' }}>
-            <OSo nhan="Điểm câu P.I" v={b.diem.p1} on={n => setB({ ...b, diem: { ...b.diem, p1: n } })} />
-            <OSo nhan="Điểm câu P.III" v={b.diem.p3} on={n => setB({ ...b, diem: { ...b.diem, p3: n } })} />
-            <OSo nhan="Tự luận" v={b.diem.tuLuan} on={n => setB({ ...b, diem: { ...b.diem, tuLuan: n } })} />
-            <OSo nhan="Trừ P.I sai" v={b.diem.truP1} on={n => setB({ ...b, diem: { ...b.diem, truP1: n } })} />
-            <OSo nhan="Làm tròn" v={b.diem.lamTron} buoc={0.05} on={n => setB({ ...b, diem: { ...b.diem, lamTron: n } })} />
-          </div>
-          <p className="mo nho">Phần II theo số ý đúng: {b.diem.p2.map((x, i) => `${i}ý=${x}`).join(' · ')}</p>
-          {(() => {
-            const d = b.diem
-            const td = b.soCau.p1 * d.p1 + b.soCau.p2 * (d.p2[4] ?? 0) + b.soCau.p3 * d.p3 + d.tuLuan
-            const tron = Math.round(td / d.lamTron) * d.lamTron
-            const khac = Math.abs(tron - 10) > 1e-9
-            return (
-              <p className={`trang-thai ${khac ? 'cam' : 'xanh'}`} style={{ marginTop: 2 }}>
-                ∑ Tổng điểm tối đa: <b>{dinhDangDiem(tron)}</b>
-                {khac ? ` — khác thang 10 (P.I ${b.soCau.p1}×${d.p1} + P.II ${b.soCau.p2}×${d.p2[4] ?? 0} + P.III ${b.soCau.p3}×${d.p3}${d.tuLuan ? ` + TL ${d.tuLuan}` : ''}), kiểm tra lại` : ' ✓'}
-              </p>
-            )
-          })()}
 
           <div className="hang khoi">
             <Nut kieu="nhat" onClick={() => setBuoc(0)}>Bước trước</Nut>
-            <Nut kieu="xanh" style={{ flex: 1 }} disabled={!b.ten.trim() && false} onClick={() => setBuoc(2)}>Tiếp</Nut>
+            <Nut kieu="xanh" style={{ flex: 1 }} onClick={() => setBuoc(2)}>Tiếp →</Nut>
           </div>
         </>
       )}
