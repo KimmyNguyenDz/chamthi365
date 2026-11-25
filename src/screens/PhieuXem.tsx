@@ -10,7 +10,7 @@ import { docHieuLuc, diemTuLuan } from '../lib/chamKq'
 import { canhBaoPhieu } from '../lib/phieu'
 import { thongBao } from '../lib/thongBao'
 import { anhPhieuCham } from '../lib/xuatPhieu'
-import { dsChiTiet } from '../lib/chiTiet'
+import { dsCham, dsChiTiet } from '../lib/chiTiet'
 import { taiTep } from '../lib/tai'
 import type { Bai, CanXem, DocCham, Khuon, OCham, Phieu } from '../types'
 import { AlertTriangle, Download } from 'lucide-react'
@@ -50,6 +50,8 @@ export function PhieuXem({ id }: { id: string }) {
   const can = useMemo(() => p?.kq?.can ?? [], [p])
   const hs = useMemo(() => (bai && doc ? timHocSinh(bai, doc.sbd)[0] : null), [bai, doc])
   const goiMa = useMemo(() => (bai && doc ? timMaDe(bai, doc.ma) : []), [bai, doc])
+  const da = useMemo(() => (bai && doc ? timDapAn(bai, doc.ma) : null), [bai, doc])
+  const nets = useMemo(() => (diem?.coDapAn && da && khuonObj && doc && p?.kq ? dsCham(p.kq.o, khuonObj, doc, da, diem) : undefined), [diem, da, khuonObj, p, doc])
   const soSua = useMemo(() => {
     const s = p?.sua ?? {}
     return Object.keys(s).reduce((n, k) => n + (typeof s[k as keyof typeof s] === 'object' ? Object.keys(s[k as keyof typeof s] as object).length : 1), 0)
@@ -99,7 +101,6 @@ export function PhieuXem({ id }: { id: string }) {
 
   const taiAnh = async () => {
     if (!anh) { thongBao('Phiếu này không có ảnh để xuất'); return }
-    const da = timDapAn(bai, doc.ma)
     const dong = [
       `${hs?.ten ?? 'Chưa nhận tên'} — SBD ${doc.sbd || '?'} · Mã đề ${doc.ma || '?'} · Điểm ${diem?.coDapAn ? dinhDangDiem(diem.tong) : '—'}`,
       `Phần I ${diem ? dinhDangDiem(diem.phan.p1) : '—'} · II ${diem ? dinhDangDiem(diem.phan.p2) : '—'} · III ${diem ? dinhDangDiem(diem.phan.p3) : '—'} — ✓ xanh đúng, ✗ đỏ sai — Chấm bằng Chamthi365`,
@@ -165,7 +166,7 @@ export function PhieuXem({ id }: { id: string }) {
       </div>
 
       {!anhGoc
-        ? <AnhPhieu anh={anh} kq={p.kq!} trang={trang} can={can} onBam={bamO} />
+        ? <AnhPhieu anh={anh} kq={p.kq!} trang={trang} can={can} nets={nets} onBam={bamO} />
         : <AnhPhieuGoc p={p} />}
 
       {diem?.coDapAn && <ChiTietCau bai={bai} doc={doc} diem={diem} />}
