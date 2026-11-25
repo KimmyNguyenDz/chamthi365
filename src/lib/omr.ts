@@ -758,8 +758,10 @@ function chamMot(a: AnhXam, c: AnhXam, o: number, e: Khuon, i: Dom[]): KqOmr {
     let chon = t.filter(b => r[b].tt === 'to'), you = false
     if (!chon.length) {
       const j = t.reduce((a2, b2) => (r[a2].damTru >= r[b2].damTru ? a2 : b2))
-      const m2 = Math.max(...t.filter(b => b !== j).map(b => r[b].damTru), 0)
-      if (r[j].damTru >= .06 && r[j].damTru >= 2.5 * m2) { chon = [j]; you = true }
+      const khac = t.filter(b => b !== j)
+      const con = khac.filter(b => r[b].tt !== 'tay')
+      const m2 = Math.max(...(con.length ? con : khac).map(b => r[b].damTru), 0)
+      if (r[j].damTru >= .06 && r[j].damTru >= 2.5 * m2 || r[j].damTru >= .12 && r[j].damTru >= 2 * m2) { chon = [j]; you = true }
     }
     const Q = D || N || you || t.some(b => r[b].tt === 'nghi' || Ft.has(r[b].khoi))
     if (Q) at.push(n)

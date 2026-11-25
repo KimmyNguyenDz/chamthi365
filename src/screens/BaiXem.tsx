@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Camera, FileText, BarChart3, AlertTriangle, XCircle } from 'lucide-react'
+import { Camera, FileText, BarChart3, AlertTriangle, XCircle, Trash2 } from 'lucide-react'
 import { Dau, ManHinh } from '../components/ManHinh'
 import { Nut, NutDen } from '../components/Nut'
 import { The, Muc } from '../components/The'
@@ -82,7 +82,18 @@ export function BaiXem({ id }: { id: string }) {
                   </div>
                   {cb.map(w => <div key={w} className="nho" style={{ color: 'var(--red-d)', fontWeight: 600 }}>⚠ {w}</div>)}
                 </span>
-                <b style={{ color: 'var(--green-d)', fontSize: 18 }}>{kq?.coDapAn ? dinhDangDiem(kq.tong) : '—'}</b>
+                <span className="hang" style={{ gap: 10 }}>
+                  <b style={{ color: 'var(--green-d)', fontSize: 18 }}>{kq?.coDapAn ? dinhDangDiem(kq.tong) : '—'}</b>
+                  <button
+                    title="Xóa phiếu này"
+                    style={{ border: 0, background: 'none', color: 'var(--red-d)', cursor: 'pointer', padding: 4 }}
+                    onClick={e => {
+                      e.preventDefault(); e.stopPropagation()
+                      const mo = p.ok ? `SBD ${docHieuLuc(p).sbd || '?'} · mã ${docHieuLuc(p).ma || '?'}` : 'không đọc được'
+                      if (confirm(`Xóa phiếu số ${p.stt} (${mo})?`)) xoaPhieu(p.id).then(() => setDs(d2 => d2.filter(x => x.id !== p.id)))
+                    }}
+                  ><Trash2 size={17} /></button>
+                </span>
               </div>
             </The>
           </a>
