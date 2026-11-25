@@ -1,6 +1,7 @@
 // Xuất ảnh phiếu đã chấm ra PNG: header điểm + ảnh nắn + nét bút chữa đúng/sai
 import type { DapAn, DocCham, KqCham, OCham } from '../types'
 import type { KqDiem } from './diem'
+import { dsChiTiet, type MucChiTiet } from './chiTiet'
 
 export const MAU_CHAM: Record<OCham['trangThai'], string> = {
   dung: '#2fae60', sai: '#e2444f', mo: '#f08a1d', xam: '#9aa0bd',
@@ -99,20 +100,69 @@ function veChua(c: CanvasRenderingContext2D, os: OCham[], dy: number, chua: { do
   })
 }
 
-/** Phiếu đã chấm → PNG: dòng đầu là tên/SBD/mã/điểm, dưới là ảnh phiếu có nét bút chữa */
+const CHIP_FS = 13, CHIP_PAD = 8, CHIP_GAP = 5, CHIP_H = 22
+
+const CHIP_MAU = (dung: boolean | null): [string, string, string] =>
+  dung === true ? ['#e4f6ec', '#1f8a4c', '#a9e2c0']
+    : dung === false ? ['#fde8e9', '#c53340', '#f2b4b8']
+      : ['#eef0f7', '#6b7394', '#dde1ee']
+
+/** Vẽ bảng chi tiết từng câu (chip xanh/đỏ/xám) — trả về y cuối. Chạy được trên ctx tạm để đo chiều cao. */
+function veChiTiet(c: CanvasRenderingContext2D, muc: MucChiTiet[], y0: number, w: number): number {
+  let y = y0 + 14
+  c.textBaseline = 'middle'
+  c.font = '800 15px sans-serif'
+  c.fillStyle = '#1b2340'
+  c.fillText('Chi tiết từng câu — xanh đúng · đỏ sai (→ đáp án) · xám bỏ trống', 22, y)
+  y += 18
+  for (const m of muc) {
+    c.font = '700 12px sans-serif'
+    c.fillStyle = '#5a6280'
+    c.fillText(m.tieu, 22, y + 8)
+    y += 20
+    let x = 22
+    c.font = `600 ${CHIP_FS}px sans-serif`
+    for (const ch of m.chips) {
+      const t = ch.txt + (ch.dung === false && ch.daDung ? ` →${ch.daDung}` : '')
+      const cw = c.measureText(t).width + CHIP_PAD * 2
+      if (x + cw > w - 22 && x > 22) { x = 22; y += CHIP_H + CHIP_GAP }
+      const [bg, fg, bd] = CHIP_MAU(ch.dung)
+      const r = 7
+      c.beginPath()
+      c.roundRect(x, y, cw, CHIP_H, r)
+      c.fillStyle = bg
+      c.fill()
+      c.strokeStyle = bd
+      c.lineWidth = 1.2
+      c.stroke()
+      c.fillStyle = fg
+      c.fillText(t, x + CHIP_PAD, y + CHIP_H / 2 + 1)
+      x += cw + CHIP_GAP
+    }
+    y += CHIP_H + 14
+  }
+  return y
+}
+
+/** Phiếu đã chấm → PNG: dòng đầu là tên/SBD/mã/điểm, dưới là ảnh phiếu có nét bút chữa + bảng chi tiết câu */
 export async function anhPhieuCham(
   anh: Blob, kq: KqCham, trang: [number, number], dongTieu: string[],
   chua?: { doc: DocCham; da: DapAn; diem: KqDiem },
 ): Promise<Blob> {
   const [w, h] = trang
   const caoDau = Math.max(64, Math.round(w * 0.085))
+  const muc = chua ? dsChiTiet(chua.doc, chua.da, chua.diem) : []
+  // đo chiều cao bảng chi tiết trên ctx tạm (resize canvas sẽ xoá nội dung)
+  const caoSau = muc.length
+    ? veChiTiet(document.createElement('canvas').getContext('2d')!, muc, 0, w) + 16
+    : 0
   const bmp = await createImageBitmap(anh)
   const cv = document.createElement('canvas')
   cv.width = w
-  cv.height = h + caoDau
+  cv.height = h + caoDau + caoSau
   const c = cv.getContext('2d')!
   c.fillStyle = '#ffffff'
-  c.fillRect(0, 0, w, h + caoDau)
+  c.fillRect(0, 0, w, h + caoDau + caoSau)
   c.fillStyle = '#1b2340'
   c.font = `800 ${Math.round(caoDau * 0.32)}px sans-serif`
   c.fillText(dongTieu[0] ?? '', 22, caoDau * 0.40, w - 44)
@@ -125,6 +175,7 @@ export async function anhPhieuCham(
   c.drawImage(bmp, 0, caoDau, w, h)
   if (chua) {
     veChua(c, kq.o, caoDau, chua)
+    veChiTiet(c, muc, caoDau + h, w)
   } else {
     for (const o of kq.o) {
       if (!o.to && o.trangThai === 'trong') continue

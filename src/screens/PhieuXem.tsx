@@ -10,6 +10,7 @@ import { docHieuLuc, diemTuLuan } from '../lib/chamKq'
 import { canhBaoPhieu } from '../lib/phieu'
 import { thongBao } from '../lib/thongBao'
 import { anhPhieuCham } from '../lib/xuatPhieu'
+import { dsChiTiet } from '../lib/chiTiet'
 import { taiTep } from '../lib/tai'
 import type { Bai, CanXem, DocCham, OCham, Phieu } from '../types'
 import { AlertTriangle, Download } from 'lucide-react'
@@ -226,7 +227,6 @@ function AnhPhieuGoc({ p }: { p: Phieu }) {
 function ChiTietCau({ bai, doc, diem }: { bai: Bai; doc: DocCham; diem: KqDiem }) {
   const da = timDapAn(bai, doc.ma)
   if (!da) return null
-  const fmtDa = (x?: string) => (!x ? '' : x === '*' ? '∗' : x)
   const chip = (k: string, dung: boolean | null, txt: string, daDung: string) => (
     <span key={k} title={dung === false ? `Đáp án: ${daDung}` : undefined} style={{
       padding: '3px 7px', borderRadius: 8, fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap',
@@ -235,40 +235,17 @@ function ChiTietCau({ bai, doc, diem }: { bai: Bai; doc: DocCham; diem: KqDiem }
       border: `1px solid ${dung === true ? '#a9e2c0' : dung === false ? '#f2b4b8' : '#dde1ee'}`,
     }}>{txt}{dung === false && daDung ? <span style={{ opacity: .85 }}> →{daDung}</span> : ''}</span>
   )
-  const nDung1 = diem.p1.filter(x => x.dung === true).length
-  const nDung2 = diem.p2.reduce((n, x) => n + x.y.filter(Boolean).length, 0)
-  const nDung3 = diem.p3.filter(x => x.dung === true).length
   return (
     <The pang className="khoi">
       <b className="nho">Chi tiết từng câu — xanh đúng · đỏ sai (→ đáp án) · xám bỏ trống</b>
-      {doc.p1.length > 0 && (
-        <>
-          <p className="mo nho" style={{ margin: '8px 0 4px' }}><b>Phần I</b> — đúng {nDung1}/{doc.p1.length} câu</p>
+      {dsChiTiet(doc, da, diem).map(m => (
+        <div key={m.tieu}>
+          <p className="mo nho" style={{ margin: '10px 0 4px' }}><b>{m.tieu.split(' — ')[0]}</b> — {m.tieu.split(' — ')[1]}</p>
           <div className="hang" style={{ flexWrap: 'wrap', gap: 4 }}>
-            {doc.p1.map((g, v) => chip(`p1${v}`, diem.p1[v]?.dung ?? null, `${v + 1}.${g || '—'}`, fmtDa(da.p1[v])))}
+            {m.chips.map((ch, i) => chip(`${m.tieu}${i}`, ch.dung, ch.txt, ch.daDung))}
           </div>
-        </>
-      )}
-      {doc.p2.length > 0 && (
-        <>
-          <p className="mo nho" style={{ margin: '10px 0 4px' }}><b>Phần II</b> — đúng {nDung2}/{doc.p2.length * 4} ý</p>
-          <div className="hang" style={{ flexWrap: 'wrap', gap: 4 }}>
-            {doc.p2.flatMap((g, v) => [0, 1, 2, 3].map(i => {
-              const dung = diem.p2[v]?.y[i] ?? null
-              const x = g[i] ?? ''
-              return chip(`p2${v}${i}`, dung, `${v + 1}${'abcd'[i]}:${x || '—'}`, da.p2[v]?.[i] ?? '')
-            }))}
-          </div>
-        </>
-      )}
-      {doc.p3.length > 0 && (
-        <>
-          <p className="mo nho" style={{ margin: '10px 0 4px' }}><b>Phần III</b> — đúng {nDung3}/{doc.p3.length} câu</p>
-          <div className="hang" style={{ flexWrap: 'wrap', gap: 4 }}>
-            {doc.p3.map((g, v) => chip(`p3${v}`, diem.p3[v]?.dung ?? null, `${v + 1}.${g || '—'}`, fmtDa(da.p3[v])))}
-          </div>
-        </>
-      )}
+        </div>
+      ))}
     </The>
   )
 }

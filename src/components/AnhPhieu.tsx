@@ -40,7 +40,7 @@ export function AnhPhieu({ anh, kq, trang, can, onBam }: {
         : <div className="giua mo" style={{ padding: 60 }}>Không có ảnh nắn — phiếu này chấm bằng bản cũ</div>}
       <svg viewBox={`0 0 ${w} ${h}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
         {kq.o.map((o, i) => {
-          const cam = can.length > 0 && laCam(o, can)
+          const cam = can.length > 0 && laCam(o, can) && o.trangThai !== 'trong'
           const mau = cam ? 'var(--orange)' : MAU_O[o.trangThai]
           return (
             <g key={i}>
