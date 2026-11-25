@@ -1,5 +1,5 @@
 // Xuất ảnh phiếu đã chấm ra PNG: header điểm + ảnh nắn + nét bút chữa đúng/sai
-import type { DapAn, DocCham, KqCham, OCham } from '../types'
+import type { DapAn, DocCham, Khuon, KqCham, OCham } from '../types'
 import type { KqDiem } from './diem'
 import { dsChiTiet, type MucChiTiet } from './chiTiet'
 
@@ -45,22 +45,36 @@ function vietDapAn(c: CanvasRenderingContext2D, x: number, y: number, r: number,
   c.fillText(`→ ${txt}`, x, y)
 }
 
-/** Chữa trên phiếu: ✓xanh ô đúng, ✗đỏ ô sai + ✓xanh đáp án đúng; P.III sai ghi đáp số */
-function veChua(c: CanvasRenderingContext2D, os: OCham[], dy: number, chua: { doc: DocCham; da: DapAn; diem: KqDiem }) {
+/** Chữa trên phiếu: ✓xanh ô đúng, ✗đỏ ô sai + ✓xanh đáp án đúng; P.III sai ghi đáp số.
+ *  Vị trí lấy theo khuôn (P.I/II) + ô đã lưu (P.III) — đúng cả phiếu chấm trước khi sửa toạ độ. */
+function veChua(c: CanvasRenderingContext2D, os: OCham[], khuon: Khuon, dy: number, chua: { doc: DocCham; da: DapAn; diem: KqDiem }) {
   const { doc, da, diem } = chua
-  const oTai = (phan: OCham['phan'], q: number, i: number) => os.find(x => x.phan === phan && x.q === q && x.i === i)
-  const R = (o?: OCham) => (o?.r ?? 8) * 1.7
+  const r = (khuon.r ?? 3.4) * 1.7
+  const [W, H] = khuon.trang
+  const trongKhuon = (o: OCham) => o.x > 0 && o.x < W && o.y > 0 && o.y < H
+  const kpos = (phan: 'p1' | 'p2' | 'p3', q: number, i: number): [number, number] | null => {
+    if (phan === 'p1') return khuon.p1[q - 1]?.o[i] ?? null
+    if (phan === 'p2') return khuon.p2[q - 1]?.y[i >> 1]?.[i & 1] ?? null
+    const ci = Math.floor(i / 12), j = i % 12, col = khuon.p3[q - 1]?.c[ci]
+    return !col ? null : j < 10 ? col.so[j] ?? null : j === 10 ? col.tru ?? null : col.phay ?? null
+  }
+  const pos = (phan: 'p1' | 'p2' | 'p3', q: number, i: number) => {
+    const o = os.find(x => x.phan === phan && x.q === q && x.i === i)
+    return o && trongKhuon(o) ? [o.x, o.y] as [number, number] : kpos(phan, q, i)
+  }
 
   // Phần I: đúng → ✓ ô đã tô; sai → ✗ ô đã tô + ✓ ô đáp án đúng
   doc.p1.forEach((g, v) => {
     const dung = diem.p1[v]?.dung
     if (dung == null) return
-    const osQ = os.filter(x => x.phan === 'p1' && x.q === v + 1)
-    for (const o of osQ.filter(x => x.to)) (dung ? tickV : tickX)(c, o.x, o.y + dy, R(o))
+    for (const ch of g) {
+      const p = pos('p1', v + 1, 'ABCDEFGH'.indexOf(ch))
+      if (p) (dung ? tickV : tickX)(c, p[0], p[1] + dy, r)
+    }
     if (!dung) for (const ch of da.p1[v] ?? '') {
       if (ch === '*') continue
-      const o = oTai('p1', v + 1, 'ABCD'.indexOf(ch))
-      if (o) tickV(c, o.x, o.y + dy, R(o))
+      const p = pos('p1', v + 1, 'ABCDEFGH'.indexOf(ch))
+      if (p) tickV(c, p[0], p[1] + dy, r)
     }
   })
 
@@ -70,15 +84,18 @@ function veChua(c: CanvasRenderingContext2D, os: OCham[], dy: number, chua: { do
       const dung = diem.p2[v]?.y[y]
       if (dung == null) continue
       const chon = g[y]
-      const dungDa = da.p2[v]?.[y]
-      const iTo = chon === 'Đ' ? y * 2 : chon === 'S' ? y * 2 + 1 : -1
-      if (iTo >= 0) {
-        const o = oTai('p2', v + 1, iTo)
-        if (o) (dung ? tickV : tickX)(c, o.x, o.y + dy, R(o))
+      if (chon === 'Đ' || chon === 'ĐS') {
+        const p = pos('p2', v + 1, y * 2)
+        if (p) (dung ? tickV : tickX)(c, p[0], p[1] + dy, r)
       }
+      if (chon === 'S' || chon === 'ĐS') {
+        const p = pos('p2', v + 1, y * 2 + 1)
+        if (p) (dung ? tickV : tickX)(c, p[0], p[1] + dy, r)
+      }
+      const dungDa = da.p2[v]?.[y]
       if (!dung && (dungDa === 'Đ' || dungDa === 'S')) {
-        const o = oTai('p2', v + 1, y * 2 + (dungDa === 'Đ' ? 0 : 1))
-        if (o) tickV(c, o.x, o.y + dy, R(o))
+        const p = pos('p2', v + 1, y * 2 + (dungDa === 'Đ' ? 0 : 1))
+        if (p) tickV(c, p[0], p[1] + dy, r)
       }
     }
   })
@@ -87,15 +104,16 @@ function veChua(c: CanvasRenderingContext2D, os: OCham[], dy: number, chua: { do
   doc.p3.forEach((g, v) => {
     const dung = diem.p3[v]?.dung
     if (dung == null) return
-    const osQ = os.filter(x => x.phan === 'p3' && x.q === v + 1)
     if (dung) {
-      for (const o of osQ.filter(x => x.to)) tickV(c, o.x, o.y + dy, R(o))
+      for (const o of os.filter(x => x.phan === 'p3' && x.q === v + 1 && x.to && trongKhuon(x)))
+        tickV(c, o.x, o.y + dy, r)
     } else {
       const daSo = da.p3[v]
-      if (!daSo || daSo === '*') return
-      const top = Math.min(...osQ.map(x => x.y), Infinity)
-      const trai = Math.min(...osQ.map(x => x.x), Infinity)
-      if (isFinite(top)) vietDapAn(c, trai - R(osQ[0]) * 0.8, top - R(osQ[0]) * 3.2, R(osQ[0]), daSo)
+      const cols = khuon.p3[v]?.c
+      if (!daSo || daSo === '*' || !cols?.length) return
+      const cuoi = cols[cols.length - 1]
+      const yMoc = cols[0].tru?.[1] ?? cols[0].so[0][1]
+      vietDapAn(c, cuoi.so[0][0] + r * 1.4, yMoc - r * 3.2, r, daSo)
     }
   })
 }
@@ -147,7 +165,7 @@ function veChiTiet(c: CanvasRenderingContext2D, muc: MucChiTiet[], y0: number, w
 /** Phiếu đã chấm → PNG: dòng đầu là tên/SBD/mã/điểm, dưới là ảnh phiếu có nét bút chữa + bảng chi tiết câu */
 export async function anhPhieuCham(
   anh: Blob, kq: KqCham, trang: [number, number], dongTieu: string[],
-  chua?: { doc: DocCham; da: DapAn; diem: KqDiem },
+  chua?: { doc: DocCham; da: DapAn; diem: KqDiem; khuon: Khuon },
 ): Promise<Blob> {
   const [w, h] = trang
   const caoDau = Math.max(64, Math.round(w * 0.085))
@@ -174,25 +192,8 @@ export async function anhPhieuCham(
   c.beginPath(); c.moveTo(0, caoDau - 2); c.lineTo(w, caoDau - 2); c.stroke()
   c.drawImage(bmp, 0, caoDau, w, h)
   if (chua) {
-    veChua(c, kq.o, caoDau, chua)
+    veChua(c, kq.o, chua.khuon, caoDau, chua)
     veChiTiet(c, muc, caoDau + h, w)
-  } else {
-    for (const o of kq.o) {
-      if (!o.to && o.trangThai === 'trong') continue
-      const mau = MAU_CHAM[o.trangThai]
-      const r = (o.r ?? 8) * 1.6
-      c.beginPath()
-      c.arc(o.x, o.y + caoDau, r, 0, Math.PI * 2)
-      c.lineWidth = Math.max(2, (o.r ?? 8) * 0.2)
-      c.strokeStyle = mau
-      c.stroke()
-      if (o.to) {
-        c.globalAlpha = 0.72
-        c.fillStyle = mau
-        c.fill()
-        c.globalAlpha = 1
-      }
-    }
   }
   return new Promise((res, rej) => cv.toBlob(b => (b ? res(b) : rej(new Error('Không vẽ được ảnh'))), 'image/png'))
 }

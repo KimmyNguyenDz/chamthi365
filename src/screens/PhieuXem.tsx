@@ -12,7 +12,7 @@ import { thongBao } from '../lib/thongBao'
 import { anhPhieuCham } from '../lib/xuatPhieu'
 import { dsChiTiet } from '../lib/chiTiet'
 import { taiTep } from '../lib/tai'
-import type { Bai, CanXem, DocCham, OCham, Phieu } from '../types'
+import type { Bai, CanXem, DocCham, Khuon, OCham, Phieu } from '../types'
 import { AlertTriangle, Download } from 'lucide-react'
 
 type SuaLoai = { o: OCham } | null
@@ -22,6 +22,7 @@ export function PhieuXem({ id }: { id: string }) {
   const [bai, setBai] = useState<Bai | null>(null)
   const [anh, setAnh] = useState<Blob | null>(null)
   const [trang, setTrang] = useState<[number, number]>([1000, 1400])
+  const [khuonObj, setKhuonObj] = useState<Khuon | null>(null)
   const [anhGoc, setAnhGoc] = useState(false)
   const [sua, setSua] = useState<SuaLoai>(null)
   const [suaSbd, setSuaSbd] = useState(false)
@@ -37,7 +38,7 @@ export function PhieuXem({ id }: { id: string }) {
       const b = await layBai(x.baiId)
       if (b) {
         setBai(b)
-        try { const k = await taiKhuon(b.khuon); setTrang(k.trang) } catch { }
+        try { const k = await taiKhuon(b.khuon); setTrang(k.trang); setKhuonObj(k) } catch { }
       }
       setAnh((await layAnh(x.id)) ?? null)
       setDs((await dsPhieu(x.baiId)).filter(y => y.ok).sort((a, b2) => a.stt - b2.stt))
@@ -103,7 +104,7 @@ export function PhieuXem({ id }: { id: string }) {
       `${hs?.ten ?? 'Chưa nhận tên'} — SBD ${doc.sbd || '?'} · Mã đề ${doc.ma || '?'} · Điểm ${diem?.coDapAn ? dinhDangDiem(diem.tong) : '—'}`,
       `Phần I ${diem ? dinhDangDiem(diem.phan.p1) : '—'} · II ${diem ? dinhDangDiem(diem.phan.p2) : '—'} · III ${diem ? dinhDangDiem(diem.phan.p3) : '—'} — ✓ xanh đúng, ✗ đỏ sai — Chấm bằng Chamthi365`,
     ]
-    const chua = diem?.coDapAn && da ? { doc, da, diem } : undefined
+    const chua = diem?.coDapAn && da && khuonObj ? { doc, da, diem, khuon: khuonObj } : undefined
     const blob = await anhPhieuCham(anh, p.kq!, trang, dong, chua)
     taiTep(blob, `phieu-${p.stt}-sbd-${doc.sbd || 'ko'}-cham.png`)
     thongBao('Đã tải ảnh phiếu đã chấm')

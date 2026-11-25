@@ -52,7 +52,7 @@ export function AnhPhieu({ anh, kq, trang, can, onBam }: {
               )}
               <circle cx={o.x} cy={o.y} r={(o.r ?? 8) * 1.6}
                 fill={o.to || cam ? mau : 'none'}
-                fillOpacity={cam ? 0.55 : o.trangThai === 'trong' ? 0.25 : 0.7}
+                fillOpacity={cam ? 0.4 : 0.25}
                 stroke={mau} strokeWidth={Math.max(1.5, (o.r ?? 8) * 0.18)}
                 style={{ cursor: onBam ? 'pointer' : 'default' }}
                 onClick={onBam ? () => onBam(o) : undefined} />

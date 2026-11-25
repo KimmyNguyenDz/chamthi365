@@ -12,13 +12,14 @@ import { anhPhieuCham } from '../lib/xuatPhieu'
 import { taiTep } from '../lib/tai'
 import { thongBao } from '../lib/thongBao'
 import { khuon as taiKhuon } from '../lib/thuvien'
-import type { Bai, Phieu } from '../types'
+import type { Bai, Khuon, Phieu } from '../types'
 
 export function BaiXem({ id }: { id: string }) {
   const [bai, setBai] = useState<Bai | null>(null)
   const [ds, setDs] = useState<Phieu[]>([])
   const [khong, setKhong] = useState(false)
   const [trang, setTrang] = useState<[number, number]>([1000, 1400])
+  const [khuonObj, setKhuonObj] = useState<Khuon | null>(null)
   const [dangTai, setDangTai] = useState(false)
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export function BaiXem({ id }: { id: string }) {
       if (!b) { setKhong(true); return }
       setBai(b)
       setDs((await dsPhieu(id)).sort((a, x) => x.stt - a.stt || x.luc - a.luc))
-      try { const k = await taiKhuon(b.khuon); setTrang(k.trang) } catch { }
+      try { const k = await taiKhuon(b.khuon); setTrang(k.trang); setKhuonObj(k) } catch { }
     })
   }, [id])
 
@@ -71,7 +72,7 @@ export function BaiXem({ id }: { id: string }) {
           `${hs?.ten ?? 'Chưa nhận tên'} — SBD ${doc.sbd || '?'} · Mã đề ${doc.ma || '?'} · Điểm ${diem.coDapAn ? dinhDangDiem(diem.tong) : '—'}`,
           `Phần I ${dinhDangDiem(diem.phan.p1)} · II ${dinhDangDiem(diem.phan.p2)} · III ${dinhDangDiem(diem.phan.p3)} — ✓ xanh đúng, ✗ đỏ sai — Chấm bằng Chamthi365`,
         ]
-        const blob = await anhPhieuCham(anh, p.kq!, trang, dong, diem.coDapAn && da ? { doc, da, diem } : undefined)
+        const blob = await anhPhieuCham(anh, p.kq!, trang, dong, diem.coDapAn && da && khuonObj ? { doc, da, diem, khuon: khuonObj } : undefined)
         let ten = `${sach(hs?.ten || 'Chua nhan ten')}-${sach(doc.sbd || `stt${p.stt}`)}.png`
         let d = 2
         while (daDung.has(ten)) ten = ten.replace(/\.png$/, `-${d++}.png`)
