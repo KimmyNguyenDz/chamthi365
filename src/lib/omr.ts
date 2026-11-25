@@ -125,7 +125,7 @@ function mau(a: AnhXam, c: number, o: number): number {
 
 // ---------- tìm đốm đen (mốc) ----------
 
-const NGUONG = [{ nguong: [105], nenSang: false }, { nguong: [135, 160], nenSang: true }]
+const NGUONG = [{ nguong: [105], nenSang: false }, { nguong: [135, 160], nenSang: true }, { nguong: [150, 185], nenSang: true }]
 
 /** Độ sáng vòng ngoài đốm — lọc đốm nằm trên nền tối */
 function sangVongNgoai(a: AnhXam, c: Dom): number {
