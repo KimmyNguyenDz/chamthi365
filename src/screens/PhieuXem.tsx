@@ -97,11 +97,13 @@ export function PhieuXem({ id }: { id: string }) {
 
   const taiAnh = async () => {
     if (!anh) { thongBao('Phiếu này không có ảnh để xuất'); return }
+    const da = timDapAn(bai, doc.ma)
     const dong = [
       `${hs?.ten ?? 'Chưa nhận tên'} — SBD ${doc.sbd || '?'} · Mã đề ${doc.ma || '?'} · Điểm ${diem?.coDapAn ? dinhDangDiem(diem.tong) : '—'}`,
-      `Phần I ${diem ? dinhDangDiem(diem.phan.p1) : '—'} · II ${diem ? dinhDangDiem(diem.phan.p2) : '—'} · III ${diem ? dinhDangDiem(diem.phan.p3) : '—'} — ô xanh đúng, ô đỏ sai — Chấm bằng Chamthi365`,
+      `Phần I ${diem ? dinhDangDiem(diem.phan.p1) : '—'} · II ${diem ? dinhDangDiem(diem.phan.p2) : '—'} · III ${diem ? dinhDangDiem(diem.phan.p3) : '—'} — ✓ xanh đúng, ✗ đỏ sai — Chấm bằng Chamthi365`,
     ]
-    const blob = await anhPhieuCham(anh, p.kq!, trang, dong)
+    const chua = diem?.coDapAn && da ? { doc, da, diem } : undefined
+    const blob = await anhPhieuCham(anh, p.kq!, trang, dong, chua)
     taiTep(blob, `phieu-${p.stt}-sbd-${doc.sbd || 'ko'}-cham.png`)
     thongBao('Đã tải ảnh phiếu đã chấm')
   }

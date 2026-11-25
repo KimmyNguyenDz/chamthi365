@@ -1,24 +1,32 @@
 import { useEffect, useState } from 'react'
-import { Camera, FileText, BarChart3, AlertTriangle, XCircle, Trash2 } from 'lucide-react'
+import { Camera, FileText, BarChart3, AlertTriangle, XCircle, Trash2, Download } from 'lucide-react'
+import JSZip from 'jszip'
 import { Dau, ManHinh } from '../components/ManHinh'
 import { Nut, NutDen } from '../components/Nut'
 import { The, Muc } from '../components/The'
-import { dsPhieu, layBai, xoaBai, xoaPhieu } from '../lib/db'
-import { chamPhieu, dinhDangDiem } from '../lib/diem'
+import { dsPhieu, layAnh, layBai, xoaBai, xoaPhieu } from '../lib/db'
+import { chamPhieu, dinhDangDiem, timDapAn, timHocSinh } from '../lib/diem'
 import { docHieuLuc, diemTuLuan } from '../lib/chamKq'
 import { canhBaoPhieu } from '../lib/phieu'
+import { anhPhieuCham } from '../lib/xuatPhieu'
+import { taiTep } from '../lib/tai'
+import { thongBao } from '../lib/thongBao'
+import { khuon as taiKhuon } from '../lib/thuvien'
 import type { Bai, Phieu } from '../types'
 
 export function BaiXem({ id }: { id: string }) {
   const [bai, setBai] = useState<Bai | null>(null)
   const [ds, setDs] = useState<Phieu[]>([])
   const [khong, setKhong] = useState(false)
+  const [trang, setTrang] = useState<[number, number]>([1000, 1400])
+  const [dangTai, setDangTai] = useState(false)
 
   useEffect(() => {
     layBai(id).then(async b => {
       if (!b) { setKhong(true); return }
       setBai(b)
       setDs((await dsPhieu(id)).sort((a, x) => x.stt - a.stt || x.luc - a.luc))
+      try { const k = await taiKhuon(b.khuon); setTrang(k.trang) } catch { }
     })
   }, [id])
 
@@ -44,6 +52,39 @@ export function BaiXem({ id }: { id: string }) {
     location.hash = '#/'
   }
 
+  const sach = (s: string) => s.replace(/[\\/:*?"<>|]/g, '').trim()
+  const taiTat = async () => {
+    if (dangTai) return
+    setDangTai(true)
+    try {
+      const zip = new JSZip()
+      const daDung = new Set<string>()
+      let n = 0
+      for (const p of ds.filter(x => x.ok && x.kq)) {
+        const anh = await layAnh(p.id)
+        if (!anh) continue
+        const doc = docHieuLuc(p)
+        const diem = chamPhieu(bai, doc, diemTuLuan(p))
+        const da = timDapAn(bai, doc.ma)
+        const hs = timHocSinh(bai, doc.sbd)[0]
+        const dong = [
+          `${hs?.ten ?? 'Chưa nhận tên'} — SBD ${doc.sbd || '?'} · Mã đề ${doc.ma || '?'} · Điểm ${diem.coDapAn ? dinhDangDiem(diem.tong) : '—'}`,
+          `Phần I ${dinhDangDiem(diem.phan.p1)} · II ${dinhDangDiem(diem.phan.p2)} · III ${dinhDangDiem(diem.phan.p3)} — ✓ xanh đúng, ✗ đỏ sai — Chấm bằng Chamthi365`,
+        ]
+        const blob = await anhPhieuCham(anh, p.kq!, trang, dong, diem.coDapAn && da ? { doc, da, diem } : undefined)
+        let ten = `${sach(hs?.ten || 'Chua nhan ten')}-${sach(doc.sbd || `stt${p.stt}`)}.png`
+        let d = 2
+        while (daDung.has(ten)) ten = ten.replace(/\.png$/, `-${d++}.png`)
+        daDung.add(ten)
+        zip.file(ten, blob)
+        n++
+      }
+      if (!n) { thongBao('Không có phiếu nào có ảnh để xuất'); return }
+      taiTep(await zip.generateAsync({ type: 'blob' }), `phieu-cham-${sach(bai.ten)}.zip`)
+      thongBao(`Đã tải ${n} phiếu đã chấm`)
+    } finally { setDangTai(false) }
+  }
+
   return (
     <ManHinh dau={<Dau tieuDe={bai.ten} phu={`${bai.mon} · ${bai.lop.join(', ')}`} />}>
       <div className="hang khoi" style={{ flexWrap: 'wrap' }}>
@@ -66,7 +107,7 @@ export function BaiXem({ id }: { id: string }) {
         </The>
       )}
 
-      <Muc phai={<span className="mo nho">{ds.length} phiếu</span>}>Phiếu đã chấm</Muc>
+      <Muc phai={<span className="hang"><Nut kieu="nhat" nho onClick={taiTat} disabled={dangTai || !ds.length}><Download size={14} /> {dangTai ? 'Đang xuất…' : 'Tải tất cả'}</Nut><span className="mo nho">{ds.length} phiếu</span></span>}>Phiếu đã chấm</Muc>
       {ds.map(p => {
         const kq = p.ok && p.kq ? chamPhieu(bai, docHieuLuc(p), diemTuLuan(p)) : null
         const cb = p.ok && p.kq ? canhBao(p) : []
