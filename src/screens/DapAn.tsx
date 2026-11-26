@@ -209,7 +209,7 @@ export function DapAnScr({ id }: { id: string }) {
             <The className="khoi">
               <h2>Quét QR đáp án</h2>
               <p className="mo nho">Hỗ trợ QR Chamthi365 (nhiều phần quét liên tiếp) hoặc QR bất kỳ ghi sẵn chuỗi đáp án, vd “0101 ABCD ĐSĐS 0,5;1”. Chụp trực tiếp hoặc chọn ảnh QR có sẵn.</p>
-              <QuetQR onKq={khiQuetQR} onDong={() => setQuetQR(false)} />
+              <QuetQR key={cacPhan.current.size} onKq={khiQuetQR} onDong={() => setQuetQR(false)} />
             </The>
           </div>
         </div>

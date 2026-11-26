@@ -1,7 +1,9 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Dau, ManHinh } from '../components/ManHinh'
 import { Nut } from '../components/Nut'
 import { The, Muc } from '../components/The'
+import { MaQR } from '../components/MaQR'
+import { QuetQRDapAn } from '../components/QuetQRDapAn'
 import { docDocx, type DocGoc } from '../lib/tron/docx-doc'
 import { parseDe, type De } from '../lib/tron/parse'
 import { tronDe } from '../lib/tron/tron'
@@ -33,7 +35,18 @@ export function Tron() {
   const [chanTrang, setChanTrang] = useState(true)
   const [dangChay, setDangChay] = useState(false)
   const [ketQua, setKetQua] = useState<{ ma: string[] } | null>(null)
+  const [qrParts, setQrParts] = useState<string[]>([])
+  const [hienQR, setHienQR] = useState(false)
+  const [iQR, setIQR] = useState(0)
+  const [quetQR, setQuetQR] = useState(false)
   const inp = useRef<HTMLInputElement>(null)
+
+  // Slideshow QR đáp án để máy khác quét được hết các phần
+  useEffect(() => {
+    if (!hienQR || qrParts.length < 2) return
+    const t = setInterval(() => setIQR(i => (i + 1) % qrParts.length), 1400)
+    return () => clearInterval(t)
+  }, [hienQR, qrParts.length])
 
   const nap = async (f: File) => {
     setLoi(''); setDe(null); setGoc(null); setKetQua(null)
@@ -60,6 +73,7 @@ export function Tron() {
       teps.push({ ten: 'dap-an-nap-app.xlsx', duLieu: vietDapAnExcelBytes(baiGia) })
       // QR đáp án (nhiều phần nếu dài) — quét nạp thẳng vào app
       const parts = payloadDapAn(baiGia)
+      setQrParts(parts)
       for (const [i, p] of parts.entries()) {
         const b64 = (await sinhQR(p)).split(',')[1]
         teps.push({ ten: `qr-dap-an-${String(i + 1).padStart(2, '0')}.png`, duLieu: Uint8Array.from(atob(b64), c => c.charCodeAt(0)) })
@@ -147,9 +161,31 @@ export function Tron() {
             <Nut kieu="xanh" style={{ flex: 1 }} disabled={dangChay} onClick={chay}>{dangChay ? 'Đang trộn…' : `Trộn ${soDe} mã → tải ZIP`}</Nut>
             <Nut kieu="vang" onClick={taoBai}>Tạo bài chấm từ đề này</Nut>
           </div>
-          {ketQua && <p className="mo giua">Đã tải ZIP gồm {ketQua.ma.length} mã đề ({ketQua.ma.join(', ')}) + bảng đáp án + Excel nạp app.</p>}
+          {ketQua && (
+            <>
+              <p className="mo giua">Đã tải ZIP gồm {ketQua.ma.length} mã đề ({ketQua.ma.join(', ')}) + bảng đáp án + Excel nạp app.</p>
+              <div className="hang khoi">
+                <Nut kieu="nhat" nho style={{ flex: 1 }} onClick={() => setHienQR(true)}>Mã QR đáp án</Nut>
+                <Nut kieu="nhat" nho style={{ flex: 1 }} onClick={() => setQuetQR(true)}>Quét QR nạp đáp án</Nut>
+              </div>
+            </>
+          )}
         </>
       )}
+
+      {hienQR && qrParts.length > 0 && (
+        <div className="nen-phu" onClick={() => setHienQR(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ maxWidth: 460, width: '100%' }}>
+            <The className="khoi">
+              <h2>Đáp án QR — phần {iQR + 1}/{qrParts.length}</h2>
+              <div className="giua"><MaQR text={qrParts[iQR]} size={280} /></div>
+              <p className="mo">Mở Chamthi365 trên máy khác → “Quét QR nạp đáp án” → quét hết {qrParts.length} mã.</p>
+              <Nut kieu="nhat" onClick={() => setHienQR(false)}>Đóng</Nut>
+            </The>
+          </div>
+        </div>
+      )}
+      {quetQR && <QuetQRDapAn onDong={() => setQuetQR(false)} />}
     </ManHinh>
   )
 }

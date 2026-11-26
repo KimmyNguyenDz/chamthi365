@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CloudUpload, CircleHelp, ClipboardList, Shuffle, Printer, Users, Sparkles, Plus, Camera, FileText, AlertTriangle } from 'lucide-react'
+import { CloudUpload, CircleHelp, ClipboardList, Shuffle, Printer, Users, Sparkles, Plus, Camera, FileText, AlertTriangle, QrCode } from 'lucide-react'
 import { Dau, ManHinh } from '../components/ManHinh'
 import { Nut, NutDen } from '../components/Nut'
 import { The, Muc } from '../components/The'
@@ -8,6 +8,7 @@ import { chamPhieu, dinhDangDiem, diemMau } from '../lib/diem'
 import type { Bai, Phieu } from '../types'
 import { useDaXemHd } from './HuongDan'
 import { CaiApp } from '../components/CaiApp'
+import { QuetQRDapAn } from '../components/QuetQRDapAn'
 
 const THU = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy']
 
@@ -74,6 +75,7 @@ export function Home() {
   const [ds, setDs] = useState<ThongBai[] | null>(null)
   const daXem = useDaXemHd()
   const [dangMau, setDangMau] = useState(false)
+  const [quetQR, setQuetQR] = useState(false)
 
   useEffect(() => {
     let s = true
@@ -158,7 +160,9 @@ export function Home() {
         <a href="#/in-phieu" className="the-cong-cu"><Printer /><span className="txt">In phiếu · 819 mẫu</span></a>
         <a href="#/danh-sach" className="the-cong-cu"><Users /><span className="txt">DS lớp · nạp Excel</span></a>
         <a href="#/bai-mau" className="the-cong-cu"><Sparkles /><span className="txt">Bài mẫu · phiếu thật</span></a>
+        <button className="the-cong-cu" onClick={() => setQuetQR(true)}><QrCode /><span className="txt">Quét QR đáp án</span></button>
       </div>
+      {quetQR && <QuetQRDapAn onDong={() => setQuetQR(false)} />}
       <CaiApp />
     </ManHinh>
   )
