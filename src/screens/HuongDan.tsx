@@ -66,7 +66,7 @@ export function HuongDan() {
     return (
       <ManHinh tab={false} dau={
         <header className="mh-dau">
-          <img src="/logo365.svg" alt="" width="34" height="34" />
+          <img src="/logo.png" alt="" width="34" />
           <h1>Các nút trên màn hình chính</h1>
         </header>
       }>
@@ -93,7 +93,7 @@ export function HuongDan() {
   return (
     <ManHinh tab={false} dau={
       <header className="mh-dau">
-        <img src="/logo365.svg" alt="" width="34" height="34" />
+        <img src="/logo.png" alt="" width="34" />
         <h1>Hướng dẫn dùng Chamthi365</h1>
         <span className="phu">Thẻ {i + 1} trên {CAC_BUOC.length}</span>
       </header>

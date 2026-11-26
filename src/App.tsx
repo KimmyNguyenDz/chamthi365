@@ -44,7 +44,7 @@ function SapCo({ ten }: { ten: string }) {
   return (
     <ManHinh dau={
       <header className="mh-dau">
-        <img src="/logo365.svg" alt="" width="34" height="34" />
+        <img src="/logo.png" alt="" width="34" />
         <h1>{ten}</h1>
       </header>
     }>

@@ -39,7 +39,7 @@ export function ManHinh({ children, dau, tab = true, rong = false }: PropsWithCh
   return (
     <div className="mh">
       <aside className="sb">
-        <a href="#/" className="sb-logo"><img src="/logo365.svg" alt="" width={30} height={30} /><span>Chamthi365</span></a>
+        <a href="#/" className="sb-logo"><img src="/logo.png" alt="" width={30} /><span>Chamthi365</span></a>
         <nav>
           {MENU.map(m => <a key={m.to} href={m.to} className={m.bat(h) ? 'bat' : ''}>{m.ic}<span>{m.ten}</span></a>)}
         </nav>
@@ -67,7 +67,7 @@ export function Dau({ tieuDe, phu, phai }: { tieuDe: ReactNode; phu?: ReactNode;
   return (
     <header className="mh-dau">
       <a href="#/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: 'inherit', flex: 1, minWidth: 0 }}>
-        <img src="/logo365.svg" alt="" width="34" height="34" />
+        <img src="/logo.png" alt="" width="34" />
         <h1>{tieuDe}</h1>
       </a>
       {phu ? <span className="phu">{phu}</span> : null}
