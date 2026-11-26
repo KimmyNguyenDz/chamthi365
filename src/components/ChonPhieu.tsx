@@ -9,7 +9,9 @@ export function ChonPhieu({ chon, onChon, chiCoCau }: { chon?: string; onChon: (
   const [xem, setXem] = useState<MauPhieu | null>(null)
 
   useEffect(() => { mucLuc().then(setDs) }, [])
-  const loc = useMemo(() => (ds ? locMau(ds, f) : []), [ds, f])
+  const coLoc = !!(f.tim || f.ho || f.tu || f.phach || f.soCau)
+  // Mặc định chỉ hiện mẫu QR + CV1239 (thầy hay dùng) — các mẫu khác phải tìm/lọc mới thấy
+  const loc = useMemo(() => !ds ? [] : coLoc ? locMau(ds, f) : ds.filter(m => m.qr || /cv-1239/i.test(m.ma)), [ds, f, coLoc])
   const hos = useMemo(() => (ds ? dsHo(ds) : []), [ds])
   const soCaus = useMemo(() => (ds ? dsSoCau(ds) : []), [ds])
 
@@ -34,6 +36,7 @@ export function ChonPhieu({ chon, onChon, chiCoCau }: { chon?: string; onChon: (
         {soCaus.map(c => <Chip key={c} v={c} bat={f.soCau === c} on={() => setF(x => ({ ...x, soCau: x.soCau === c ? undefined : c }))} />)}
       </div>
 
+      {!coLoc && ds && <p className="mo nho" style={{ margin: '0 0 8px' }}>Đang hiện mẫu ưu tiên (QR + CV 1239) — gõ tìm hoặc chọn lọc để xem {ds.length} mẫu.</p>}
       {ds === null ? <p className="mo giua">Đang tải thư viện phiếu…</p> : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(148px,1fr))', gap: 10 }}>
           {loc.map(m => (

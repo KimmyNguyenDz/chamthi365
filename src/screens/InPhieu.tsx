@@ -37,7 +37,11 @@ export function InPhieu() {
     mucLuc().then(setTv).catch(() => { })
   }, [])
 
-  const tvLoc = locMau(tv.filter(m => !m.qr), { tim: tim || undefined, ho: ho || undefined }).slice(0, 60)
+  const coLoc = !!(tim.trim() || ho)
+  // Mặc định chỉ hiện mẫu CV1239 — mẫu khác phải gõ tìm/chọn họ mới thấy
+  const tvLoc = coLoc
+    ? locMau(tv.filter(m => !m.qr), { tim: tim || undefined, ho: ho || undefined }).slice(0, 60)
+    : tv.filter(m => !m.qr && /cv-1239/i.test(m.ma))
 
   const bai = dsBaiQR.find(b => b.id === baiId)
   const dsPhieu: { ma: string; sbd?: string }[] = bai
@@ -85,6 +89,7 @@ export function InPhieu() {
 
       <The>
         <h2>Thư viện phiếu gốc ({tv.filter(m => !m.qr).length} mẫu)</h2>
+        {!coLoc && <p className="mo nho">Đang hiện mẫu ưu tiên CV 1239 — gõ tìm hoặc chọn họ để xem {tv.filter(m => !m.qr).length} mẫu còn lại.</p>}
         <div className="hang" style={{ flexWrap: 'wrap' }}>
           <input className="o-vao" style={{ flex: 2, minWidth: 140 }} placeholder="Tìm mẫu (tên, họ, số câu)…" value={tim} onChange={e => setTim(e.target.value)} />
           <select className="o-vao" value={ho} onChange={e => setHo(e.target.value)}>
