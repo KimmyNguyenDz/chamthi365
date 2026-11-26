@@ -18,7 +18,7 @@ import { TaiKhoan } from './screens/TaiKhoan'
 import { BaiMau } from './screens/BaiMau'
 import { DanhSach } from './screens/DanhSach'
 import { khoiDongSync } from './lib/sync'
-import { coSupabase, laySession } from './lib/supabase'
+import { coSupabase, laySession, veSauOAuth } from './lib/supabase'
 import { ngheThongBao } from './lib/thongBao'
 import { Construction } from 'lucide-react'
 
@@ -71,10 +71,10 @@ function Toast() {
 
 export function App() {
   const h = useHash()
-  // Sau login OAuth: Supabase trả token trong hash (#access_token=...) — đợi client
-  // đọc + dọn hash xong rồi điều hướng về trang Tài khoản (hash cũ không khớp route → SapCo)
+  // Sau login OAuth: Supabase trả token/code trong URL (veSauOAuth cờ ở supabase.ts,
+  // code đã được dời lên query ở module level) — đợi client đổi code xong rồi về Tài khoản
   useEffect(() => {
-    if (!coSupabase || !/(access_token|refresh_token|error)=/.test(location.hash)) return
+    if (!coSupabase || !veSauOAuth) return
     laySession().finally(() => { location.hash = '#/tai-khoan' })
   }, [])
   const { ten, id } = tachRoute(h)

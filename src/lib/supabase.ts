@@ -6,6 +6,15 @@ const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 
 export const coSupabase = !!(URL_ && KEY)
 
+// OAuth redirect: gotrue có thể nhét ?code= vào sau fragment (do redirectTo có '#')
+// → dời lên query để supabase-js nhận PKCE; đánh dấu để App điều hướng về tai-khoan.
+// Chạy ở module top — trước khi sb() được tạo.
+export const veSauOAuth = typeof location !== 'undefined' && /(access_token|refresh_token|error)=|[?&]code=/.test(location.hash)
+if (veSauOAuth) {
+  const m = location.hash.match(/[?&]code=([^&]+)/)
+  if (m) history.replaceState(null, '', `${location.pathname}?code=${decodeURIComponent(m[1])}#/tai-khoan`)
+}
+
 let _sb: SupabaseClient | null = null
 export function sb(): SupabaseClient {
   if (!_sb) {
