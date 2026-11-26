@@ -18,7 +18,7 @@ import { TaiKhoan } from './screens/TaiKhoan'
 import { BaiMau } from './screens/BaiMau'
 import { DanhSach } from './screens/DanhSach'
 import { khoiDongSync } from './lib/sync'
-import { coSupabase, laySession, veSauOAuth, oauthTokens, loiOAuth, sb } from './lib/supabase'
+import { coSupabase, laySession, veSauOAuth, oauthTokens, loiOAuth, oauthUrlDebug, sb } from './lib/supabase'
 import { ngheThongBao, thongBao } from './lib/thongBao'
 import { Construction } from 'lucide-react'
 
@@ -85,12 +85,12 @@ export function App() {
         }
         if (s) thongBao('Đã đăng nhập Google')
         else {
-          const m = `Đăng nhập thất bại${loiOAuth ? `: ${loiOAuth}` : ' — thử lại'}`
+          const m = `Đăng nhập thất bại${loiOAuth ? `: ${loiOAuth}` : ' — thử lại'} | URL về: ${oauthUrlDebug}`
           sessionStorage.setItem('ct365-oauth-loi', m)
           thongBao(m)
         }
       } catch (e) {
-        const m = `Đăng nhập thất bại: ${e instanceof Error ? e.message : e}`
+        const m = `Đăng nhập thất bại: ${e instanceof Error ? e.message : e} | URL về: ${oauthUrlDebug}`
         sessionStorage.setItem('ct365-oauth-loi', m)
         thongBao(m)
       }

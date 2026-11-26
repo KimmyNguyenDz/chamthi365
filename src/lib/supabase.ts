@@ -13,10 +13,13 @@ export const veSauOAuth = typeof location !== 'undefined' && /(access_token|refr
 // Token implicit giữ lại ở module level — client có thể dọn hash trước khi App đọc
 export const oauthTokens = (() => {
   const h = typeof location === 'undefined' ? '' : location.hash
-  const at = h.match(/[?&]access_token=([^&]+)/)?.[1]
-  const rt = h.match(/[?&]refresh_token=([^&]+)/)?.[1]
+  const at = h.match(/[#?&]access_token=([^&]+)/)?.[1]
+  const rt = h.match(/[#?&]refresh_token=([^&]+)/)?.[1]
   return at ? { access_token: decodeURIComponent(at), refresh_token: decodeURIComponent(rt ?? '') } : null
 })()
+// URL callback thô (che giá trị) — debug khi đăng nhập hỏng
+export const oauthUrlDebug = typeof location === 'undefined' ? ''
+  : location.href.replace(/=([^&#]{4})[^&#]*/g, (_m, p) => `=${p}…`)
 // Lỗi OAuth trả trong URL (gotrue thường nuốt im) — để App hiện cho người dùng
 export const loiOAuth = (() => {
   if (typeof location === 'undefined') return null
@@ -45,7 +48,9 @@ export function dangNhapGoogle() {
   return sb().auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: location.origin + '/#/tai-khoan',
+      // KHÔNG đặt '#' trong redirectTo — gotrue nối token vào sau tạo URL hai '#'
+      // → param vỡ tên, SDK không đọc được. Về origin rồi App tự điều hướng.
+      redirectTo: location.origin + '/',
       scopes: 'https://www.googleapis.com/auth/drive.file',
       queryParams: { access_type: 'offline', prompt: 'consent' },
     },
