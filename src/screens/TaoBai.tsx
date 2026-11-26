@@ -5,7 +5,7 @@ import { The, Muc } from '../components/The'
 import { ChonPhieu } from '../components/ChonPhieu'
 import { QuetPhieu } from '../components/QuetPhieu'
 import { dsPhieu, layBai, luuBai, dsLop } from '../lib/db'
-import { MAU_DIEM, diemMau, dinhDangDiem } from '../lib/diem'
+import { diemMau, dinhDangDiem } from '../lib/diem'
 import { docDanhSachExcel, vietDanhSachExcelBytes } from '../lib/excel'
 import { taiTep } from '../lib/tai'
 import { thongBao } from '../lib/thongBao'
@@ -217,28 +217,56 @@ export function TaoBai({ id }: { id?: string }) {
 
             <The className="khoi">
               <h3 className="the-td"><span className="so-dau">3</span>Cách tính điểm</h3>
-              <div className="hang" style={{ flexWrap: 'wrap', gap: 6, marginBottom: 4 }}>
-                {MAU_DIEM.map(x => (
-                  <button key={x.ma} className={`chip ${b.diem.mau === x.ma ? 'vang' : ''}`}
-                    onClick={() => setB({ ...b, diem: diemMau(x.ma, b.soCau) })}>{x.ten}</button>
+              <div className="dd">
+                {([
+                  ['Phần I · trắc nghiệm', b.soCau.p1, b.diem.p1, (n: number) => ({ p1: n })],
+                  ['Phần II · đúng sai', b.soCau.p2, b.diem.p2[4] ?? 0, (n: number) => ({ p2: [0, +(n * .1).toFixed(4), +(n * .25).toFixed(4), +(n * .5).toFixed(4), n] })],
+                  ['Phần III · trả lời ngắn', b.soCau.p3, b.diem.p3, (n: number) => ({ p3: n })],
+                ] as const).map(([nhan, cau, diemCau, ghi], i) => (
+                  <div key={nhan} className="dd-dong">
+                    <span className="dd-p">{nhan}</span>
+                    <span className="dd-c">{cau} câu</span>
+                    <span className="dd-dau">×</span>
+                    <label className="dd-inp">
+                      <input className="o-vao" type="number" inputMode="decimal" step={0.05} min={0} max={9.99} value={diemCau}
+                        onChange={e => { const n = +e.target.value.replace(',', '.'); if (!isNaN(n)) setB({ ...b, diem: { ...b.diem, mau: 'tuy-chinh', ...ghi(n) } }) }} />
+                      <span>đ</span>
+                    </label>
+                    <span className="dd-dau">=</span>
+                    <b className="dd-t">{dinhDangDiem(cau * diemCau)}đ</b>
+                    {i === 1 && (
+                      <p className="dd-y">Mỗi câu theo số ý đúng — {b.diem.p2.slice(1).map((x, j) => `${j + 1}ý ${dinhDangDiem(x)}đ`).join(' · ')}</p>
+                    )}
+                  </div>
                 ))}
+                <div className="dd-dong">
+                  <span className="dd-p">Tự luận</span>
+                  <span className="dd-c">chấm tay</span>
+                  <span className="dd-dau">+</span>
+                  <label className="dd-inp">
+                    <input className="o-vao" type="number" inputMode="decimal" step={0.25} min={0} max={9.99} value={b.diem.tuLuan}
+                      onChange={e => { const n = +e.target.value.replace(',', '.'); if (!isNaN(n)) setB({ ...b, diem: { ...b.diem, mau: 'tuy-chinh', tuLuan: n } }) }} />
+                    <span>đ</span>
+                  </label>
+                  <span className="dd-dau">=</span>
+                  <b className="dd-t">{dinhDangDiem(b.diem.tuLuan)}đ</b>
+                </div>
               </div>
-              <div className="hang" style={{ flexWrap: 'wrap' }}>
-                <OSo nhan="Điểm câu P.I" v={b.diem.p1} on={n => setB({ ...b, diem: { ...b.diem, p1: n } })} />
-                <OSo nhan="Điểm câu P.III" v={b.diem.p3} on={n => setB({ ...b, diem: { ...b.diem, p3: n } })} />
-                <OSo nhan="Tự luận" v={b.diem.tuLuan} on={n => setB({ ...b, diem: { ...b.diem, tuLuan: n } })} />
-                <OSo nhan="Trừ P.I sai" v={b.diem.truP1} on={n => setB({ ...b, diem: { ...b.diem, truP1: n } })} />
-                <OSo nhan="Làm tròn" v={b.diem.lamTron} buoc={0.05} on={n => setB({ ...b, diem: { ...b.diem, lamTron: n } })} />
-              </div>
-              <p className="mo nho">Phần II theo số ý đúng: {b.diem.p2.map((x, i) => `${i}ý=${x}`).join(' · ')}</p>
+              <details className="dd-nc">
+                <summary>Nâng cao — điểm trừ &amp; làm tròn</summary>
+                <div className="hang" style={{ flexWrap: 'wrap', marginTop: 8 }}>
+                  <OSo nhan="Trừ câu P.I sai" v={b.diem.truP1} on={n => setB({ ...b, diem: { ...b.diem, truP1: n } })} />
+                  <OSo nhan="Làm tròn đến" v={b.diem.lamTron} buoc={0.05} on={n => setB({ ...b, diem: { ...b.diem, lamTron: n } })} />
+                </div>
+              </details>
               {(() => {
                 const d = b.diem
                 const td = b.soCau.p1 * d.p1 + b.soCau.p2 * (d.p2[4] ?? 0) + b.soCau.p3 * d.p3 + d.tuLuan
-                const tron = Math.round(td / d.lamTron) * d.lamTron
+                const tron = d.lamTron > 0 ? Math.round(td / d.lamTron) * d.lamTron : td
                 const khac = Math.abs(tron - 10) > 1e-9
                 return (
                   <div className={`tong-bar ${khac ? 'khac' : ''}`}>
-                    <span>Tổng{khac ? ` — P.I ${b.soCau.p1}×${d.p1} + P.II ${b.soCau.p2}×${d.p2[4] ?? 0} + P.III ${b.soCau.p3}×${d.p3}` : ''}</span>
+                    <span>Tổng{khac ? ` — P.I ${dinhDangDiem(b.soCau.p1 * d.p1)} + P.II ${dinhDangDiem(b.soCau.p2 * (d.p2[4] ?? 0))} + P.III ${dinhDangDiem(b.soCau.p3 * d.p3)} + TL ${dinhDangDiem(d.tuLuan)}` : ''}</span>
                     <b>{dinhDangDiem(tron)} đ</b>
                   </div>
                 )
