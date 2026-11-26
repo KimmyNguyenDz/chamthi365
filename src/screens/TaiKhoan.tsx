@@ -13,6 +13,7 @@ export function TaiKhoan() {
   const [msg, setMsg] = useState('')
   const [url, setUrl] = useState('')
   const [dangChay, setDangChay] = useState(false)
+  const [loiTruoc, setLoiTruoc] = useState(() => sessionStorage.getItem('ct365-oauth-loi'))
 
   useEffect(() => {
     if (!coSupabase) return
@@ -70,7 +71,12 @@ export function TaiKhoan() {
             <>
               <h2>Đồng bộ nhiều máy</h2>
               <p className="mo">Đăng nhập Google để đồng bộ bài chấm, phiếu và ảnh giữa các thiết bị. Không đăng nhập app vẫn chấm bình thường.</p>
-              <Nut kieu="xanh" onClick={() => dangNhapGoogle()}>Đăng nhập bằng Google</Nut>
+              {loiTruoc && (
+                <p style={{ background: '#fdecec', color: '#a00', padding: '8px 10px', borderRadius: 8, fontWeight: 600, fontSize: 13 }}>
+                  {loiTruoc}
+                </p>
+              )}
+              <Nut kieu="xanh" onClick={() => { sessionStorage.removeItem('ct365-oauth-loi'); dangNhapGoogle() }}>Đăng nhập bằng Google</Nut>
             </>
           )}
         </The>

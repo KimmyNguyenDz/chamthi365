@@ -83,9 +83,16 @@ export function App() {
           const r = await sb().auth.setSession(oauthTokens)
           s = r.data.session
         }
-        thongBao(s ? 'Đã đăng nhập Google' : `Đăng nhập thất bại${loiOAuth ? `: ${loiOAuth}` : ' — thử lại'}`)
+        if (s) thongBao('Đã đăng nhập Google')
+        else {
+          const m = `Đăng nhập thất bại${loiOAuth ? `: ${loiOAuth}` : ' — thử lại'}`
+          sessionStorage.setItem('ct365-oauth-loi', m)
+          thongBao(m)
+        }
       } catch (e) {
-        thongBao(`Đăng nhập thất bại: ${e instanceof Error ? e.message : e}`)
+        const m = `Đăng nhập thất bại: ${e instanceof Error ? e.message : e}`
+        sessionStorage.setItem('ct365-oauth-loi', m)
+        thongBao(m)
       }
       location.hash = '#/tai-khoan'
     })()
