@@ -9,7 +9,21 @@ export const coSupabase = !!(URL_ && KEY)
 // OAuth redirect: gotrue có thể nhét ?code= vào sau fragment (do redirectTo có '#')
 // → dời lên query để supabase-js nhận PKCE; đánh dấu để App điều hướng về tai-khoan.
 // Chạy ở module top — trước khi sb() được tạo.
-export const veSauOAuth = typeof location !== 'undefined' && /(access_token|refresh_token|error)=|[?&]code=/.test(location.hash)
+export const veSauOAuth = typeof location !== 'undefined' && /(access_token|refresh_token|error)(_|)=|[?&]code=/.test(location.hash)
+// Token implicit giữ lại ở module level — client có thể dọn hash trước khi App đọc
+export const oauthTokens = (() => {
+  const h = typeof location === 'undefined' ? '' : location.hash
+  const at = h.match(/[?&]access_token=([^&]+)/)?.[1]
+  const rt = h.match(/[?&]refresh_token=([^&]+)/)?.[1]
+  return at ? { access_token: decodeURIComponent(at), refresh_token: decodeURIComponent(rt ?? '') } : null
+})()
+// Lỗi OAuth trả trong URL (gotrue thường nuốt im) — để App hiện cho người dùng
+export const loiOAuth = (() => {
+  if (typeof location === 'undefined') return null
+  const g = (k: string) => (location.hash.match(new RegExp(`[?&]${k}=([^&]+)`)) || location.search.match(new RegExp(`[?&]${k}=([^&]+)`)))?.[1]
+  const e = g('error') || g('error_code')
+  return e ? decodeURIComponent((g('error_description') ?? e).replace(/\+/g, ' ')) : null
+})()
 if (veSauOAuth) {
   const m = location.hash.match(/[?&]code=([^&]+)/)
   if (m) history.replaceState(null, '', `${location.pathname}?code=${decodeURIComponent(m[1])}#/tai-khoan`)

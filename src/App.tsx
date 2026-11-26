@@ -18,8 +18,8 @@ import { TaiKhoan } from './screens/TaiKhoan'
 import { BaiMau } from './screens/BaiMau'
 import { DanhSach } from './screens/DanhSach'
 import { khoiDongSync } from './lib/sync'
-import { coSupabase, laySession, veSauOAuth } from './lib/supabase'
-import { ngheThongBao } from './lib/thongBao'
+import { coSupabase, laySession, veSauOAuth, oauthTokens, loiOAuth, sb } from './lib/supabase'
+import { ngheThongBao, thongBao } from './lib/thongBao'
 import { Construction } from 'lucide-react'
 
 const docHash = () => (typeof location === 'undefined' ? '#/' : location.hash || '#/')
@@ -72,10 +72,23 @@ function Toast() {
 export function App() {
   const h = useHash()
   // Sau login OAuth: Supabase trả token/code trong URL (veSauOAuth cờ ở supabase.ts,
-  // code đã được dời lên query ở module level) — đợi client đổi code xong rồi về Tài khoản
+  // code đã được dời lên query ở module level) — đợi client đổi code xong rồi về Tài khoản.
+  // Nếu session vẫn trống: thử setSession thủ công từ token implicit; báo lỗi nếu có.
   useEffect(() => {
     if (!coSupabase || !veSauOAuth) return
-    laySession().finally(() => { location.hash = '#/tai-khoan' })
+    ;(async () => {
+      try {
+        let s = await laySession()
+        if (!s && oauthTokens) {
+          const r = await sb().auth.setSession(oauthTokens)
+          s = r.data.session
+        }
+        thongBao(s ? 'Đã đăng nhập Google' : `Đăng nhập thất bại${loiOAuth ? `: ${loiOAuth}` : ' — thử lại'}`)
+      } catch (e) {
+        thongBao(`Đăng nhập thất bại: ${e instanceof Error ? e.message : e}`)
+      }
+      location.hash = '#/tai-khoan'
+    })()
   }, [])
   const { ten, id } = tachRoute(h)
   const man = () => {
